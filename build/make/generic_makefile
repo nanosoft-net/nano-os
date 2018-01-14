@@ -1,0 +1,289 @@
+####################################################################################################
+# \file generic_makefile
+# \brief  Generic makefile definitions
+# \author C. Jimenez
+# \copyright Copyright(c) 2017 Cedric Jimenez
+#
+# This file is part of Nano-ip.
+#
+# Nano-ip is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Nano-ip is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Nano-ip.  If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
+
+# Default options
+DISPLAY := no
+HEADER_DEP := yes
+
+
+# Default build target
+help: usage
+
+
+# Check if we display full command lines
+ifeq ($(DISPLAY), yes)
+    DISP = 
+    SILENT =
+else
+    DISP = @
+    SILENT = -s
+endif
+
+
+
+# Check if cygwin/make is used
+CYGWIN_ENV := $(findstring CYGWIN, $(shell uname))
+ifeq ("$(CYGWIN_ENV)","CYGWIN")
+    # Drive letter (windows cygwin only)
+    TEMP := $(patsubst /cygdrive/%,%, $(abspath $(ROOT_DIR)))
+    TEMP := $(subst /, ,$(TEMP))
+    DRIVE_LETTER := $(firstword $(TEMP))
+	
+	# Root dir (absolute path)
+    ROOT_DIR_ABS := $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(ROOT_DIR)))
+else
+    # Root dir (absolute path)
+    ROOT_DIR_ABS := $(abspath $(ROOT_DIR))
+endif
+
+# Default target if no target specified
+ifeq ("$(CYGWIN_ENV)","CYGWIN")
+    DEFAULT_TARGET := mingw-windows
+else
+    DEFAULT_TARGET := gcc-linux
+endif
+ifeq ($(origin TARGET), undefined)
+    TARGET := $(DEFAULT_TARGET)
+endif
+
+# Condition to build output target
+BUILD_OUTPUT_TARGET_CONDITION := $(or $(findstring yes,$(FORCE_BUILD)), $(findstring undefined,$(origin FORCE_BUILD_ONLY)), $(findstring no,$(FORCE_BUILD_ONLY)))
+
+# Compiler output directories and libs
+BUILD_OUTPUT_DIR := .
+
+ifeq ($(BUILD_TYPE), LIB)
+    PROJECT_NAME := lib$(PROJECT_NAME)
+    OUTPUT_NAME = $(PROJECT_NAME)$(COMP_LIB_EXTENSION)
+    BIN_DIR := $(BUILD_OUTPUT_DIR)/lib/$(TARGET)
+    OBJ_DIR := $(BUILD_OUTPUT_DIR)/obj/$(TARGET)
+    CLEAN_DIRS := $(BIN_DIR) $(OBJ_DIR)
+    COMMON_LIBS := PROJECT_REQUIRED
+    CLEAN_LIBS := CLEAN_PROJECT_REQUIRED CLEAN_LIB_REQUIRED
+else
+    PROJECT_NAME := $(PROJECT_NAME)
+    OUTPUT_NAME = $(PROJECT_NAME)$(COMP_EXE_EXTENSION)
+    BIN_DIR := $(BUILD_OUTPUT_DIR)/bin/$(TARGET)
+    OBJ_DIR := $(BUILD_OUTPUT_DIR)/obj/$(TARGET)
+    CLEAN_DIRS := $(BIN_DIR) $(OBJ_DIR)
+    COMMON_LIBS := PROJECT_REQUIRED
+    CLEAN_LIBS := CLEAN_PROJECT_REQUIRED CLEAN_LIB_REQUIRED
+endif
+
+# Target specific definitions
+include $(ROOT_DIR)/build/make/targets/$(TARGET).target
+
+# Sub-makefiles parameters
+SUBMAKE_PARAMS = TARGET=$(TARGET) HEADER_DEP=$(HEADER_DEP)
+
+# Project specific include directories
+PROJECT_INC_DIRS := 
+include makefile.inc
+
+# Source dirs
+ifeq ("$(CYGWIN_ENV)","CYGWIN")
+    SOURCE_DIRS_ABS := $(foreach SOURCE_DIR, $(SOURCE_DIRS), $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(SOURCE_DIR))))
+else
+    SOURCE_DIRS_ABS := $(foreach SOURCE_DIR, $(SOURCE_DIRS), $(abspath $(SOURCE_DIR)))
+endif
+
+# Source files
+ifeq ($(origin PROJECT_SOURCE_FILES), undefined)
+    SOURCE_FILES := $(foreach SOURCE_DIR, $(SOURCE_DIRS_ABS), $(wildcard $(SOURCE_DIR)/*.cpp) $(wildcard $(SOURCE_DIR)/*.c) $(wildcard $(SOURCE_DIR)/*.s) $(wildcard $(SOURCE_DIR)/*.S) $(wildcard $(SOURCE_DIR)/*.asm))
+    ifeq ("$(CYGWIN_ENV)","CYGWIN")
+        SOURCE_DIRS_ABS := $(SOURCE_DIRS_ABS) $(foreach ADDITIONNAL_SOURCE_FILE, $(ADDITIONNAL_SOURCE_FILES), $(dir $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(ADDITIONNAL_SOURCE_FILE)))))
+        SOURCE_FILES := $(SOURCE_FILES) $(foreach ADDITIONNAL_SOURCE_FILE, $(ADDITIONNAL_SOURCE_FILES), $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(ADDITIONNAL_SOURCE_FILE))))
+    else
+        SOURCE_DIRS_ABS := $(SOURCE_DIRS_ABS) $(foreach ADDITIONNAL_SOURCE_FILE, $(ADDITIONNAL_SOURCE_FILES), $(dir $(ADDITIONNAL_SOURCE_FILE)))
+        SOURCE_FILES := $(SOURCE_FILES) $(foreach ADDITIONNAL_SOURCE_FILE, $(ADDITIONNAL_SOURCE_FILES), $(abspath $(ADDITIONNAL_SOURCE_FILE)))
+    endif
+else
+    SOURCE_FILES := $(foreach PROJECT_SOURCE_FILE, $(PROJECT_SOURCE_FILES), $(abspath $(PROJECT_SOURCE_FILE)))
+endif
+
+# Object files
+OBJECT_FILES_TMP1 = $(foreach SOURCE_FILE, $(SOURCE_FILES), $(OBJ_DIR)/$(notdir $(patsubst %.cpp, %.o, $(SOURCE_FILE))))
+OBJECT_FILES_TMP2 = $(patsubst %.c, %.o, $(OBJECT_FILES_TMP1))
+OBJECT_FILES_TMP3 = $(patsubst %.s, %.o, $(OBJECT_FILES_TMP2))
+OBJECT_FILES_TMP4 = $(patsubst %.S, %.o, $(OBJECT_FILES_TMP3))
+OBJECT_FILES = $(patsubst %.asm, %.o, $(OBJECT_FILES_TMP4))
+
+# Check if we enable header file dependency check
+ifeq ($(HEADER_DEP), yes)
+	# Dependency files
+	DEP_FILES = $(patsubst %.o, %$(COMP_HEADER_DEP_GEN_FILE_EXTENSION), $(OBJECT_FILES))
+	ifneq ($(MAKECMDGOALS),clean)
+		ifneq ($(MAKECMDGOALS),clean+)
+			ifneq ($(strip $(BUILD_OUTPUT_TARGET_CONDITION)),)
+				-include $(DEP_FILES)
+			endif
+		endif
+	endif
+	
+	# Compiler flags
+	HEADER_DEP_FLAGS = $(COMP_HEADER_DEP_FLAGS)
+else
+	# Compiler flags
+	HEADER_DEP_FLAGS := 
+endif
+
+# Dependencies include directories
+LIB_REQUIRED_INC_FILES := $(foreach PROJECT_LIB, $(PROJECT_LIBS), $(ROOT_DIR)/build/$(PROJECT_LIB)/makefile.inc)
+DEPENDENCIES_INC_FILES := $(foreach PROJECT_DEPENDENCY, $(PROJECT_DEPENDENCIES), $(ROOT_DIR)/build/$(PROJECT_DEPENDENCY)/makefile.inc)
+include $(DEPENDENCIES_INC_FILES) $(LIB_REQUIRED_INC_FILES)
+
+# Include directories
+REMOVE_DUPLICATES = $(if $(1), $(firstword $(1)) $(call REMOVE_DUPLICATES,$(strip $(filter-out $(firstword $(1)), $(1)))))
+PROJECT_INC_DIRS := $(call REMOVE_DUPLICATES, $(PROJECT_INC_DIRS))
+PROJECT_INC_DIRS_WITH_I := $(foreach PROJECT_INC_DIR, $(PROJECT_INC_DIRS), -I$(PROJECT_INC_DIR))
+TARGET_INC_DIRS_WITH_I := $(foreach TARGET_INC_DIR, $(TARGET_INC_DIRS), -I$(TARGET_INC_DIR))
+INC_DIRS := $(PROJECT_INC_DIRS_WITH_I)                       \
+           $(TARGET_INC_DIRS_WITH_I)
+
+# Librairies directories
+LIB_DIRS := $(TARGET_LIB_DIRS)
+
+#Function to duplicate the librairie names in the command line (needed if libraries contains cross-dependencies)
+define TARGET_DUPLICATE_LIB_LIST
+$(foreach DUMMY, $(TARGET_DUP_COUNT), $(1))
+endef
+
+# Librairies
+PROJECT_LIBS_ABS := $(foreach PROJECT_LIB, $(PROJECT_LIBS), $(ROOT_DIR_ABS)/build/$(PROJECT_LIB)/lib/$(TARGET)/lib$(notdir $(PROJECT_LIB))$(COMP_LIB_EXTENSION))
+LIBS := $(PROJECT_LIBS_ABS)\
+		$(TARGET_LIBS)
+LIBS := $(LIBS) $(call TARGET_DUPLICATE_LIB_LIST,$(LIBS))
+
+
+# Dependencies to build the final binary
+BIN_DEPENDENCIES = $(TEST_TARGET) $(OBJECT_FILES) $(if $(findstring all+,$(MAKECMDGOALS)), $(PROJECT_LIBS_ABS) $(COMMON_LIBS))
+
+
+
+# Help
+help: usage
+
+usage:
+	@echo "Makefile usage"
+	@echo ""
+	@echo "Build targets:"
+	@echo "  all : incremental build of the current component"
+	@echo "  all+ : incremental build of the current component and all its dependencies"
+	@echo "  clean : clean the current component"
+	@echo "  clean+ : clean the current component and all its dependencies"
+	@echo ""
+	@echo "Makefile options:"
+	@echo "  DISPLAY : activate/deactive display of full command lines. Default:no"
+	@echo "  HEADER_DEP : activate/deactive generation of header depencies files (can slow down build on old computers). Default:yes"
+	@echo "  TARGET : target description file to use to compile the component. Default:$(DEFAULT_TARGET)"
+	@echo ""
+	@echo "Example of options usage:"
+	@echo "make all TARGET=$(DEFAULT_TARGET) HEADER_DEP=yes DISPLAY=no"
+
+
+# Rules for building the source files
+ifneq ($(strip $(BUILD_OUTPUT_TARGET_CONDITION)),)
+all: CREATE_OUT_DIRS $(BIN_DIR)/$(OUTPUT_NAME) $(TARGET_EXTRA_BUILD)
+	@echo "=> $(OUTPUT_NAME) build finished"
+else
+all:
+	@echo "Build not performed on $(OUTPUT_NAME)"
+endif
+	
+all+: all
+
+
+# Common targets
+.PHONY: CREATE_OUT_DIRS $(COMMON_LIBS) $(CLEAN_LIBS)
+
+CREATE_OUT_DIRS:
+	@echo "Starting $(OUTPUT_NAME) build..."
+	$(DISP)mkdir -p $(BIN_DIR)
+	$(DISP)mkdir -p $(OBJ_DIR)
+	
+PROJECT_REQUIRED: $(foreach PROJECT_DEPENDENCY, $(PROJECT_DEPENDENCIES), $(PROJECT_DEPENDENCY).build)
+
+
+# Generic rules for source files
+define GENERIC_RULE_TEMPLATE
+$(OBJ_DIR)/%.o: $(1)/%.cpp
+	@echo "Building $$(notdir $$<)..."
+	$(DISP)$(CXX) $(BUILD_INPUT_CMD) $$< $(BUILD_OUTPUT_CMD) $$@ $$(HEADER_DEP_FLAGS) $$(CXXFLAGS) $(INC_DIRS)
+$(OBJ_DIR)/%.o: $(1)/%.c
+	@echo "Building $$(notdir $$<)..."
+	$(DISP)$(CC) $(BUILD_INPUT_CMD) $$< $(BUILD_OUTPUT_CMD) $$@ $$(HEADER_DEP_FLAGS) $$(CFLAGS) $(INC_DIRS)
+$(OBJ_DIR)/%.o: $(1)/%.s
+	@echo "Building $$(notdir $$<)..."
+	$(DISP)$(AS) $(AS_BUILD_INPUT_CMD) $$< $(BUILD_OUTPUT_CMD) $$@ $$(ASFLAGS) $(INC_DIRS)
+$(OBJ_DIR)/%.o: $(1)/%.S
+	@echo "Building $$(notdir $$<)..."
+	$(DISP)$(AS) $(AS_BUILD_INPUT_CMD) $$< $(BUILD_OUTPUT_CMD) $$@ $$(ASFLAGS) $(INC_DIRS)
+$(OBJ_DIR)/%.o: $(1)/%.asm
+	@echo "Building $$(notdir $$<)..."
+	$(DISP)$(AS) $(AS_BUILD_INPUT_CMD) $$< $(BUILD_OUTPUT_CMD) $$@ $$(ASFLAGS) $(INC_DIRS)
+endef
+$(foreach SOURCE_DIR, $(SOURCE_DIRS_ABS), $(eval $(call GENERIC_RULE_TEMPLATE,$(SOURCE_DIR))))
+
+
+# Generic rules for required projects
+define PROJECT_REQUIRED_RULE_TEMPLATE
+$(1).build:
+	+$(DISP)$(MAKE) $(SILENT) -C $(ROOT_DIR)/build/$(1)/ $(SUBMAKE_PARAMS) all
+	
+$(1).clean:
+	+$(DISP)$(MAKE) $(SILENT) -C $(ROOT_DIR)/build/$(1)/ $(SUBMAKE_PARAMS) clean
+
+endef
+$(foreach PROJECT_DEPENDENCY, $(PROJECT_DEPENDENCIES), $(eval $(call PROJECT_REQUIRED_RULE_TEMPLATE,$(PROJECT_DEPENDENCY))))
+
+# Generic rules for required libs
+define LIB_REQUIRED_RULE_TEMPLATE
+$(1).build:
+	+$(DISP)$(MAKE) $(SILENT) -C $(ROOT_DIR)/build/$(1)/ $(SUBMAKE_PARAMS) all
+
+$(1).clean:
+	+$(DISP)$(MAKE) $(SILENT) -C $(ROOT_DIR)/build/$(1)/ $(SUBMAKE_PARAMS) clean
+
+$(ROOT_DIR_ABS)/build/$(PROJECT_LIB)/lib/$(TARGET)/lib$(notdir $(PROJECT_LIB))$(COMP_LIB_EXTENSION): $(1).build
+
+endef
+$(foreach PROJECT_LIB, $(PROJECT_LIBS), $(eval $(call LIB_REQUIRED_RULE_TEMPLATE,$(PROJECT_LIB))))
+
+	
+# Rules for cleaning
+ifneq ($(strip $(BUILD_OUTPUT_TARGET_CONDITION)),)
+clean:
+	@echo "Cleaning $(OUTPUT_NAME)..."
+	$(DISP)rm -rf $(CLEAN_DIRS)
+	@echo "Clean finished"
+else
+clean:
+	@echo "Cleaning not performed on $(OUTPUT_NAME)"
+endif
+
+clean+: $(CLEAN_LIBS) clean
+
+CLEAN_PROJECT_REQUIRED: $(foreach PROJECT_DEPENDENCY, $(PROJECT_DEPENDENCIES), $(PROJECT_DEPENDENCY).clean)
+
+CLEAN_LIB_REQUIRED: $(foreach PROJECT_LIB, $(PROJECT_LIBS), $(PROJECT_LIB).clean)
+
+

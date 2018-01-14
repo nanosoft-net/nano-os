@@ -1,0 +1,55 @@
+####################################################################################################
+# \file arm-iar.compiler
+# \brief IAR for ARM toolchain definitions
+# \author C. Jimenez
+# \copyright Copyright(c) 2017 Cedric Jimenez
+#
+# This file is part of Nano-OS.
+#
+# Nano-OS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Nano-OS is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
+
+
+# Compiler name
+COMPILER_NAME=iar
+
+# Toolchain path
+IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 6.5"
+TOOLCHAIN_PATH = $(IAR_PATH)/arm/bin
+AS = $(TOOLCHAIN_PATH)/iasmarm.exe
+CC = $(TOOLCHAIN_PATH)/iccarm.exe
+CXX = $(TOOLCHAIN_PATH)/iccarm.exe
+LD = $(TOOLCHAIN_PATH)/ilinkarm.exe
+AR = $(TOOLCHAIN_PATH)/iarchive.exe
+OBJCOPY = $(TOOLCHAIN_PATH)/iobjmanip.exe
+SIZE = $(TOOLCHAIN_PATH)/size.exe
+IAR_BUILD = $(IAR_PATH)/common/bin/IarBuild.exe
+
+# Build input command
+BUILD_INPUT_CMD=
+AS_BUILD_INPUT_CMD=
+
+# Build output command
+BUILD_OUTPUT_CMD=-o
+
+# Link output command
+LINK_OUTPUT_CMD=-o
+
+# Compiler output file extensions
+COMP_LIB_EXTENSION=.a
+COMP_EXE_EXTENSION=.elf
+
+# Compiler flag for header files dependency generation
+COMP_HEADER_DEP_FLAGS=--dependencies=m $(patsubst %.o, %.i, $@)
+COMP_HEADER_DEP_GEN_FILE_EXTENSION=.i

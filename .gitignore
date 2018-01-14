@@ -1,0 +1,12 @@
+.vs
+.settings
+**/obj
+**/lib
+**/bin
+**/Debug
+**/Release
+*.bak
+*.orig
+*.sdf
+*.opendb
+*.user

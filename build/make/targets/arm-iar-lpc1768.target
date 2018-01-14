@@ -1,0 +1,65 @@
+####################################################################################################
+# \file arm-iar-lpc1768.target
+# \brief LPC1768 with ARM IAR target definition
+# \author C. Jimenez
+# \copyright Copyright(c) 2017 Cedric Jimenez
+#
+# This file is part of Nano-OS.
+#
+# Nano-OS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Nano-OS is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
+
+# Include toolchain
+include $(ROOT_DIR)/build/make/compilers/arm-iar.compiler
+
+
+# Target ARCH and CPU
+TARGET_ARCH=cortex-m3
+TARGET_CPU=
+
+# Target BSP
+TARGET_BSP=bsps/bsp_lpc1768
+
+# Target lib dependencies
+TARGET_DEPENDENCIES=
+
+# Target specific include directories
+TARGET_INC_DIRS=
+
+# Target specific lib directories
+TARGET_LIB_DIRS=
+
+# Target specific libraries
+TARGET_LIBS=
+
+# Target implementation for the project defines
+TARGET_PROJECT_DEFINES=$(foreach PROJECT_DEFINE, $(PROJECT_DEFINES), -D$(PROJECT_DEFINE))
+
+
+# Optimisation level
+OPTIMIZATION_LEVEL = --debug
+
+# Disabled warnings
+DISABLED_WARNINGS = --diag_suppress=Pe111
+
+# Toolchain flags
+COMMON_FLAGS = --endian=little --cpu=cortex-m3 -e --fpu=none --dlib_config DLib_Config_Full.h --no_code_motion --no_cse --no_unaligned_access --silent $(OPTIMIZATION_LEVEL) $(TARGET_PROJECT_DEFINES)
+CFLAGS = $(COMMON_FLAGS) $(DISABLED_WARNINGS) $(PROJECT_CFLAGS)
+CXXFLAGS = $(COMMON_FLAGS) $(DISABLED_WARNINGS) $(PROJECT_CXXFLAGS) --eec++
+ASFLAGS = $(PROJECT_ASFLAGS) --cpu cortex-m3 
+LDFLAGS = --map $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(patsubst %.elf, %.map, $(BIN_DIR)/$(OUTPUT_NAME)))) --config $(ROOT_DIR)/src/bsps/bsp_lpc1768/iar/lpc1768.icf --semihosting --entry Reset_Handler --vfe --merge_duplicate_sections $(PROJECT_LDFLAGS)
+ARFLAGS = --create $(PROJECT_ARFLAGS)
+
+# Number of times the libraries names shall be duplicated in the command line
+TARGET_DUP_COUNT := 1

@@ -1,0 +1,62 @@
+####################################################################################################
+# \file arm-keil.compiler
+# \brief ARM Keil toolchain definitions
+# \author C. Jimenez
+# \copyright Copyright(c) 2017 Cedric Jimenez
+#
+# This file is part of Nano-OS.
+#
+# Nano-OS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Nano-OS is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
+
+
+# Compiler name
+COMPILER_NAME=keil
+
+
+# Toolchain path
+ifeq ("$(CYGWIN_ENV)","CYGWIN")
+    TOOLCHAIN_PATH = C:/Keil_v5/ARM/ARMCC/bin
+	TOOLCHAIN_SUFFIX =.exe
+else
+    TOOLCHAIN_PATH = /usr/local/ARM_Compiler_5.06u5
+	TOOLCHAIN_SUFFIX =.exe
+endif
+TOOLCHAIN_PREFIX = arm
+AS = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)asm$(TOOLCHAIN_SUFFIX)
+CC = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)cc$(TOOLCHAIN_SUFFIX)
+CXX = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)cc$(TOOLCHAIN_SUFFIX)
+LD = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)link$(TOOLCHAIN_SUFFIX)
+AR = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)ar$(TOOLCHAIN_SUFFIX)
+OBJCOPY = 
+SIZE = 
+FROMELF = $(TOOLCHAIN_PATH)/fromelf$(TOOLCHAIN_SUFFIX)
+
+# Build input command
+BUILD_INPUT_CMD=-c
+AS_BUILD_INPUT_CMD=
+
+# Build output command
+BUILD_OUTPUT_CMD=-o
+
+# Link output command
+LINK_OUTPUT_CMD=-o
+
+# Compiler output file extensions
+COMP_LIB_EXTENSION=.a
+COMP_EXE_EXTENSION=.axf
+
+# Compiler flag for header files dependency generation
+COMP_HEADER_DEP_FLAGS=--depend=$(patsubst %.o,%.d, $@)
+COMP_HEADER_DEP_GEN_FILE_EXTENSION=.d

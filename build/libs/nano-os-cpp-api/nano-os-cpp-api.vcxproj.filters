@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\nano_os_cpp_api.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\config\nano_os_cpp_api_cfg.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task_helper.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_delegate.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{040ce7f7-8e3c-43c3-83cb-9721ec4b6891}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{0e683cad-ad2a-4501-be37-1e6342917ea8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules">
+      <UniqueIdentifier>{bb7e9151-99c9-416c-a47d-ebb05a6f8b1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{5026736b-c7eb-4741-9c0b-7692e0164c9b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os.hpp">
+      <Filter>core</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_console.hpp">
+      <Filter>modules</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_heap.hpp">
+      <Filter>modules</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_timer.hpp">
+      <Filter>modules</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_cond_var.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_flag_set.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mailbox.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mutex.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_semaphore.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_waitable_timer.hpp">
+      <Filter>objects</Filter>
+    </None>
+    <None Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_delegate.tpl">
+      <Filter>core</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_console.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_heap.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_timer.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_cond_var.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_flag_set.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mailbox.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mutex.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_semaphore.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_waitable_timer.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
