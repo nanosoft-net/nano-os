@@ -34,13 +34,13 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*********************************************************/
 
 /** \brief Enable trace output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_TRACE_ENABLED               1u
+#define NANO_OS_SEGGER_RTT_LINK_TRACE_ENABLED               0u
 
 /** \brief Enable console input/output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_CONSOLE_ENABLED             1u
+#define NANO_OS_SEGGER_RTT_LINK_CONSOLE_ENABLED             0u
 
 /** \brief Enable debug input/output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED               1u
+#define NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED               0u
 
 /** \brief Polling period in ms for checking for console input data */
 #define NANO_OS_SEGGER_RTT_LINK_CONSOLE_POOLING_PERIOD      100u
@@ -52,12 +52,6 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
            this allow data exchange with a PC application using only telnet
            and avoid needed J-Link API SDK to retrieve data from multiple RTT buffers */
 #define NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_ENABLED           1u
-
-/** \brief Priority level of the multiplexer task */
-#define NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_TASK_PRIORITY     2u
-
-/** \brief Size of the multiplexer task stack in number of elements */
-#define NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_TASK_STACK_SIZE   (NANO_OS_PORT_MIN_STACK_SIZE + 64u)
 
 /** \brief Polling period in ms for checking for multiplexer input data */
 #define NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_POOLING_PERIOD    100u

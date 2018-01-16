@@ -144,7 +144,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*************************** Trace options *************************/
 
 /** \brief Enable the trace module */
-#define NANO_OS_TRACE_ENABLED                   1u
+#define NANO_OS_TRACE_ENABLED                   0u
 
 
 /*************************** Synchronization objects features *************************/
@@ -294,7 +294,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*************************** Heap module *************************/
 
 /** \brief Enable the heap module */
-#define NANO_OS_HEAP_ENABLED                    1u
+#define NANO_OS_HEAP_ENABLED                    0u
 
 /** \brief Enable NANO_OS_HEAP_Free() system call */
 #define NANO_OS_HEAP_FREE_ENABLED                       1u
@@ -335,7 +335,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the console module */
-#define NANO_OS_CONSOLE_ENABLED                 1u
+#define NANO_OS_CONSOLE_ENABLED                 0u
 
 /** \brief Priority level of the console task */
 #define NANO_OS_CONSOLE_TASK_PRIORITY           1u
@@ -348,7 +348,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         64u
 
 /** \brief Number of commands stored into history (0 = history disabled) */
-#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 5u
+#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 2u
 
 
 
@@ -356,7 +356,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the debug module */
-#define NANO_OS_DEBUG_ENABLED                   1u
+#define NANO_OS_DEBUG_ENABLED                   0u
 
 /** \brief Priority level of the debug task */
 #define NANO_OS_DEBUG_TASK_PRIORITY             1u

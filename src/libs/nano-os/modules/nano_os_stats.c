@@ -28,7 +28,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_syscall.h"
 
 
-#if (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
 
 /** \brief Handle the 'tasks' console command */
 static void NANO_OS_STATS_ConsoleTasksCmdHandler(void* const user_data, const uint32_t command_id, const char* const params);
@@ -56,7 +56,7 @@ static const nano_os_console_cmd_desc_t stats_module_commands[] = {
                                                                         #endif /* (NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) */
                                                                   };
 
-#endif /* (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u) */
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
 
 
 
@@ -67,7 +67,7 @@ nano_os_error_t NANO_OS_STATS_Init(void)
 {
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
-    #if (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u)
+    #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
     /* Register heap console commands */
     if (ret == NOS_ERR_SUCCESS)
     {
@@ -75,7 +75,7 @@ nano_os_error_t NANO_OS_STATS_Init(void)
         g_nano_os.stats_cmd_group.command_count = sizeof(stats_module_commands) / sizeof(nano_os_console_cmd_desc_t);
         ret = NANO_OS_CONSOLE_RegisterCommands(&g_nano_os.stats_cmd_group);
     }
-    #endif /* (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) */
+    #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
 
     return ret;
 }
@@ -296,7 +296,7 @@ nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, ui
 #endif /* (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u) */
 
 
-#if (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
 
 /** \brief Strings corresponding to task states */
 static const char* task_states[] = { "FREE", "READY", "PENDING", "RUNNING", "DEAD" };
@@ -542,7 +542,7 @@ static void NANO_OS_STATS_ConsoleMemstatsCmdHandler(void* const user_data, const
 
 #endif /* (NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) */
 
-#endif /* (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u) */
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
 
 
 

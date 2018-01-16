@@ -389,7 +389,11 @@ static void NANO_OS_InitSeggerGdbRtosPluginInfos(void)
     #endif /* (NANO_OS_TASK_NAME_ENABLED == 1u) */
     g_nano_os_debug_infos.task_state_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, state);
     g_nano_os_debug_infos.task_priority_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, priority);
+    #if (NANO_OS_TASK_ID_ENABLED == 1u)
     g_nano_os_debug_infos.task_id_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, object_id);
+    #else
+    g_nano_os_debug_infos.task_name_offset = NANO_OS_INVALID_FIELD_OFFSET8;
+    #endif /* (NANO_OS_TASK_ID_ENABLED == 1u) */
     g_nano_os_debug_infos.task_wait_object_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, waiting_object);
     g_nano_os_debug_infos.task_wait_timeout_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, wait_timeout);
     g_nano_os_debug_infos.task_time_slice_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.idle_task, timeslice);
@@ -402,11 +406,11 @@ static void NANO_OS_InitSeggerGdbRtosPluginInfos(void)
 
     /* Offsets in nano_os_wait_object_type_t structure */
     g_nano_os_debug_infos.wait_object_type_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.isr_request_task_wait_object, type);
-    #if (NANO_OS_WAIT_OBJECT_NAME_ENABLED == 1u)
+    #if (NANO_OS_TRACE_ENABLED == 1u)
     g_nano_os_debug_infos.wait_object_id_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.isr_request_task_wait_object, object_id);
     #else
     g_nano_os_debug_infos.wait_object_id_offset = NANO_OS_INVALID_FIELD_OFFSET8;
-    #endif /* (NANO_OS_WAIT_OBJECT_NAME_ENABLED == 1u) */
+    #endif /* (NANO_OS_TRACE_ENABLED == 1u) */
     #if (NANO_OS_WAIT_OBJECT_NAME_ENABLED == 1u)
     g_nano_os_debug_infos.wait_object_name_offset = NANO_OS_FIELD_OFFSET8(g_nano_os.isr_request_task_wait_object, name);
     #else
