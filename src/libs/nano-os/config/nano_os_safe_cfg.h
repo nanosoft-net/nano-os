@@ -188,22 +188,22 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #endif /* ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_MUTEX_ENABLED != 1u)) */
 
 /** \brief Enable the heap commands in Nano OS console module */
-#if ((NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) && (NANO_OS_CONSOLE_ENABLED != 1u))
+#if ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) && (NANO_OS_CONSOLE_ENABLED != 1u))
 #error "Console module must be enabled to use heap console commands"
-#endif /* ((NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) && (NANO_OS_CONSOLE_ENABLED != 1u)) */
+#endif /* ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) && (NANO_OS_CONSOLE_ENABLED != 1u)) */
 
 
 /*********************** Statistics module *********************/
 
 /** \brief Enable the 'stack' statistics command in Nano OS console module */
-#if ((NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u))
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u))
 #error "NANO_OS_STATS_GetStackUsage() system call must be enabled to use 'stack' console commands"
-#endif /* ((NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u)) */
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u)) */
 
 /** \brief Enable the 'memstats' statistics command in Nano OS console module */
-#if ((NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETMEMORYSTATS_ENABLED != 1u))
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETMEMORYSTATS_ENABLED != 1u))
 #error "NANO_OS_STATS_GetMemoryStats() system call must be enabled to use 'memstats' console commands"
-#endif /* ((NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETMEMORYSTATS_ENABLED != 1u)) */
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETMEMORYSTATS_ENABLED != 1u)) */
 
 /*********************** Console module *********************/
 

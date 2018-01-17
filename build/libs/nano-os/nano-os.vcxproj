@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\libs\nano-os\api\nano_os_api.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\api\nano_os_user.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\config\nano_os_cfg.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\config\nano_os_safe_cfg.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os.h" />
@@ -27,25 +29,25 @@
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_scheduler.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_syscall.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_task.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_timer.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_trace.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_types.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_wait_object.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_console.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_debug.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_heap.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_stats.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_timer.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_user.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_cond_var.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_flag_set.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_mailbox.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_mutex.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_semaphore.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_waitable_timer.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\port\nano_os_port.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_cfg.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_macros.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_types.h" />
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_virtual_interrupt.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_cfg.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_macros.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_types.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_virtual_interrupt.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_cond_var.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_flag_set.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mailbox.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mutex.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_semaphore.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_waitable_timer.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\tools\nano_os_task_list.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os\tools\nano_os_tools.h" />
   </ItemGroup>
@@ -56,20 +58,21 @@
     <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_scheduler.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_syscall.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_task.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_timer.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_trace.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_wait_object.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_console.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_debug.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_heap.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_stats.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_timer.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_cond_var.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_flag_set.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_mailbox.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_mutex.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_semaphore.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_waitable_timer.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port.c" />
-    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_virtual_interrupt.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_virtual_interrupt.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_cond_var.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_flag_set.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mailbox.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mutex.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_semaphore.c" />
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_waitable_timer.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\tools\nano_os_task_list.c" />
     <ClCompile Include="..\..\..\src\libs\nano-os\tools\nano_os_tools.c" />
   </ItemGroup>
@@ -133,7 +136,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -147,7 +150,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -163,7 +166,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -181,7 +184,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>

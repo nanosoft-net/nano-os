@@ -10,9 +10,6 @@
     <Filter Include="modules">
       <UniqueIdentifier>{2c7e7fbc-9a47-4a6f-a06f-0dff284d310b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="objects">
-      <UniqueIdentifier>{c5314b27-286c-400a-89e1-820fe10d1d05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="port">
       <UniqueIdentifier>{9f98237e-bb01-47ea-856c-24f0a1d92f33}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,12 @@
     </Filter>
     <Filter Include="port\windows">
       <UniqueIdentifier>{bbd7c64c-b980-4132-a619-49a044efe1d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sync_objects">
+      <UniqueIdentifier>{c5314b27-286c-400a-89e1-820fe10d1d05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{50d47e7e-ad30-44fd-921e-735099f13b29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,50 +69,56 @@
     <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_stats.h">
       <Filter>modules</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_timer.h">
-      <Filter>modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_user.h">
-      <Filter>modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_cond_var.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_flag_set.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_mailbox.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_mutex.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_semaphore.h">
-      <Filter>objects</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\objects\nano_os_waitable_timer.h">
-      <Filter>objects</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\libs\nano-os\port\nano_os_port.h">
       <Filter>port</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_cfg.h">
-      <Filter>port\windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_macros.h">
-      <Filter>port\windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_types.h">
-      <Filter>port\windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_virtual_interrupt.h">
-      <Filter>port\windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\libs\nano-os\tools\nano_os_task_list.h">
       <Filter>tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\libs\nano-os\tools\nano_os_tools.h">
       <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\api\nano_os_api.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\api\nano_os_user.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\modules\nano_os_debug.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_cond_var.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_flag_set.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mailbox.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mutex.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_semaphore.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_waitable_timer.h">
+      <Filter>sync_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\core\nano_os_timer.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_cfg.h">
+      <Filter>port\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_macros.h">
+      <Filter>port\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_types.h">
+      <Filter>port\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_virtual_interrupt.h">
+      <Filter>port\windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,38 +155,41 @@
     <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_stats.c">
       <Filter>modules</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_timer.c">
-      <Filter>modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_cond_var.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_flag_set.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_mailbox.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_mutex.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_semaphore.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\objects\nano_os_waitable_timer.c">
-      <Filter>objects</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port.c">
-      <Filter>port\windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\gcc\nano_os_port_virtual_interrupt.c">
-      <Filter>port\windows</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\libs\nano-os\tools\nano_os_task_list.c">
       <Filter>tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\libs\nano-os\tools\nano_os_tools.c">
       <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\modules\nano_os_debug.c">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_cond_var.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_flag_set.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mailbox.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_mutex.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_semaphore.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\sync_objects\nano_os_waitable_timer.c">
+      <Filter>sync_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\core\nano_os_timer.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port.c">
+      <Filter>port\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libs\nano-os\port\windows\nano_os_port_virtual_interrupt.c">
+      <Filter>port\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -26,6 +26,7 @@ LIBRARY_DIR := $(ROOT_DIR)/src/libs/nano-os-cpp-api
 
 # Source directories
 SOURCE_DIRS := $(LIBRARY_DIR) \
+               $(LIBRARY_DIR)/api \
                $(LIBRARY_DIR)/config \
                $(LIBRARY_DIR)/core \
                $(LIBRARY_DIR)/modules \

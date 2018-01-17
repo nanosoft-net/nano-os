@@ -216,10 +216,10 @@ typedef struct _nano_os_t
     #endif /* (NANO_OS_TIMER_ENABLED == 1) */
 
     #if (NANO_OS_STATS_ENABLED == 1u)
-    #if (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)
+    #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
     /** \brief Statistics console command group */
     nano_os_console_cmd_group_desc_t stats_cmd_group;
-    #endif /* (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u) */
+    #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
     #endif /* (NANO_OS_STATS_ENABLED == 1u) */
 
     #if (NANO_OS_DEBUG_ENABLED == 1)

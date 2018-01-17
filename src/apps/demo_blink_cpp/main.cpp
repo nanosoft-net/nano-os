@@ -20,7 +20,11 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_cpp_api.h"
 #include "bsp.h"
 
+#if (NANO_OS_CPP_API_NAMESPACE_ENABLED == 1u)
+
 using namespace NANO_OS_CPP_API_NAMESPACE;
+
+#endif // (NANO_OS_CPP_API_NAMESPACE_ENABLED == 1)
 
 /** \brief Blink demo */
 class BlinkDemo
@@ -32,6 +36,7 @@ class BlinkDemo
         {
             nano_os_error_t ret;
 
+            #if (NANO_OS_HEAP_ENABLED == 1u)
             // Initialize heap
             NanoOs& nano_os = NanoOs::getInstance();
             NanoOsHeap& nano_os_heap = nano_os.getHeapModule();
@@ -39,6 +44,7 @@ class BlinkDemo
             size_t heap_size;
             NANO_OS_BSP_GetHeapArea(&heap_area, &heap_size);
             nano_os_heap.init(heap_area, heap_size);
+            #endif // (NANO_OS_HEAP_ENABLED == 1u)
 
             // Create the waitable timer
             ret = m_waitable_timer.create(QT_PRIORITY);
@@ -49,19 +55,28 @@ class BlinkDemo
 
                 // Create the timer
                 NanoOsTimer::TimerMethod timer_callback = NanoOsTimer::TimerMethod::create<BlinkDemo, &BlinkDemo::timerCallback>(*this);
+                #if (NANO_OS_HEAP_ENABLED == 1u)
                 m_timer = new NanoOsTimer(timer_callback, NANO_OS_CAST(void*, 1u));
                 if (m_timer != NULL)
                 {
+                #else
+                m_timer.create(timer_callback, NANO_OS_CAST(void*, 1u));
+                #endif // (NANO_OS_HEAP_ENABLED == 1u)
+
                     // Create the task
                     NanoOsTask::TaskMethod task_method = NanoOsTask::TaskMethod::create<BlinkDemo, &BlinkDemo::taskLoop>(*this);
                     ret = m_task.create("Blink demo task", 5u, NANO_OS_CAST(void*, 0u), task_method);
+                
+                #if (NANO_OS_HEAP_ENABLED == 1u)
                 }
                 else
                 {
                     ret = NOS_ERR_FAILURE;
                 }
+                #endif // (NANO_OS_HEAP_ENABLED == 1u)
             }
 
+            #if (NANO_OS_CONSOLE_ENABLED == 1u)
             // Register the console command
             if (ret == NOS_ERR_SUCCESS)
             {
@@ -71,6 +86,7 @@ class BlinkDemo
                 NanoOsConsole& nano_os_console = NanoOs::getInstance().getConsoleModule();
                 ret = nano_os_console.registerCommands(m_command_group);
             }
+            #endif // (NANO_OS_CONSOLE_ENABLED == 1u)
 
             return ret;
         }
@@ -84,10 +100,18 @@ class BlinkDemo
         NanoOsWaitableTimer m_waitable_timer;
 
         /** \brief Timer */
+        #if (NANO_OS_HEAP_ENABLED == 1u)
         NanoOsTimer* m_timer;
+        #else
+        NanoOsTimer m_timer;
+        #endif // (NANO_OS_HEAP_ENABLED == 1u)
+
+        #if (NANO_OS_CONSOLE_ENABLED == 1u)
 
         /** \brief Console command group */
         NanoOsConsoleCmdGroup<1u> m_command_group;
+
+        #endif // (NANO_OS_CONSOLE_ENABLED == 1u)
 
 
 
@@ -100,7 +124,11 @@ class BlinkDemo
             const uint32_t led_id = NANO_OS_CAST(uint32_t, param);
 
             // Start the timer
+            #if (NANO_OS_HEAP_ENABLED == 1u)
             m_timer->start(NANO_OS_MS_TO_TICKS(500u), NANO_OS_MS_TO_TICKS(500u));
+            #else
+            m_timer.start(NANO_OS_MS_TO_TICKS(500u), NANO_OS_MS_TO_TICKS(500u));
+            #endif // (NANO_OS_HEAP_ENABLED == 1u)
 
             // Start the waitable timer
             m_waitable_timer.start(NANO_OS_MS_TO_TICKS(250u), NANO_OS_MS_TO_TICKS(500u));
@@ -146,6 +174,8 @@ class BlinkDemo
             led_on = !led_on;
         }
 
+
+        #if (NANO_OS_CONSOLE_ENABLED == 1u)
         void consoleCommandHandler(const char* params)
         {
             NANO_OS_UNUSED(params);
@@ -155,6 +185,7 @@ class BlinkDemo
             nano_os_console.writeString("-----------------------------\r\n");
             nano_os_console.writeString("Purpose of this application is to present the C++ API features.\r\n\r\n");
         }
+        #endif // (NANO_OS_CONSOLE_ENABLED == 1u)
 };
 
 

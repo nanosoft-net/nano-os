@@ -61,8 +61,7 @@ typedef struct _nano_os_segger_rtt_link_multiplexer_decoder_t
 
 /** \brief Number of buffer to retrieve RTT data */
 #define NANO_OS_SEGGER_RTT_LINK_MULTIPLEXER_RX_BUFFER_COUNT    (NANO_OS_SEGGER_RTT_LINK_CONSOLE_ENABLED + \
-                                                                NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED + \
-                                                                NANO_OS_SEGGER_RTT_LINK_TRACE_ENABLED)
+                                                                NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED)
 
 
 /** \brief Size of the buffer to retrieve RTT data in bytes */
@@ -88,10 +87,10 @@ static nano_os_segger_rtt_link_multiplexer_ring_buffer_t nano_os_segger_rtt_link
 static nano_os_mutex_t nano_os_segger_rtt_link_mutex;
 
 /** \brief Buffer to send RTT data */
-static uint8_t nano_os_segger_rtt_link_send_buffer[1024u];
+static uint8_t nano_os_segger_rtt_link_send_buffer[512u];
 
 /** \brief Buffer to receive RTT data */
-static uint8_t nano_os_segger_rtt_link_receive_buffer[64u];
+static uint8_t nano_os_segger_rtt_link_receive_buffer[32u];
 
 /** \brief Decoder state */
 static nano_os_segger_rtt_link_multiplexer_decoder_t nano_os_segger_rtt_link_multiplexer_decoder;
@@ -178,11 +177,7 @@ void NANO_OS_SEGGER_RTT_LINK_MULTIPLEXER_Send(const uint8_t channel, const void*
     if (ret != 0u)
     {
         /* Send data */
-        do
-        {
-            ret = NANO_OS_CAST(uint32_t, SEGGER_RTT_WriteSkipNoLock(NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_BUFFER, data, data_size));
-        }
-        while (ret == 0u);
+        (void)NANO_OS_CAST(uint32_t, SEGGER_RTT_WriteSkipNoLock(NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_BUFFER, data, data_size));
     }
 
     /* Restore interrupts */

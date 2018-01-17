@@ -59,10 +59,10 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
         }
     }
 
-    #if (NANO_OS_TRACE_ENABLED == 1u)
+    #if ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u))
     /* Get the frequency of the high performance counter */
     QueryPerformanceFrequency(&g_nano_os.port_data.hpc_frequency);
-    #endif /* (NANO_OS_TRACE_ENABLED == 1u) */
+    #endif /* ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)) */
 
     return ret;
 }

@@ -76,10 +76,10 @@ typedef struct _nano_os_port_data_t
     /** \brief Tick timer task handle */
     HANDLE tick_timer_task;
 
-    #if (NANO_OS_TRACE_ENABLED == 1u)
+    #if ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u))
     /** \brief Frequency of the high performance counter */
     LARGE_INTEGER hpc_frequency;
-    #endif /* (NANO_OS_TRACE_ENABLED == 1u) */
+    #endif /* ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)) */
 } nano_os_port_data_t;
 
 

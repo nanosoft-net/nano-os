@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -111,7 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
@@ -129,7 +129,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\bsps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>

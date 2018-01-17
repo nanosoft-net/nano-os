@@ -21,11 +21,11 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Enable Nano OS console on stdin/stdout */
 #define BSP_WINDOWS_STDINOUT_CONSOLE_ENABLED   1u
 
+#include "nano_os_api.h"
 
 /* Check if module is enabled */
-#if (BSP_WINDOWS_STDINOUT_CONSOLE_ENABLED == 1u)
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (BSP_WINDOWS_STDINOUT_CONSOLE_ENABLED == 1u))
 
-#include "nano_os_api.h"
 
 #include <stdio.h>
 #include <conio.h>
@@ -146,4 +146,4 @@ static void NANO_OS_USER_ConsoleExitHandler(void* const user_data, const uint32_
 }
 
 
-#endif /* (BSP_WINDOWS_STDINOUT_CONSOLE_ENABLED == 1u) */
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (BSP_WINDOWS_STDINOUT_CONSOLE_ENABLED == 1u)) */
