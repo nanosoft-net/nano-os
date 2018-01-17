@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bsp_windows", "build\bsps\b
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo_blink_timer", "build\apps\demo_blink_timer\demo_blink_timer.vcxproj", "{2A445A60-4FF7-4334-AAA9-127023BF0146}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nano-os-circular-buffer-trace", "build\libs\nano-os-circular-buffer-trace\nano-os-circular-buffer-trace.vcxproj", "{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nano-os", "build\libs\nano-os\nano-os.vcxproj", "{12C3F6F1-BDB2-4D73-AC3F-AF11A81BDB11}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo_blink_cpp", "build\apps\demo_blink_cpp\demo_blink_cpp.vcxproj", "{20094544-FCC8-4E8C-B27F-25F08B187C2F}"
@@ -39,14 +37,6 @@ Global
 		{2A445A60-4FF7-4334-AAA9-127023BF0146}.Release|x64.Build.0 = Release|x64
 		{2A445A60-4FF7-4334-AAA9-127023BF0146}.Release|x86.ActiveCfg = Release|Win32
 		{2A445A60-4FF7-4334-AAA9-127023BF0146}.Release|x86.Build.0 = Release|Win32
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Debug|x64.ActiveCfg = Debug|x64
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Debug|x64.Build.0 = Debug|x64
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Debug|x86.ActiveCfg = Debug|Win32
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Debug|x86.Build.0 = Debug|Win32
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Release|x64.ActiveCfg = Release|x64
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Release|x64.Build.0 = Release|x64
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Release|x86.ActiveCfg = Release|Win32
-		{3A1BC13E-C8CB-478A-94FA-C086867EBD3F}.Release|x86.Build.0 = Release|Win32
 		{12C3F6F1-BDB2-4D73-AC3F-AF11A81BDB11}.Debug|x64.ActiveCfg = Debug|x64
 		{12C3F6F1-BDB2-4D73-AC3F-AF11A81BDB11}.Debug|x64.Build.0 = Debug|x64
 		{12C3F6F1-BDB2-4D73-AC3F-AF11A81BDB11}.Debug|x86.ActiveCfg = Debug|Win32

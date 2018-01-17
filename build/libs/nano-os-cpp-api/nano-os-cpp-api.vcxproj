@@ -19,37 +19,37 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\api\nano_os_cpp_api.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\config\nano_os_cpp_api_cfg.h" />
     <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_delegate.hpp" />
     <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task.hpp" />
     <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task_helper.hpp" />
-    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\nano_os_cpp_api.h" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_cond_var.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_flag_set.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_mailbox.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_mutex.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_semaphore.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_timer.hpp" />
+    <ClInclude Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_waitable_timer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os.hpp" />
     <None Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_delegate.tpl" />
     <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_console.hpp" />
     <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_heap.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_timer.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_cond_var.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_flag_set.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mailbox.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mutex.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_semaphore.hpp" />
-    <None Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_waitable_timer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os.cpp" />
     <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\core\nano_os_task.cpp" />
     <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_console.cpp" />
     <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_heap.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\modules\nano_os_timer.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_cond_var.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_flag_set.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mailbox.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_mutex.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_semaphore.cpp" />
-    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\objects\nano_os_waitable_timer.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_cond_var.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_flag_set.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_mailbox.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_mutex.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_semaphore.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_timer.cpp" />
+    <ClCompile Include="..\..\..\src\libs\nano-os-cpp-api\sync_objects\nano_os_waitable_timer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AD8E548B-FB61-4192-AA78-E651F09A3B08}</ProjectGuid>
@@ -110,7 +110,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -140,7 +140,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -158,7 +158,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\port\windows\gcc;..\..\..\src\libs\nano-os\objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src\libs\nano-os;..\..\..\src\libs\nano-os\api;..\..\..\src\libs\nano-os\config;..\..\..\src\libs\nano-os\core;..\..\..\src\libs\nano-os\modules;..\..\..\src\libs\nano-os\tools;..\..\..\src\libs\nano-os\port;..\..\..\src\libs\nano-os\port\windows;..\..\..\src\libs\nano-os\sync_objects;..\..\..\src\libs\nano-os-cpp-api;..\..\..\src\libs\nano-os-cpp-api\api;..\..\..\src\libs\nano-os-cpp-api\config;..\..\..\src\libs\nano-os-cpp-api\core;..\..\..\src\libs\nano-os-cpp-api\modules;..\..\..\src\libs\nano-os-cpp-api\sync_objects;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>

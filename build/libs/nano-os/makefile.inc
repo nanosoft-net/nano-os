@@ -39,5 +39,6 @@ SOURCE_DIRS := $(LIBRARY_DIR) \
               
 # Project specific include directories
 PROJECT_INC_DIRS := $(PROJECT_INC_DIRS) \
-                    $(foreach LIB_DIR, $(SOURCE_DIRS), $(LIB_DIR))
+                    $(foreach LIB_DIR, $(SOURCE_DIRS), $(LIB_DIR)) \
+                    $(NANO_OS_CONFIG_FILE_DIR)
 

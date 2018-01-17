@@ -34,13 +34,13 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*********************************************************/
 
 /** \brief Enable trace output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_TRACE_ENABLED               0u
+#define NANO_OS_SEGGER_RTT_LINK_TRACE_ENABLED               1u
 
 /** \brief Enable console input/output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_CONSOLE_ENABLED             0u
+#define NANO_OS_SEGGER_RTT_LINK_CONSOLE_ENABLED             1u
 
 /** \brief Enable debug input/output using SEGGER RTT link */
-#define NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED               0u
+#define NANO_OS_SEGGER_RTT_LINK_DEBUG_ENABLED               1u
 
 /** \brief Polling period in ms for checking for console input data */
 #define NANO_OS_SEGGER_RTT_LINK_CONSOLE_POOLING_PERIOD      100u

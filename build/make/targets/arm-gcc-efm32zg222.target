@@ -46,6 +46,9 @@ TARGET_LIBS=-lgcc -lc -lnosys
 # Target implementation for the project defines
 TARGET_PROJECT_DEFINES=$(foreach PROJECT_DEFINE, $(PROJECT_DEFINES), -D$(PROJECT_DEFINE))
 
+# Nano OS configuration file directory
+NANO_OS_CONFIG_FILE_DIR=$(ROOT_DIR)/src/$(TARGET_BSP)/nano_os_config
+
 
 # Optimisation level
 OPTIMIZATION_LEVEL = -O0

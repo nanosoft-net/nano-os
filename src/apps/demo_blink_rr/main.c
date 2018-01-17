@@ -21,7 +21,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "bsp.h"
 
 /** \brief Stack size in number of elements */
-#define TASK_STACK_SIZE     128u
+#define TASK_STACK_SIZE     80u
 
 
 /** \brief Main task stack */

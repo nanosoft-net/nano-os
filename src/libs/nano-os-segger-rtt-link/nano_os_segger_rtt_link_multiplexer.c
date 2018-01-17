@@ -177,11 +177,7 @@ void NANO_OS_SEGGER_RTT_LINK_MULTIPLEXER_Send(const uint8_t channel, const void*
     if (ret != 0u)
     {
         /* Send data */
-        do
-        {
-            ret = NANO_OS_CAST(uint32_t, SEGGER_RTT_WriteSkipNoLock(NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_BUFFER, data, data_size));
-        }
-        while (ret == 0u);
+        (void)NANO_OS_CAST(uint32_t, SEGGER_RTT_WriteSkipNoLock(NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_BUFFER, data, data_size));
     }
 
     /* Restore interrupts */
