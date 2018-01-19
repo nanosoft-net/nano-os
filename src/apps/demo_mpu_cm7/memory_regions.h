@@ -17,7 +17,31 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "nano_os_api.h"
+#ifndef MEMORY_REGIONS_H
+#define MEMORY_REGIONS_H
 
-/** \brief Idle task stack */
-nano_os_stack_t g_idle_task_stack[NANO_OS_IDLE_TASK_STACK_SIZE];
+
+/* These are all linker exported symbols */
+
+
+
+/* Nano OS internal variables */
+extern char _OS_VAR_START_[];
+extern char _OS_VAR_END_[];
+
+
+/* Idle task stack */
+extern char _IDLE_TASK_VAR_START_[];
+extern char _IDLE_TASK_VAR_END_[];
+
+
+/* Variables which are used by all tasks */
+extern char _COMMON_DATA_START_[];
+extern char _COMMON_DATA_END_[];
+
+/* Code area which is used by all tasks */
+extern char _COMMON_CODE_START_[];
+extern char _COMMON_CODE_END_[];
+
+
+#endif /* MEMORY_REGIONS_H */

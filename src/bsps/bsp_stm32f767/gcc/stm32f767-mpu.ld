@@ -58,9 +58,9 @@ SECTIONS
   .idle_task_var :
   {
   	_IDLE_TASK_VAR_START_ = .;
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(.bss)
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(COMMON)
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(.data)
+	*/nano_os_idle_task_stack.o(.bss)
+	*/nano_os_idle_task_stack.o(COMMON)
+	*/nano_os_idle_task_stack.o(.data)
 	_IDLE_TASK_VAR_END_ = .;
   } > dtcm_ram
   
@@ -69,9 +69,9 @@ SECTIONS
   {
     
     _ISR_REQUEST_TASK_VAR_START_ = .;
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(.bss)
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(COMMON)
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(.data)
+	*/nano_os_isr_request_task_stack.o(.bss)
+	*/nano_os_isr_request_task_stack.o(COMMON)
+	*/nano_os_isr_request_task_stack.o(.data)
 	_ISR_REQUEST_TASK_VAR_END_ = .;
   } > dtcm_ram
   
@@ -80,9 +80,9 @@ SECTIONS
   {
     
     _TIMER_TASK_VAR_START_ = .;
-	*/libnano-os.a:nano_os_port_timer_task_stack.o(.bss)
-	*/libnano-os.a:nano_os_port_timer_task_stack.o(COMMON)
-	*/libnano-os.a:nano_os_port_timer_task_stack.o(.data)
+	*/nano_os_timer_task_stack.o(.bss)
+	*/nano_os_timer_task_stack.o(COMMON)
+	*/nano_os_timer_task_stack.o(.data)
 	_TIMER_TASK_VAR_END_ = .;
   } > dtcm_ram
   
