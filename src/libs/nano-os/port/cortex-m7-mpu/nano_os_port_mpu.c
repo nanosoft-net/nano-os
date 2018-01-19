@@ -159,27 +159,3 @@ nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(uint32_t* const attributes, 
 
     return ret;
 }
-
-extern void NANO_OS_PORT_SwitchToPriviledgedMode();
-extern void NANO_OS_PORT_SwitchToUnpriviledgedMode();
-
-void NANO_OS_MPU_Debug()
-{
-    uint8_t i;
-    volatile uint32_t mpu_rbar_reg;
-    volatile uint32_t mpu_rasr_reg;
-    volatile uint32_t mpu_control_reg;
-
-    NANO_OS_PORT_SwitchToPriviledgedMode();
-
-    mpu_control_reg = MPU_CTRL_REG;
-    for (i = 0u; i < NANO_OS_PORT_MPU_REGION_COUNT; i++)
-    {
-        MPU_RNR_REG = i;
-        mpu_rbar_reg = MPU_RBAR_REG;
-        mpu_rasr_reg = MPU_RASR_REG;
-        MPU_RNR_REG = i;
-    }
-    NANO_OS_PORT_SwitchToUnpriviledgedMode();
-}
-

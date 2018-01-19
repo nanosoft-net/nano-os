@@ -94,7 +94,7 @@ extern "C"
 
 
 /** \brief MPU region, subregions bits : enable all subregions */
-#define NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL       0xFFu
+#define NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL       0x00u
 
 
 /** \brief Minimum size in bytes for an MPU region */

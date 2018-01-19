@@ -49,7 +49,6 @@ nano_os_error_t MAIN_TASK_Init(void)
     nano_os_task_init_data_t task_init_data;
 
     (void)MEMSET(&task_init_data, 0, sizeof(nano_os_task_init_data_t));
-    task_init_data.port_init_data.is_priviledged = true;
     task_init_data.name = "Main task";
     task_init_data.base_priority = 5u;
     task_init_data.stack_origin = main_task_stack;
@@ -58,37 +57,35 @@ nano_os_error_t MAIN_TASK_Init(void)
     task_init_data.param = NANO_OS_CAST(void*, 500u);
 
     /* Configure a region for the task private data */
-    task_init_data.port_init_data.mem_regions[0u].base_address = 0x20000000u; //NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
+    task_init_data.port_init_data.mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
     NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[0u].attributes,
                                         true,
                                         NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_NON_CACHEABLE,
+                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
                                         false,
                                         NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                        0x00020000);//(NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));
+                                        (NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));
 
-    task_init_data.port_init_data.mem_regions[1u].base_address = 0x00000000u; //NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
+    task_init_data.port_init_data.mem_regions[1u].base_address = NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
     NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[1u].attributes,
                                         false,
                                         NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_NON_CACHEABLE,
+                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
                                         false,
                                         NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                        0x00200000);//(NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));
+                                        (NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));
 
     ret = NANO_OS_TASK_Create(&main_task, &task_init_data);
 
     return ret;
 }
 
-extern void NANO_OS_MPU_Debug();
-
 /** \brief Main task */
 static void* MAIN_Task(void* param)
 {
     /* Get parameter */
     const uint32_t period = NANO_OS_CAST(uint32_t, param);
-    //NANO_OS_MPU_Debug();
+
     /* Create synchro semaphore */
     NANO_OS_SEMAPHORE_Create(&g_synchro_sem, 0u, 1u, QT_PRIORITY);
 

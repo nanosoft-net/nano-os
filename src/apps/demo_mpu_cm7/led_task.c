@@ -55,7 +55,7 @@ nano_os_error_t LED_TASK_Init(void)
     NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[0u].attributes,
                                         true,
                                         NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_NON_CACHEABLE,
+                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
                                         false,
                                         NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                         (NANO_OS_CAST(uint32_t, _LED_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _LED_TASK_VAR_START_)));
@@ -72,7 +72,6 @@ nano_os_error_t LED_TASK_Init(void)
                                         size);
 
     /* Create the task */
-    task_init_data.port_init_data.is_priviledged = true;
     task_init_data.name = "LED task";
     task_init_data.base_priority = 4u;
     task_init_data.stack_origin = led_task_stack;
@@ -84,7 +83,6 @@ nano_os_error_t LED_TASK_Init(void)
     return ret;
 }
 
-extern void NANO_OS_MPU_Debug();
 
 /** \brief LED task */
 static void* LED_Task(void* param)
@@ -99,8 +97,6 @@ static void* LED_Task(void* param)
     {
         /* Wait for the synchronization semaphore */
         NANO_OS_SEMAPHORE_Wait(&g_synchro_sem, 0xFFFFFFFFu);
-
-        //NANO_OS_MPU_Debug();
 
         /* Drive LEDs */
         if (led_on)
