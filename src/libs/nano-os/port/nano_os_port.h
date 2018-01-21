@@ -56,10 +56,10 @@ typedef struct _nano_os_port_init_data_t
     nano_os_port_task_init_data_t console_task_init_data;
     #endif /* (NANO_OS_CONSOLE_ENABLED == 1) */
 
-    #if (NANO_OS_CONSOLE_ENABLED == 1)
+    #if (NANO_OS_DEBUG_ENABLED == 1)
     /** \brief Port specific data for the debug task */
     nano_os_port_task_init_data_t debug_task_init_data;
-    #endif /* (NANO_OS_CONSOLE_ENABLED == 1) */
+    #endif /* (NANO_OS_DEBUG_ENABLED == 1) */
 
 
     #else

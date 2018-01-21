@@ -34,6 +34,16 @@ extern char _OS_VAR_END_[];
 extern char _IDLE_TASK_VAR_START_[];
 extern char _IDLE_TASK_VAR_END_[];
 
+/* Console module data */
+extern char _CONSOLE_MODULE_VAR_START_[];
+extern char _CONSOLE_MODULE_VAR_END_[];
+
+/* Debug module data */
+extern char _DEBUG_MODULE_VAR_START_[];
+extern char _DEBUG_MODULE_VAR_END_[];
+
+
+
 
 /* Variables which are used by all tasks */
 extern char _COMMON_DATA_START_[];

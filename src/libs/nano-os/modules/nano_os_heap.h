@@ -25,6 +25,9 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /* Check if module is enabled */
 #if (NANO_OS_HEAP_ENABLED == 1u)
 
+#include "nano_os_mutex.h"
+#include "nano_os_console.h"
+
 
 #ifdef __cplusplus
 extern "C"
@@ -70,6 +73,40 @@ typedef struct _nano_os_heap_stats_t
     uint32_t free_blocks;
 } nano_os_heap_stats_t;
 #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
+
+
+
+/** \brief Heap module data */
+typedef struct _nano_os_heap_module_t
+{
+    /** \brief Start of the heap area */
+    void* heap_start;
+    /** \brief Size of the heap area in bytes */
+    size_t heap_size;
+    /** \brief Mutex to protect the heap area */
+    nano_os_mutex_t heap_mutex;
+    /** \brief First free memory block */
+    nano_os_heap_block_header_t* first_free;
+    #if (NANO_OS_HEAP_FREE_ENABLED == 1u)
+    /** \brief First allocated memory block */
+    nano_os_heap_block_header_t* first_allocated;
+    #endif /* (NANO_OS_HEAP_FREE_ENABLED == 1u) */
+    #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
+    /** \brief Heap statistics */
+    nano_os_heap_stats_t heap_stats;
+    #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
+    #if (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u)
+    /** \brief Heap console command group */
+    nano_os_console_cmd_group_desc_t heap_cmd_group;
+    #endif /* (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) */
+
+} nano_os_heap_module_t;
+
+
+
+
+
+
 
 
 /** \brief Initialize the heap module */

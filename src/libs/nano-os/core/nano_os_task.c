@@ -81,10 +81,10 @@ nano_os_error_t NANO_OS_TASK_Create(nano_os_task_t* const task, const nano_os_ta
             g_nano_os.next_object_id++;
             #endif /* (NANO_OS_TASK_ID_ENABLED == 1u) */
 
-            #if ((NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) || (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u))
+            #if (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u)
             /* Initialize stack with known value to evaluate stack usage at runtime */
-            (void)MEMSET(task->stack_origin, NANO_OS_STATS_STACK_USAGE_MARKER, task->stack_size * sizeof(nano_os_stack_t));
-            #endif /* ((NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) || (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u)) */
+            (void)MEMSET(task->stack_origin, NANO_OS_TASK_STACK_USAGE_MARKER, task->stack_size * sizeof(nano_os_stack_t));
+            #endif /* (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) */
 
             /* Port specific init */
             ret = NANO_OS_PORT_InitTask(task, task_init_data);
@@ -116,10 +116,8 @@ nano_os_error_t NANO_OS_TASK_Create(nano_os_task_t* const task, const nano_os_ta
                     task->global_next = g_nano_os.tasks;
                     g_nano_os.tasks = task;
 
-                    #if (NANO_OS_DEBUG_ENABLED == 1u)
                     /* Update number of tasks */
                     g_nano_os.task_count++;
-                    #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
 
                     /* Real time trace event */
                     NANO_OS_TRACE_TASK(NOS_TRACE_OBJ_CREATE, task);
@@ -317,10 +315,8 @@ void NANO_OS_TASK_Start(nano_os_task_t* const task, fp_nano_os_task_func_t task_
             /* Real time trace event */
             NANO_OS_TRACE_TASK(NOS_TRACE_OBJ_DESTROY, g_nano_os.current_task);
 
-            #if (NANO_OS_DEBUG_ENABLED == 1u)
             /* Update number of tasks */
-            g_nano_os.task_count++;
-            #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
+            g_nano_os.task_count--;
 
             /* Schedule another task */
             g_nano_os.schedule_needed = true;

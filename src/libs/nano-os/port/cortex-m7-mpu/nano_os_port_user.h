@@ -51,12 +51,12 @@ nano_os_error_t NANO_OS_PORT_USER_GetTimerTaskConfig(nano_os_port_task_init_data
 
 #if (NANO_OS_CONSOLE_ENABLED == 1u)
 /** \brief Get console task port specific configuration */
-nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin);
+nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_data_t* const port_init_data);
 #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
 
 #if (NANO_OS_DEBUG_ENABLED == 1u)
 /** \brief Get debug task port specific configuration */
-nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin);
+nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data_t* const port_init_data);
 #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
 
 

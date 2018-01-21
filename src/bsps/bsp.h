@@ -50,6 +50,9 @@ void NANO_OS_BSP_LedOff(const uint8_t led);
 /** \brief Get the LED I/O registers memory area description */
 void NANO_OS_BSP_GetLedIoRegistersMem(uint32_t* const start_address, uint32_t* const size);
 
+/** \brief Get the UART registers memory area description */
+void NANO_OS_BSP_GetUartIoRegistersMem(uint32_t* const start_address, uint32_t* const size);
+
 /** \brief Get the heap memory area description */
 void NANO_OS_BSP_GetHeapArea(void** heap_area, size_t* heap_size);
 

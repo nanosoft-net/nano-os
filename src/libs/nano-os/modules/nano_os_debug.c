@@ -26,6 +26,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_data.h"
 #include "nano_os_user.h"
 #include "nano_os_tools.h"
+#include "nano_os_stats.h"
 
 /** \brief Total size in bytes of a debug request :
  *         Header : 2
@@ -168,6 +169,12 @@ static nano_os_error_t NANO_OS_DEBUG_WriteDataHandler(const nano_os_debug_reques
 
 
 
+/** \brief Debug module data */
+static nano_os_debug_module_t debug_module;
+
+
+
+
 
 /** \brief Initialize the debug module */
 nano_os_error_t NANO_OS_DEBUG_Init(const nano_os_port_init_data_t* const port_init_data)
@@ -178,6 +185,9 @@ nano_os_error_t NANO_OS_DEBUG_Init(const nano_os_port_init_data_t* const port_in
     /* Check parameters */
     if (port_init_data != NULL)
     {
+        /* 0 init of the module */
+        (void)MEMSET(&debug_module, 0, sizeof(nano_os_debug_module_t));
+
         /* Initialize the hardware drivers of the user module which will send/receive the debug packets */
         ret = NANO_OS_USER_DebugHwInit();
         if (ret == NOS_ERR_SUCCESS)
@@ -188,7 +198,7 @@ nano_os_error_t NANO_OS_DEBUG_Init(const nano_os_port_init_data_t* const port_in
             task_init_data.name = "Debug task";
             #endif /* (NANO_OS_TASK_NAME_ENABLED == 1u) */
             task_init_data.base_priority = NANO_OS_DEBUG_TASK_PRIORITY;
-            task_init_data.stack_origin = g_nano_os.debug_task_stack;
+            task_init_data.stack_origin = debug_module.debug_task_stack;
             task_init_data.stack_size = NANO_OS_DEBUG_TASK_STACK_SIZE;
             task_init_data.task_func = NANO_OS_DEBUG_Task;
             task_init_data.param = NULL;
@@ -196,7 +206,7 @@ nano_os_error_t NANO_OS_DEBUG_Init(const nano_os_port_init_data_t* const port_in
             (void)MEMCPY(&task_init_data.port_init_data, &port_init_data->debug_task_init_data, sizeof(nano_os_port_task_init_data_t));
             #endif /* (NANO_OS_PORT_CONTAINS_TASK_DATA == 1u) */
 
-            ret = NANO_OS_TASK_Create(&g_nano_os.debug_task, &task_init_data);
+            ret = NANO_OS_TASK_Create(&debug_module.debug_task, &task_init_data);
         }
     }
 

@@ -177,8 +177,8 @@ void NANO_OS_SCHEDULER_Schedule(const bool from_isr)
             }
 
             /* Check if current task stack pointer has gone outside of stack range during task execution */
-            NANO_OS_ERROR_ASSERT( ((g_nano_os.stack_marker == g_nano_os.current_task->stack_origin[0u]) ||
-                                   (g_nano_os.stack_marker == g_nano_os.current_task->stack_origin[g_nano_os.current_task->stack_size - 1u])),
+            NANO_OS_ERROR_ASSERT( ((g_nano_os.current_task->stack_origin[0u] == g_nano_os.stack_usage_marker) ||
+                                   (g_nano_os.current_task->stack_origin[g_nano_os.current_task->stack_size - 1u] == g_nano_os.stack_usage_marker)),
                                   NOS_ERR_CORRUPTED_STACK);
 
             #endif /* (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) */

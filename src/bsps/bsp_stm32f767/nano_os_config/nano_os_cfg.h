@@ -289,6 +289,8 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*          Configuration of Nano OS modules             */
 /*********************************************************/
 
+/** \brief Enable Nano OS modules */
+#define NANO_OS_MODULES_ENABLED					1u
 
 
 /*************************** Heap module *************************/
@@ -306,7 +308,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_HEAP_GETSTATS_ENABLED                   1u
 
 /** \brief Enable the heap commands in Nano OS console module */
-#define NANO_OS_HEAP_CONSOLE_CMD_ENABLED        0u
+#define NANO_OS_HEAP_CONSOLE_CMD_ENABLED        1u
 
 
 /*********************** Statistics module *********************/
@@ -335,7 +337,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the console module */
-#define NANO_OS_CONSOLE_ENABLED                 0u
+#define NANO_OS_CONSOLE_ENABLED                 1u
 
 /** \brief Priority level of the console task */
 #define NANO_OS_CONSOLE_TASK_PRIORITY           1u
@@ -356,7 +358,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the debug module */
-#define NANO_OS_DEBUG_ENABLED                   0u
+#define NANO_OS_DEBUG_ENABLED                   1u
 
 /** \brief Priority level of the debug task */
 #define NANO_OS_DEBUG_TASK_PRIORITY             1u

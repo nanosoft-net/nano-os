@@ -104,6 +104,20 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
             port_init_data->timer_task_init_data.is_priviledged = true;
         }
         #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+        #if (NANO_OS_CONSOLE_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->console_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetConsoleTaskConfig(&port_init_data->console_task_init_data);
+        }
+        #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+        #if (NANO_OS_DEBUG_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->debug_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetDebugTaskConfig(&port_init_data->debug_task_init_data);
+        }
+        #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
 
 
         /* Configure global MPU regions */

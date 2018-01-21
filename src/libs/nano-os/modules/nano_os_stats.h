@@ -26,7 +26,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #if (NANO_OS_STATS_ENABLED == 1u)
 
 #include "nano_os_task.h"
-
+#include "nano_os_console.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -35,6 +35,22 @@ extern "C"
 
 
 
+/** \brief Statistics module data */
+typedef struct _nano_os_stats_module_t
+{
+    #if (NANO_OS_STATS_ENABLED == 1u)
+    #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
+    /** \brief Statistics console command group */
+    nano_os_console_cmd_group_desc_t stats_cmd_group;
+    #else
+    /** \brief Dummy value for non empty struct */
+    uint8_t dummy;
+    #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
+    #else
+    /** \brief Dummy value for non empty struct */
+    uint8_t dummy;
+    #endif /* (NANO_OS_STATS_ENABLED == 1u) */
+} nano_os_stats_module_t;
 
 
 
@@ -107,9 +123,6 @@ nano_os_error_t NANO_OS_STATS_GetMemoryStats(nano_os_mem_stats_t* const memory_s
 #endif /* (NANO_OS_STATS_GETMEMORYSTATS_ENABLED == 1u) */
 
 #if (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u)
-
-/** \brief Stack marker to evaluate stack usage at runtime */
-#define NANO_OS_STATS_STACK_USAGE_MARKER    0xAAu
 
 /** \brief Get the stack usage of a task */
 nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, uint32_t* const bytes_left, uint32_t* const stack_size_in_bytes);

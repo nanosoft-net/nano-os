@@ -22,10 +22,8 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /* Check if module is enabled */
 #if (NANO_OS_STATS_ENABLED == 1u)
 
+#include "nano_os_api.h"
 #include "nano_os_data.h"
-#include "nano_os_user.h"
-#include "nano_os_tools.h"
-#include "nano_os_syscall.h"
 
 
 #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
@@ -59,7 +57,8 @@ static const nano_os_console_cmd_desc_t stats_module_commands[] = {
 #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
 
 
-
+/** \brief Statistics module data */
+static nano_os_stats_module_t stats_module;
 
 
 /** \brief Initialize the statistics module */
@@ -67,13 +66,16 @@ nano_os_error_t NANO_OS_STATS_Init(void)
 {
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
+    /* 0 init of the module */
+    (void)MEMSET(&stats_module, 0, sizeof(nano_os_stats_module_t));
+
     #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
     /* Register heap console commands */
     if (ret == NOS_ERR_SUCCESS)
     {
-        g_nano_os.stats_cmd_group.commands = stats_module_commands;
-        g_nano_os.stats_cmd_group.command_count = sizeof(stats_module_commands) / sizeof(nano_os_console_cmd_desc_t);
-        ret = NANO_OS_CONSOLE_RegisterCommands(&g_nano_os.stats_cmd_group);
+        stats_module.stats_cmd_group.commands = stats_module_commands;
+        stats_module.stats_cmd_group.command_count = sizeof(stats_module_commands) / sizeof(nano_os_console_cmd_desc_t);
+        ret = NANO_OS_CONSOLE_RegisterCommands(&stats_module.stats_cmd_group);
     }
     #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u)) */
 
@@ -91,9 +93,6 @@ nano_os_error_t NANO_OS_STATS_GetMemoryStats(nano_os_mem_stats_t* const memory_s
 {
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
-    /* Syscall entry */
-    NANO_OS_SYSCALL_Enter(true);
-
     /* Check parameters */
     if (memory_stats != NULL)
     {
@@ -106,15 +105,11 @@ nano_os_error_t NANO_OS_STATS_GetMemoryStats(nano_os_mem_stats_t* const memory_s
         /* Get the static memory statistics */
         memory_stats->nano_os_handle_size = sizeof(nano_os_t);
         memory_stats->nano_os_handle_without_stacks_size = sizeof(nano_os_t) -
-                                                           sizeof(g_nano_os.idle_task_stack) -
-                                                           sizeof(g_nano_os.isr_request_task_stack);
+                                                           NANO_OS_IDLE_TASK_STACK_SIZE -
+                                                           NANO_OS_ISR_REQUEST_TASK_STACK_SIZE;
         #if (NANO_OS_TIMER_ENABLED == 1u)
-        memory_stats->nano_os_handle_without_stacks_size -= sizeof(g_nano_os.timer_task_stack);
+        memory_stats->nano_os_handle_without_stacks_size -= NANO_OS_TIMER_TASK_STACK_SIZE;
         #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
-
-        #if (NANO_OS_CONSOLE_ENABLED == 1u)
-        memory_stats->nano_os_handle_without_stacks_size -= sizeof(g_nano_os.console_task_stack);
-        #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
 
         memory_stats->task_context_size = sizeof(nano_os_task_t);
 
@@ -232,9 +227,6 @@ nano_os_error_t NANO_OS_STATS_GetMemoryStats(nano_os_mem_stats_t* const memory_s
         ret = NOS_ERR_SUCCESS;
     }
 
-    /* Syscall exit */
-    NANO_OS_SYSCALL_Exit();
-
     return ret;
 }
 
@@ -247,9 +239,6 @@ nano_os_error_t NANO_OS_STATS_GetMemoryStats(nano_os_mem_stats_t* const memory_s
 nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, uint32_t* const size_left_in_bytes, uint32_t* const stack_size_in_bytes)
 {
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
-
-    /* Syscall entry */
-    NANO_OS_SYSCALL_Enter(true);
 
     /* Check parameters */
     if ((task != NULL) &&
@@ -267,7 +256,7 @@ nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, ui
         #if (NANO_OS_PORT_DESCENDING_STACK == 1u)
         bottom_of_stack = NANO_OS_CAST(uint8_t*, task->stack_origin);
         top_of_stack = NANO_OS_CAST(uint8_t*, &task->stack_origin[task->stack_size]);
-        while (((*bottom_of_stack) == NANO_OS_STATS_STACK_USAGE_MARKER) && (bottom_of_stack != top_of_stack))
+        while (((*bottom_of_stack) == NANO_OS_TASK_STACK_USAGE_MARKER) && (bottom_of_stack != top_of_stack))
         {
             left++;
             bottom_of_stack++;
@@ -286,9 +275,6 @@ nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, ui
 
         ret = NOS_ERR_SUCCESS;
     }
-
-    /* Syscall exit */
-    NANO_OS_SYSCALL_Exit();
 
     return ret;
 }

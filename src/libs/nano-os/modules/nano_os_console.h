@@ -63,6 +63,34 @@ typedef struct _nano_os_console_cmd_group_desc_t
 } nano_os_console_cmd_group_desc_t;
 
 
+/** \brief Console module data */
+typedef struct _nano_os_console_module_t
+{
+    /** \brief Console task stack */
+    nano_os_stack_t console_task_stack[NANO_OS_CONSOLE_TASK_STACK_SIZE];
+    /** \brief Console task context */
+    nano_os_task_t console_task;
+    /** \brief Console command buffer */
+    char console_cmd_buffer[NANO_OS_CONSOLE_CMD_BUFFER_SIZE];
+    /** \brief Console command groups */
+    nano_os_console_cmd_group_desc_t* cmd_groups;
+    /** \brief Console built-in command group */
+    nano_os_console_cmd_group_desc_t builtin_cmd_group;
+    #if (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u)
+    /** \brief Console command history entries */
+    char console_history_cmd_entries[NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT][NANO_OS_CONSOLE_CMD_BUFFER_SIZE];
+    /** \brief Console number of history entries */
+    uint8_t console_history_entry_count;
+    /** \brief Console current command history entry */
+    uint8_t console_current_history_entry;
+    /** \brief Console next history entry to fill */
+    uint8_t console_next_history_entry;
+    #endif /* (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u) */
+
+} nano_os_console_module_t;
+
+
+
 
 /** \brief Initialize the console module */
 nano_os_error_t NANO_OS_CONSOLE_Init(const nano_os_port_init_data_t* const port_init_data);

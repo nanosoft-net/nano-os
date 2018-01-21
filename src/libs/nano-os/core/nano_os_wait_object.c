@@ -82,6 +82,9 @@ nano_os_error_t NANO_OS_WAIT_OBJECT_Initialize(nano_os_wait_object_t* const wait
             /* Add object to the global list */
             wait_object->next = g_nano_os.wait_objects;
             g_nano_os.wait_objects = wait_object;
+
+            /* Update number of wait objects */
+            g_nano_os.wait_object_count++;
             #endif /* (NANO_OS_WAIT_OBJECT_LIST_ENABLED == 1u) */
 
             #if (NANO_OS_TRACE_ENABLED == 1u)
@@ -94,11 +97,6 @@ nano_os_error_t NANO_OS_WAIT_OBJECT_Initialize(nano_os_wait_object_t* const wait
             /* Name */
             wait_object->name = NULL;
             #endif /* (NANO_OS_WAIT_OBJECT_NAME_ENABLED == 1u) */
-
-            #if (NANO_OS_DEBUG_ENABLED == 1u)
-            /* Update number of wait objects */
-            g_nano_os.wait_object_count++;
-            #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
         }
     }
 
@@ -227,15 +225,14 @@ nano_os_error_t NANO_OS_WAIT_OBJECT_Destroy(nano_os_wait_object_t* const wait_ob
             {
                 previous->next = wait_object->next;
             }
+
+            /* Update number of wait objects */
+            g_nano_os.wait_object_count--;
+
             #endif /* (NANO_OS_WAIT_OBJECT_LIST_ENABLED == 1u) */
 
             /* De-init wait object */
             (void)MEMSET(wait_object, 0, sizeof(nano_os_wait_object_t));
-
-            #if (NANO_OS_DEBUG_ENABLED == 1u)
-            /* Update number of wait objects */
-            g_nano_os.wait_object_count--;
-            #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
         }
     }
 

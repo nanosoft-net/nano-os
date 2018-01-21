@@ -52,8 +52,8 @@ static const nano_os_console_cmd_desc_t console_builtin_commands[] = {
                                                                         {"version", "Display the version of Nano OS", NANO_OS_CONSOLE_VersionCmdHandler}
                                                                      };
 
-
-
+/** \brief Console module data */
+static nano_os_console_module_t console_module;
 
 
 /** \brief Initialize the console module */
@@ -65,6 +65,9 @@ nano_os_error_t NANO_OS_CONSOLE_Init(const nano_os_port_init_data_t* const port_
     /* Check parameters */
     if (port_init_data != NULL)
     {
+        /* 0 init of the module */
+        (void)MEMSET(&console_module, 0, sizeof(nano_os_console_module_t));
+
         /* Initialize the hardware drivers of the user module which will send/receive the console packets */
         ret = NANO_OS_USER_ConsoleHwInit();
         if (ret == NOS_ERR_SUCCESS)
@@ -75,22 +78,22 @@ nano_os_error_t NANO_OS_CONSOLE_Init(const nano_os_port_init_data_t* const port_
             task_init_data.name = "Console task";
             #endif /* (NANO_OS_TASK_NAME_ENABLED == 1u) */
             task_init_data.base_priority = NANO_OS_CONSOLE_TASK_PRIORITY;
-            task_init_data.stack_origin = g_nano_os.console_task_stack;
+            task_init_data.stack_origin = console_module.console_task_stack;
             task_init_data.stack_size = NANO_OS_CONSOLE_TASK_STACK_SIZE;
             task_init_data.task_func = NANO_OS_CONSOLE_Task;
             task_init_data.param = NULL;
             #if (NANO_OS_PORT_CONTAINS_TASK_DATA == 1u)
             (void)MEMCPY(&task_init_data.port_init_data, &port_init_data->console_task_init_data, sizeof(nano_os_port_task_init_data_t));
             #endif /* (NANO_OS_PORT_CONTAINS_TASK_DATA == 1u) */
-            ret = NANO_OS_TASK_Create(&g_nano_os.console_task, &task_init_data);
+            ret = NANO_OS_TASK_Create(&console_module.console_task, &task_init_data);
             if (ret == NOS_ERR_SUCCESS)
             {
                 /* Register built-in commands */
-                g_nano_os.cmd_groups = &g_nano_os.builtin_cmd_group;
-                g_nano_os.cmd_groups->commands = console_builtin_commands;
-                g_nano_os.cmd_groups->command_count = sizeof(console_builtin_commands) / sizeof(nano_os_console_cmd_desc_t);
-                g_nano_os.cmd_groups->user_data = NULL;
-                g_nano_os.cmd_groups->next = NULL;
+                console_module.cmd_groups = &console_module.builtin_cmd_group;
+                console_module.cmd_groups->commands = console_builtin_commands;
+                console_module.cmd_groups->command_count = sizeof(console_builtin_commands) / sizeof(nano_os_console_cmd_desc_t);
+                console_module.cmd_groups->user_data = NULL;
+                console_module.cmd_groups->next = NULL;
             }
         }
     }
@@ -108,8 +111,8 @@ nano_os_error_t NANO_OS_CONSOLE_RegisterCommands(nano_os_console_cmd_group_desc_
     if (commands != NULL)
     {
         /* Add command group to the command list */
-        commands->next = g_nano_os.cmd_groups;
-        g_nano_os.cmd_groups = commands;
+        commands->next = console_module.cmd_groups;
+        console_module.cmd_groups = commands;
         ret = NOS_ERR_SUCCESS;
     }
 
@@ -181,7 +184,7 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
         /* Reset command buffer */
         new_cmd = false;
         cmd_line_count = 0u;
-        current_cmd_char = &g_nano_os.console_cmd_buffer[0u];
+        current_cmd_char = &console_module.console_cmd_buffer[0u];
         (*current_cmd_char) = 0;
         #if (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u)
         escape_sequence = 0;
@@ -221,35 +224,35 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
                     case 'A':
                     {
                         /* Up key = previous command in history */
-                        if (g_nano_os.console_history_entry_count != 0u)
+                        if (console_module.console_history_entry_count != 0u)
                         {
                             nano_os_error_t ret;
 
                             /* Update current history entry cursor */
-                            if (g_nano_os.console_current_history_entry == 0u)
+                            if (console_module.console_current_history_entry == 0u)
                             {
-                                if (g_nano_os.console_history_entry_count == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
+                                if (console_module.console_history_entry_count == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
                                 {
-                                    g_nano_os.console_current_history_entry = (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT - 1u);
+                                    console_module.console_current_history_entry = (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT - 1u);
                                 }
                             }
                             else
                             {
-                                g_nano_os.console_current_history_entry--;
+                                console_module.console_current_history_entry--;
                             }
 
                             /* Clear line */
                             NANO_OS_CONSOLE_ClearLine(cmd_line_count);
 
                             /* Copy current history entry to command line */
-                            (void)MEMCPY(g_nano_os.console_cmd_buffer,
-                                         g_nano_os.console_history_cmd_entries[g_nano_os.console_current_history_entry],
+                            (void)MEMCPY(console_module.console_cmd_buffer,
+                                         console_module.console_history_cmd_entries[console_module.console_current_history_entry],
                                          NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
-                            cmd_line_count = STRNLEN(g_nano_os.console_cmd_buffer, NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
-                            current_cmd_char = &g_nano_os.console_cmd_buffer[cmd_line_count];
+                            cmd_line_count = STRNLEN(console_module.console_cmd_buffer, NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
+                            current_cmd_char = &console_module.console_cmd_buffer[cmd_line_count];
 
                             /* Send new command entry */
-                            ret = NANO_OS_USER_ConsoleWriteString(g_nano_os.console_cmd_buffer);
+                            ret = NANO_OS_USER_ConsoleWriteString(console_module.console_cmd_buffer);
                             NANO_OS_ERROR_ASSERT_RET(ret);
                         }
                     }
@@ -258,23 +261,23 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
                     case 'B':
                     {
                         /* Down key = next command in history */
-                        if (g_nano_os.console_history_entry_count != 0u)
+                        if (console_module.console_history_entry_count != 0u)
                         {
                             nano_os_error_t ret;
 
                             /* Update current history entry cursor */
-                            if (g_nano_os.console_current_history_entry == (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT - 1u))
+                            if (console_module.console_current_history_entry == (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT - 1u))
                             {
-                                if (g_nano_os.console_history_entry_count == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
+                                if (console_module.console_history_entry_count == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
                                 {
-                                    g_nano_os.console_current_history_entry = 0u;
+                                    console_module.console_current_history_entry = 0u;
                                 }
                             }
                             else
                             {
-                                if (g_nano_os.console_current_history_entry < (g_nano_os.console_history_entry_count - 1u))
+                                if (console_module.console_current_history_entry < (console_module.console_history_entry_count - 1u))
                                 {
-                                    g_nano_os.console_current_history_entry++;
+                                    console_module.console_current_history_entry++;
                                 }
                             }
 
@@ -282,14 +285,14 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
                             NANO_OS_CONSOLE_ClearLine(cmd_line_count);
 
                             /* Copy current history entry to command line */
-                            (void)MEMCPY(g_nano_os.console_cmd_buffer,
-                                         g_nano_os.console_history_cmd_entries[g_nano_os.console_current_history_entry],
+                            (void)MEMCPY(console_module.console_cmd_buffer,
+                                         console_module.console_history_cmd_entries[console_module.console_current_history_entry],
                                          NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
-                            cmd_line_count = STRNLEN(g_nano_os.console_cmd_buffer, NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
-                            current_cmd_char = &g_nano_os.console_cmd_buffer[cmd_line_count];
+                            cmd_line_count = STRNLEN(console_module.console_cmd_buffer, NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
+                            current_cmd_char = &console_module.console_cmd_buffer[cmd_line_count];
 
                             /* Send new command entry */
-                            ret = NANO_OS_USER_ConsoleWriteString(g_nano_os.console_cmd_buffer);
+                            ret = NANO_OS_USER_ConsoleWriteString(console_module.console_cmd_buffer);
                             NANO_OS_ERROR_ASSERT_RET(ret);
                         }
                     }
@@ -402,24 +405,24 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
 
                     #if (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u)
                     /* Save command line to history */
-                    (void)MEMCPY(g_nano_os.console_history_cmd_entries[g_nano_os.console_next_history_entry],
-                                 g_nano_os.console_cmd_buffer,
+                    (void)MEMCPY(console_module.console_history_cmd_entries[console_module.console_next_history_entry],
+                                 console_module.console_cmd_buffer,
                                  NANO_OS_CONSOLE_CMD_BUFFER_SIZE);
 
-                    g_nano_os.console_next_history_entry++;
-                    if (g_nano_os.console_next_history_entry == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
+                    console_module.console_next_history_entry++;
+                    if (console_module.console_next_history_entry == NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
                     {
-                        g_nano_os.console_next_history_entry = 0u;
+                        console_module.console_next_history_entry = 0u;
                     }
-                    g_nano_os.console_current_history_entry = g_nano_os.console_next_history_entry;
-                    if (g_nano_os.console_history_entry_count != NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
+                    console_module.console_current_history_entry = console_module.console_next_history_entry;
+                    if (console_module.console_history_entry_count != NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT)
                     {
-                        g_nano_os.console_history_entry_count++;
+                        console_module.console_history_entry_count++;
                     }
                     #endif /* (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u) */
 
                     /* Decode command */
-                    success = NANO_OS_CONSOLE_DecodeCmd(g_nano_os.console_cmd_buffer, cmd_line_count);
+                    success = NANO_OS_CONSOLE_DecodeCmd(console_module.console_cmd_buffer, cmd_line_count);
                     if (!success)
                     {
                         ret = NANO_OS_USER_ConsoleWriteString("Invalid command\r\n");
@@ -427,7 +430,7 @@ static void* NANO_OS_CONSOLE_Task(void* const param)
                     }
 
                     /* Reset command line */
-                    (void)MEMSET(g_nano_os.console_cmd_buffer, 0, cmd_line_count);
+                    (void)MEMSET(console_module.console_cmd_buffer, 0, cmd_line_count);
                 }
 
             #if (NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT > 0u)
@@ -450,9 +453,9 @@ static void NANO_OS_CONSOLE_ClearLine(const uint32_t cmd_line_count)
     nano_os_error_t ret;
     for(i = 0; i < cmd_line_count; i++)
     {
-        g_nano_os.console_cmd_buffer[i] = 0x7F;
+        console_module.console_cmd_buffer[i] = 0x7F;
     }
-    ret = NANO_OS_USER_ConsoleWriteString(g_nano_os.console_cmd_buffer);
+    ret = NANO_OS_USER_ConsoleWriteString(console_module.console_cmd_buffer);
     NANO_OS_ERROR_ASSERT_RET(ret);
 }
 
@@ -477,7 +480,7 @@ static bool NANO_OS_CONSOLE_DecodeCmd(char* cmd, uint32_t len)
     }
 
     /* Look for the command in all the commands groups */
-    current_group = g_nano_os.cmd_groups;
+    current_group = console_module.cmd_groups;
     while ((current_group != NULL) && (!found))
     {
         /* Look for the command in the command group */
@@ -512,7 +515,7 @@ static void NANO_OS_CONSOLE_HelpCmdHandler(void* const user_data, const uint32_t
     {
         /* Look for the command in all the commands groups */
         bool found = false;
-        nano_os_console_cmd_group_desc_t* current_group = g_nano_os.cmd_groups;
+        nano_os_console_cmd_group_desc_t* current_group = console_module.cmd_groups;
         while ((current_group != NULL) && (!found))
         {
             /* Look for the command in the command group */
@@ -539,7 +542,7 @@ static void NANO_OS_CONSOLE_HelpCmdHandler(void* const user_data, const uint32_t
     else
     {
         /* Go through all the commands groups */
-        nano_os_console_cmd_group_desc_t* current_group = g_nano_os.cmd_groups;
+        nano_os_console_cmd_group_desc_t* current_group = console_module.cmd_groups;
         while (current_group != NULL)
         {
             /* Go through all the commands in the command group */
