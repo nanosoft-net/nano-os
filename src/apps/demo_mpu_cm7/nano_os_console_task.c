@@ -37,9 +37,19 @@ nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_da
     {
         uint32_t uart_regs, uart_regs_size;
 
-        /* Configure MPU region to have access to module private data = stack + internal variables */
-        port_init_data->mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_START_);
+        /* Allow read-only access to the whole RAM area to enable the retrieval of task and sync objects infos in the whole system */
+        port_init_data->mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _NANO_OS_MODULES_RO_DATA_START_);
         ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[0u].attributes,
+                                                  true,
+                                                  NANO_OS_PORT_MPU_ATTR_AP_UNPRIVILEDGED_READ_ONLY,
+                                                  NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
+                                                  false,
+                                                  NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
+                                                  (NANO_OS_CAST(uint32_t, _NANO_OS_MODULES_RO_DATA_END_) - NANO_OS_CAST(uint32_t, _NANO_OS_MODULES_RO_DATA_START_)));
+
+        /* Configure MPU region to have access to module private data = stack + internal variables */
+        port_init_data->mem_regions[1u].base_address = NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_START_);
+        ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[1u].attributes,
                                                   true,
                                                   NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                                   NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
@@ -47,16 +57,17 @@ nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_da
                                                   NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                                   (NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_END_) - NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_START_)));
 
-        /* Add a region to allow access to UART registers */
+        /* Add a region to allow access to UART registers for access to the console link */
         NANO_OS_BSP_GetUartIoRegistersMem(&uart_regs, &uart_regs_size);
-        port_init_data->mem_regions[1u].base_address = uart_regs;
-        NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[1u].attributes,
+        port_init_data->mem_regions[2u].base_address = uart_regs;
+        NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[2u].attributes,
                                             true,
                                             NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                             NANO_OS_PORT_MPU_ATTR_MEM_DEVICE_NOT_SHAREABLE,
                                             false,
                                             NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                             uart_regs_size);
+
 
         ret = NOS_ERR_SUCCESS;
     }

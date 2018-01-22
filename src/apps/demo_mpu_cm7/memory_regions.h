@@ -25,6 +25,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+
 /* Nano OS internal variables */
 extern char _OS_VAR_START_[];
 extern char _OS_VAR_END_[];
@@ -42,7 +43,10 @@ extern char _CONSOLE_MODULE_VAR_END_[];
 extern char _DEBUG_MODULE_VAR_START_[];
 extern char _DEBUG_MODULE_VAR_END_[];
 
-
+/* RAM memory area which can be read by the Nano OS modules to
+ * enable the retrieval of task and sync objects infos */
+extern char _NANO_OS_MODULES_RO_DATA_START_[];
+extern char _NANO_OS_MODULES_RO_DATA_END_[];
 
 
 /* Variables which are used by all tasks */

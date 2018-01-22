@@ -57,6 +57,7 @@ SECTIONS
   /* Nano OS internal task variables */
   .nano_os_internal_task_var : ALIGN(1024)
   {
+    _NANO_OS_MODULES_RO_DATA_START_ = .;
   	_IDLE_TASK_VAR_START_ = .;
 	*/nano_os_idle_task_stack.o(.bss)
 	*/nano_os_idle_task_stack.o(COMMON)
@@ -141,6 +142,7 @@ SECTIONS
     . = ALIGN(4) + 0x00000600;
     _TOP_OF_STACKS_ = .;
     _OS_VAR_END_ = .;
+    _NANO_OS_MODULES_RO_DATA_END_ = .;
   } > dtcm_ram
   
   /* Heap */
