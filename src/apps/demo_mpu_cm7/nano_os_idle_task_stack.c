@@ -36,8 +36,8 @@ nano_os_error_t NANO_OS_PORT_USER_GetIdleTaskConfig(nano_os_port_task_init_data_
     if ((port_init_data != NULL) && (stack_origin != NULL))
     {
         /* Configure MPU region to have access to task private data = stack */
-        port_init_data->mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _IDLE_TASK_VAR_START_);
-        ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[0u].attributes,
+        ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[0u],
+                                                  NANO_OS_CAST(uint32_t, _IDLE_TASK_VAR_START_),
                                                   true,
                                                   NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                                   NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,

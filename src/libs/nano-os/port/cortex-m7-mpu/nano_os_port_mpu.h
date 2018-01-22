@@ -117,7 +117,7 @@ void NANO_OS_MPU_ConfigureRegion(const uint32_t base_address,
                                  uint32_t attributes);
 
 /** \brief Compute the attributes fields of an MPU region */
-nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(uint32_t* const attributes, const bool execute_never,
+nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(nano_os_port_mpu_region_t* const region, const uint32_t base_address, const bool execute_never,
                                                     const uint8_t access_permission, const uint8_t memory_access_attributes,
                                                     const bool shareable, const uint8_t subregion_enabled_bits,
                                                     const uint32_t size);

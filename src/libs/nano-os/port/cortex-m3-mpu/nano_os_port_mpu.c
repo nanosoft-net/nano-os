@@ -52,10 +52,12 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Initialize the MPU */
 nano_os_error_t NANO_OS_PORT_MPU_Init(void)
 {
-    nano_os_error_t ret = NOS_ERR_PORT_INIT;
+    nano_os_error_t ret = NOS_ERR_MPU_NOT_AVAILABLE;
 
     /* Check if an MPU is available on this device */
-    if ((MPU_TYPE_REG >> 8u) == NANO_OS_PORT_MPU_REGION_COUNT)
+    const uint32_t mpu_type_reg = MPU_TYPE_REG;
+    const uint8_t mpu_region_count = (mpu_type_reg >> 8u);
+    if ((mpu_type_reg != 0u) && (mpu_region_count >= NANO_OS_PORT_MPU_REGION_COUNT))
     {
         uint8_t i;
 
@@ -66,7 +68,7 @@ nano_os_error_t NANO_OS_PORT_MPU_Init(void)
         MPU_CTRL_REG = (1u << 2u);
 
         /* Disable all MPU regions */
-        for (i = 0u; i < NANO_OS_PORT_MPU_REGION_COUNT; i++)
+        for (i = 0u; i < mpu_region_count; i++)
         {
             /* Select region */
             MPU_RNR_REG = i;
@@ -109,7 +111,7 @@ void NANO_OS_MPU_ConfigureRegion(const uint32_t base_address,
 
 
 /** \brief Compute the attributes fields of an MPU region */
-nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(uint32_t* const attributes, const bool execute_never,
+nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(nano_os_port_mpu_region_t* const region, const uint32_t base_address, const bool execute_never,
                                                     const uint8_t access_permission, const uint8_t memory_access_attributes,
                                                     const bool shareable, const uint8_t subregion_enabled_bits,
                                                     const uint32_t size)
@@ -117,69 +119,65 @@ nano_os_error_t NANO_OS_MPU_ComputeRegionAttributes(uint32_t* const attributes, 
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
     /* Check parameters */
-    if ((attributes != NULL) &&
-        (access_permission <= NANO_OS_PORT_MPU_ATTRIBUTE_MAX_AP_FIELD_VALUE) &&
-        (memory_access_attributes <= NANO_OS_PORT_MPU_ATTRIBUTE_MAX_MEM_FIELD_VALUE) &&
-        (size > NANO_OS_PORT_MPU_MIN_REGION_SIZE))
+    if (region != NULL)
     {
-        uint8_t i = 0;
-        uint32_t new_attributes = 0u;
+        /* Check attributes */
+        if ((access_permission <= NANO_OS_PORT_MPU_ATTRIBUTE_MAX_AP_FIELD_VALUE) &&
+            (memory_access_attributes <= NANO_OS_PORT_MPU_ATTRIBUTE_MAX_MEM_FIELD_VALUE) &&
+            (size > NANO_OS_PORT_MPU_MIN_REGION_SIZE))
+        {
+            uint8_t i = 0;
+            uint32_t region_size = 0;
+            uint32_t new_attributes = 0u;
 
-        /* Compute new values */
-        if (execute_never)
-        {
-            new_attributes |= (1u << 28u);
-        }
-        new_attributes |= (access_permission << 24u);
-        new_attributes |= (memory_access_attributes << 16u);
-        if (shareable)
-        {
-            new_attributes |= (1u << 18u);
-        }
-        new_attributes |= (subregion_enabled_bits << 8u);
-        if (size == 0xFFFFFFFFu)
-        {
-            i = 32u;
+            /* Compute new values */
+            if (execute_never)
+            {
+                new_attributes |= (1u << 28u);
+            }
+            new_attributes |= (access_permission << 24u);
+            new_attributes |= (memory_access_attributes << 16u);
+            if (shareable)
+            {
+                new_attributes |= (1u << 18u);
+            }
+            new_attributes |= (subregion_enabled_bits << 8u);
+            if (size == 0xFFFFFFFFu)
+            {
+                i = 32u;
+            }
+            else
+            {
+                i = 0u;
+                region_size = 1;
+                while ( size > (1u << i))
+                {
+                    i++;
+                    region_size |= region_size << 1u;
+                }
+            }
+            region_size = region_size >> 1u;
+            new_attributes |= ((i - 1) << 1u);
+
+            /* Check base address alignment */
+            if ((base_address & region_size) == 0)
+            {
+                /* Apply attributes */
+                region->base_address = base_address;
+                region->attributes = new_attributes;
+
+                ret = NOS_ERR_SUCCESS;
+            }
+            else
+            {
+                ret = NOS_ERR_MPU_REGION_ALIGNMENT;
+            }
         }
         else
         {
-            i = 0u;
-            while ( size > (1u << i))
-            {
-                i++;
-            }
+            ret = NOS_ERR_MPU_REGION_ATTRIBUTE;
         }
-        new_attributes |= ((i - 1) << 1u);
-
-        /* Apply attributes */
-        (*attributes) = new_attributes;
-
-        ret = NOS_ERR_SUCCESS;
     }
 
     return ret;
 }
-
-extern void NANO_OS_PORT_SwitchToPriviledgedMode();
-extern void NANO_OS_PORT_SwitchToUnpriviledgedMode();
-
-void NANO_OS_MPU_Debug()
-{
-    uint8_t i;
-    volatile uint32_t mpu_rbar_reg;
-    volatile uint32_t mpu_rasr_reg;
-    volatile uint32_t mpu_control_reg;
-
-    NANO_OS_PORT_SwitchToPriviledgedMode();
-
-    mpu_control_reg = MPU_CTRL_REG;
-    for (i = 0u; i < NANO_OS_PORT_MPU_REGION_COUNT; i++)
-    {
-        MPU_RNR_REG = i;
-        mpu_rbar_reg = MPU_RBAR_REG;
-        mpu_rasr_reg = MPU_RASR_REG;
-        MPU_RNR_REG = i;
-    }
-    NANO_OS_PORT_SwitchToUnpriviledgedMode();
-}
-

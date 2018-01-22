@@ -17,16 +17,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-##include "nano_os.h"
+#include "nano_os.h"
 #include "nano_os_port.h"
 #include "nano_os_data.h"
 #include "nano_os_tools.h"
 #include "nano_os_trace.h"
-include "nano_os_interrupt.h"
+#include "nano_os_interrupt.h"
 #include "nano_os_port_mpu.h"
 #include "nano_os_scheduler.h"
-#include "nano_os_port_stacks.h"
 #include "nano_os_port_user.h"
+
+
+/** \brief Address of the Coprocessor Access Control Register */
+#define CACR_REG                (* NANO_OS_CAST(volatile uint32_t*, 0xe000ed88))
+
+/** \brief Address of the Floating-point Context Control Register */
+#define FPCCR_REG               (* NANO_OS_CAST(volatile uint32_t*, 0xe000ef34))
 
 
 /** \brief Address of the Systick control register */
@@ -38,56 +44,13 @@ include "nano_os_interrupt.h"
 /** \brief Address of the Systick current value register */
 #define SYSTICK_CVR_REG        (* NANO_OS_CAST(volatile uint32_t*, 0xe000e018))
 
+
 /** \brief Switch the CPU to priviledged mode */
 extern void NANO_OS_PORT_SwitchToPriviledgedMode(void);
 
 /** \brief Port specific first task context switch */
 extern nano_os_error_t NANO_OS_PORT_FirstContextSwitchAsm(void);
 
-
-typedef struct
-{
-    uint32_t CPUID;                        /*!< Offset: 0x00  CPU ID Base Register                                  */
-    uint32_t ICSR;                         /*!< Offset: 0x04  Interrupt Control State Register                      */
-    uint32_t VTOR;                         /*!< Offset: 0x08  Vector Table Offset Register                          */
-    uint32_t AIRCR;                        /*!< Offset: 0x0C  Application Interrupt / Reset Control Register        */
-    uint32_t SCR;                          /*!< Offset: 0x10  System Control Register                               */
-    uint32_t CCR;                          /*!< Offset: 0x14  Configuration Control Register                        */
-    uint8_t  SHP[12];                      /*!< Offset: 0x18  System Handlers Priority Registers (4-7, 8-11, 12-15) */
-    uint32_t SHCSR;                        /*!< Offset: 0x24  System Handler Control and State Register             */
-    uint32_t CFSR;                         /*!< Offset: 0x28  Configurable Fault Status Register                    */
-    uint32_t HFSR;                         /*!< Offset: 0x2C  Hard Fault Status Register                            */
-    uint32_t DFSR;                         /*!< Offset: 0x30  Debug Fault Status Register                           */
-    uint32_t MMFAR;                        /*!< Offset: 0x34  Mem Manage Address Register                           */
-    uint32_t BFAR;                         /*!< Offset: 0x38  Bus Fault Address Register                            */
-    uint32_t AFSR;                         /*!< Offset: 0x3C  Auxiliary Fault Status Register                       */
-    uint32_t PFR[2];                       /*!< Offset: 0x40  Processor Feature Register                            */
-    uint32_t DFR;                          /*!< Offset: 0x48  Debug Feature Register                                */
-    uint32_t ADR;                          /*!< Offset: 0x4C  Auxiliary Feature Register                            */
-    uint32_t MMFR[4];                      /*!< Offset: 0x50  Memory Model Feature Register                         */
-    uint32_t ISAR[5];                      /*!< Offset: 0x60  ISA Feature Register                                  */
-} SCB_Type;
-/* Memory mapping of Cortex-M3 Hardware */
-#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
-#define SCB_BASE            (SCS_BASE +  0x0D00)                      /*!< System Control Block Base Address */
-#define SCB                 ((SCB_Type *)           SCB_BASE)         /*!< SCB configuration struct          */
-void HardFault_Handler(void)
-{
-    volatile uint32_t shcsr = SCB->SHCSR;
-    volatile uint32_t hfsr = SCB->HFSR;
-    while(true)
-    {}
-}
-
-void MPUFault_Handler(void)
-{
-    volatile uint32_t shcsr = SCB->SHCSR;
-    volatile uint32_t cfsr = SCB->CFSR;
-    volatile uint32_t mmfar = SCB->MMFAR;
-    volatile uint32_t bfar = SCB->BFAR;
-    while(true)
-    {}
-}
 
 
 /** \brief Port specific initialization */
@@ -96,7 +59,6 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
 	uint32_t systick_input_freq_hz;
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
-    SCB->SHCSR = (0x07u << 16u);
     /* Check parameters */
     if (port_init_data != NULL)
     {
@@ -107,82 +69,83 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
         NANO_OS_PORT_DISABLE_INTERRUPTS();
 
         /* Initialize port data */
-        g_nano_os.idle_task_stack = g_idle_task_stack;
         (void)MEMSET(&port_init_data->idle_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
-        port_init_data->idle_task_init_data.mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _IDLE_TASK_VAR_START_);
-        NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->idle_task_init_data.mem_regions[0u].attributes,
-                                            true,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
-                                            true,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            (NANO_OS_CAST(uint32_t, _IDLE_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _IDLE_TASK_VAR_START_)));
-
-        g_nano_os.isr_request_task_stack = g_isr_request_task_stack;
-        (void)MEMSET(&port_init_data->isr_request_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
-        port_init_data->isr_request_task_init_data.is_priviledged = true;
-        port_init_data->isr_request_task_init_data.mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _ISR_REQUEST_TASK_VAR_START_);
-        NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->isr_request_task_init_data.mem_regions[0u].attributes,
-                                            true,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
-                                            true,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            (NANO_OS_CAST(uint32_t, _ISR_REQUEST_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _ISR_REQUEST_TASK_VAR_START_)));
-
-        /* Configure global MPU regions */
-        g_nano_os.port_data.common_regions[0u].base_address = NANO_OS_CAST(uint32_t, _OS_VAR_START_);
-        NANO_OS_MPU_ComputeRegionAttributes(&g_nano_os.port_data.common_regions[0u].attributes,
-                                            true,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
-                                            true,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            (NANO_OS_CAST(uint32_t, _OS_VAR_END_) - NANO_OS_CAST(uint32_t, _OS_VAR_START_)));
-
-        g_nano_os.port_data.common_regions[1u].base_address = NANO_OS_CAST(uint32_t, _COMMON_CODE_START_);
-        NANO_OS_MPU_ComputeRegionAttributes(&g_nano_os.port_data.common_regions[1u].attributes,
-                                            false,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
-                                            false,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            (NANO_OS_CAST(uint32_t, _COMMON_CODE_END_) - NANO_OS_CAST(uint32_t, _COMMON_CODE_START_)));
-
-        g_nano_os.port_data.common_regions[2u].base_address = NANO_OS_CAST(uint32_t, _COMMON_DATA_START_);
-        NANO_OS_MPU_ComputeRegionAttributes(&g_nano_os.port_data.common_regions[2u].attributes,
-                                            true,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
-                                            true,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            (NANO_OS_CAST(uint32_t, _COMMON_DATA_END_) - NANO_OS_CAST(uint32_t, _COMMON_DATA_START_)));
-        /* Initialize MPU */
-        ret = NANO_OS_PORT_MPU_Init();
+        ret = NANO_OS_PORT_USER_GetIdleTaskConfig(&port_init_data->idle_task_init_data, &g_nano_os.idle_task_stack);
         if (ret == NOS_ERR_SUCCESS)
         {
-            uint8_t i;
+            port_init_data->idle_task_init_data.is_priviledged = false;
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->isr_request_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetInterruptServiceRequestTaskConfig(&port_init_data->isr_request_task_init_data, &g_nano_os.isr_request_task_stack);
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            port_init_data->isr_request_task_init_data.is_priviledged = true;
+        }
+        #if (NANO_OS_TIMER_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->timer_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetTimerTaskConfig(&port_init_data->timer_task_init_data, &g_nano_os.timer_task_stack);
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            port_init_data->timer_task_init_data.is_priviledged = true;
+        }
+        #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+        #if (NANO_OS_CONSOLE_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->console_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetConsoleTaskConfig(&port_init_data->console_task_init_data);
+        }
+        #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+        #if (NANO_OS_DEBUG_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->debug_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetDebugTaskConfig(&port_init_data->debug_task_init_data);
+        }
+        #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
 
-            /* Finalize global MPU region configuration */
-            for(i = 0; i < NANO_OS_PORT_COMMON_MPU_REGION_COUNT; i++)
+
+        /* Configure global MPU regions */
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            ret = NANO_OS_PORT_USER_GetGlobalMpuConfig(g_nano_os.port_data.common_regions);
+        }
+
+        /* Initialize MPU */
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            ret = NANO_OS_PORT_MPU_Init();
+            if (ret == NOS_ERR_SUCCESS)
             {
-                /* Check if the region is enabled */
-                if ((g_nano_os.port_data.common_regions[i].base_address != 0u) ||
-                    (g_nano_os.port_data.common_regions[i].attributes != 0u))
+                uint8_t i;
+
+                /* Finalize global MPU region configuration */
+                for(i = 0; i < NANO_OS_PORT_COMMON_MPU_REGION_COUNT; i++)
                 {
-                    const uint8_t region_number = i;
+                    /* Check if the region is enabled */
+                    if ((g_nano_os.port_data.common_regions[i].base_address != 0u) ||
+                        (g_nano_os.port_data.common_regions[i].attributes != 0u))
+                    {
+                        const uint8_t region_number = i;
 
-                    /* Add the VALID bit and the region number to the base address field */
-                    g_nano_os.port_data.common_regions[i].base_address |= ((1u << 4u) | region_number);
+                        /* Add the VALID bit and the region number to the base address field */
+                        g_nano_os.port_data.common_regions[i].base_address |= ((1u << 4u) | region_number);
 
-                    /* Add the ENABLE bit to the attributes */
-                    g_nano_os.port_data.common_regions[i].attributes |= 0x01u;
+                        /* Add the ENABLE bit to the attributes */
+                        g_nano_os.port_data.common_regions[i].attributes |= 0x01u;
+                    }
                 }
-            }
 
-            systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
-            SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
-            SYSTICK_CTRL_REG = 0x07u;
+                systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
+                SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
+                SYSTICK_CTRL_REG = 0x07u;
+            }
         }
     }
 
@@ -223,7 +186,7 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
         uint8_t i;
 
         /* Compute top of stack (full descending stack on Cortex-M3 processors) */
-        task->top_of_stack = task->stack_origin + task->stack_size;
+        task->top_of_stack = task->stack_origin + task_init_data->stack_size;
 
         /* First part = exception stack frame */
         task->top_of_stack--;

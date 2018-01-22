@@ -36,7 +36,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 	PUBLIC NANO_OS_PORT_SaveInterruptStatus
 	PUBLIC NANO_OS_PORT_RestoreInterruptStatus
 
-	PUBLIC NANO_OS_PORT_FirstContextSwitch
+	PUBLIC NANO_OS_PORT_FirstContextSwitchAsm
 	PUBLIC NANO_OS_PORT_ContextSwitch
 	PUBLIC NANO_OS_PORT_ContextSwitchFromIsr
 
@@ -69,7 +69,6 @@ NANO_OS_PORT_SaveInterruptStatus:
     bx      lr
 
 
-
 /* void NANO_OS_PORT_RestoreInterruptStatus(const nano_os_int_status_reg_t int_status_reg)
    Restore the interrupt status register passed in parameter -> Register R0 */
 NANO_OS_PORT_RestoreInterruptStatus:
@@ -80,15 +79,12 @@ NANO_OS_PORT_RestoreInterruptStatus:
 
 
 
-
-
 /* void NANO_OS_PORT_SwitchToPriviledgedMode(void)
    Switch the CPU to priviledged mode */
 NANO_OS_PORT_SwitchToPriviledgedMode:
 
 	svc #SVC_SWITCH_TO_PRIVILEDGED_MODE
 	bx lr
-
 
 
 /* void NANO_OS_PORT_SwitchToUnpriviledgedMode(void)
@@ -102,10 +98,9 @@ NANO_OS_PORT_SwitchToUnpriviledgedMode:
 
 
 
-
-/* nano_os_error_t NANO_OS_PORT_FirstContextSwitch(void)
+/* nano_os_error_t NANO_OS_PORT_FirstContextSwitchAsm(void)
    Port specific first task context switch */
-NANO_OS_PORT_FirstContextSwitch:
+NANO_OS_PORT_FirstContextSwitchAsm:
 
     /* Set SP=MSP to point to the reset MSP value to use initial C stack as exception stack. */
     ldr     r0, =0xE000ED08
@@ -124,7 +119,6 @@ NANO_OS_PORT_FirstContextSwitch:
 
 
 
-
 /* void NANO_OS_PORT_ContextSwitchFromIsr(void)
    Port specific interrupt level context switch */
 NANO_OS_PORT_ContextSwitchFromIsr:
@@ -138,7 +132,6 @@ NANO_OS_PORT_ContextSwitchFromIsr:
 
     /* Return to caller */
     bx      lr
-
 
 
 
@@ -161,7 +154,6 @@ NANO_OS_PORT_ContextSwitch:
 
     /* Return to OS protected code */
     bx      lr
-
 
 
 /* void NANO_OS_PORT_SvcHandler(void)
@@ -201,7 +193,7 @@ NANO_OS_PORT_SvcHandler_FirstContextSwitch:
 	adds	sp, sp, #0x20
 
 	/* Configure task specific MPU regions */
-    ldr		r0, [r0]
+    mov		r0, r1
     stmdb	sp!, {r2}
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
     ldmia	sp!, {r2}
@@ -225,7 +217,6 @@ NANO_OS_PORT_SvcHandler_SwitchToPriviledgedMode:
 
 	/* Exit exception */
     bx      lr
-
 
 
 /* void NANO_OS_PORT_PendSvHandler()
@@ -259,7 +250,7 @@ NANO_OS_PORT_PendSvHandler:
     str     r1, [r0]
 
     /* Re-configure task specific MPU regions */
-    ldr		r0, [r0]
+    mov		r0, r1
     mov		r11, lr
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
 	mov		lr, r11
@@ -277,7 +268,6 @@ NANO_OS_PORT_PendSvHandler:
 
     /* Exit exception */
     bx      lr
-
 
 
 
@@ -310,6 +300,7 @@ NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions:
 	/* Enable MPU */
 	str		r2, [r1]
 	dsb
+	isb
 
 	/* Return to caller */
 	bx		lr

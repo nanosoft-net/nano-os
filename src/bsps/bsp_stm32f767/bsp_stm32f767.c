@@ -121,4 +121,3 @@ void NANO_OS_BSP_GetUartIoRegistersMem(uint32_t* const start_address, uint32_t* 
         (*size) = 0x0400u;
     }
 }
-

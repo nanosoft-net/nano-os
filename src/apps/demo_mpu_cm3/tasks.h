@@ -21,7 +21,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TASKS_H
 #define TASKS_H
 
-#include "nano_os.h"
+#include "nano_os_api.h"
 
 
 /** \brief Task synchronization semaphore */

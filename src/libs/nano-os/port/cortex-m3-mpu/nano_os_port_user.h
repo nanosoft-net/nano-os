@@ -35,6 +35,30 @@ extern "C"
 uint32_t NANO_OS_PORT_USER_GetSystickInputClockFreq(void);
 
 
+/** \brief Get port specific global MPU configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetGlobalMpuConfig(nano_os_port_mpu_region_t* const mpu_regions);
+
+/** \brief Get idle task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetIdleTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin);
+
+/** \brief Get interrupt service request task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetInterruptServiceRequestTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin);
+
+#if (NANO_OS_TIMER_ENABLED == 1u)
+/** \brief Get timer task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetTimerTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin);
+#endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+
+#if (NANO_OS_CONSOLE_ENABLED == 1u)
+/** \brief Get console task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_data_t* const port_init_data);
+#endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+
+#if (NANO_OS_DEBUG_ENABLED == 1u)
+/** \brief Get debug task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data_t* const port_init_data);
+#endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
+
 
 #ifdef __cplusplus
 }

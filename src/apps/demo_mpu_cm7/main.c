@@ -50,7 +50,7 @@ typedef struct
 } SCB_Type;
 
 
-/* Memory mapping of Cortex-M7 Hardware */
+/* Memory mapping of System Control Block */
 #define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
 #define SCB_BASE            (SCS_BASE +  0x0D00)                      /*!< System Control Block Base Address */
 #define SCB                 ((SCB_Type *)           SCB_BASE)         /*!< SCB configuration struct          */
@@ -67,7 +67,7 @@ int main(void)
 {
     nano_os_error_t ret;
 
-    /* Redirect MPU faults to MemManage_Handler instead of HardFault_Handler */
+    /* Redirect MPU faults to MPUFault_Handler instead of HardFault_Handler */
     SCB->SHCSR = (0x07u << 16u);
 
     /* Initialize board */
@@ -109,8 +109,8 @@ nano_os_error_t NANO_OS_PORT_USER_GetGlobalMpuConfig(nano_os_port_mpu_region_t* 
     if (mpu_regions != NULL)
     {
         /* Protect access to Nano OS internal variables by allowing only prvileged tasks */
-        mpu_regions[0u].base_address = NANO_OS_CAST(uint32_t, _OS_VAR_START_);
-        ret = NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[0u].attributes,
+        ret = NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[0u],
+                                                  NANO_OS_CAST(uint32_t, _OS_VAR_START_),
                                                   true,
                                                   NANO_OS_PORT_MPU_ATTR_AP_UNPRIVILEDGED_READ_ONLY,
                                                   NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
@@ -119,8 +119,8 @@ nano_os_error_t NANO_OS_PORT_USER_GetGlobalMpuConfig(nano_os_port_mpu_region_t* 
                                                   (NANO_OS_CAST(uint32_t, _OS_VAR_END_) - NANO_OS_CAST(uint32_t, _OS_VAR_START_)));
 
         /* Allow full access to code shared by all tasks */
-        mpu_regions[1u].base_address = NANO_OS_CAST(uint32_t, _COMMON_CODE_START_);
-        ret |= NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[1u].attributes,
+        ret |= NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[1u],
+                                                   NANO_OS_CAST(uint32_t, _COMMON_CODE_START_),
                                                    false,
                                                    NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                                    NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
@@ -129,8 +129,8 @@ nano_os_error_t NANO_OS_PORT_USER_GetGlobalMpuConfig(nano_os_port_mpu_region_t* 
                                                    (NANO_OS_CAST(uint32_t, _COMMON_CODE_END_) - NANO_OS_CAST(uint32_t, _COMMON_CODE_START_)));
 
         /* Allow full access to variables shared by all tasks */
-        mpu_regions[2u].base_address = NANO_OS_CAST(uint32_t, _COMMON_DATA_START_);
-        ret |= NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[2u].attributes,
+        ret |= NANO_OS_MPU_ComputeRegionAttributes(&mpu_regions[2u],
+                                                   NANO_OS_CAST(uint32_t, _COMMON_DATA_START_),
                                                    true,
                                                    NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                                    NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
@@ -157,8 +157,8 @@ void HardFault_Handler(void)
    {}
 }
 
-/** \brief MPU error handler */
-void MemManage_Handler(void)
+/** \brief MPU fault handler */
+void MPUFault_Handler(void)
 {
    /* Uncomment the following block to get more information on the cause of the exception */
    /*

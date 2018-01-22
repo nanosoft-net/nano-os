@@ -72,6 +72,7 @@ typedef struct _nano_os_port_task_data_t
     bool is_priviledged;
 } nano_os_port_task_data_t;
 
+
 /** \brief Port specific task init data */
 typedef struct _nano_os_port_task_init_data_t
 {

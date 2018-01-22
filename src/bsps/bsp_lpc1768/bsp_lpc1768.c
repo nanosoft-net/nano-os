@@ -155,3 +155,14 @@ void NANO_OS_BSP_GetLedIoRegistersMem(uint32_t* const start_address, uint32_t* c
         (*size) = 0x100u;
     }
 }
+
+/** \brief Get the UART registers memory area description */
+void NANO_OS_BSP_GetUartIoRegistersMem(uint32_t* const start_address, uint32_t* const size)
+{
+    /* Check parameters */
+    if ((start_address != NULL) && (size != NULL))
+    {
+        (*start_address) = LPC_UART0_BASE;
+        (*size) = 0x4000u;
+    }
+}

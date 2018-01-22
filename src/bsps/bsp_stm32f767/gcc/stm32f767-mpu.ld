@@ -128,7 +128,7 @@ SECTIONS
   } > dtcm_ram
   
   /* OS variables */
-  .os_var : ALIGN(2048)
+  .os_var : ALIGN(4096)
   { 	
   	_OS_VAR_START_ = .;
 	*/libnano-os.a:*(.bss)

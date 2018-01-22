@@ -36,7 +36,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 	PUBLIC NANO_OS_PORT_SaveInterruptStatus
 	PUBLIC NANO_OS_PORT_RestoreInterruptStatus
 
-	PUBLIC NANO_OS_PORT_FirstContextSwitch
+	PUBLIC NANO_OS_PORT_FirstContextSwitchAsm
 	PUBLIC NANO_OS_PORT_ContextSwitch
 	PUBLIC NANO_OS_PORT_ContextSwitchFromIsr
 
@@ -69,15 +69,12 @@ NANO_OS_PORT_SaveInterruptStatus:
     bx      lr
 
 
-
 /* void NANO_OS_PORT_RestoreInterruptStatus(const nano_os_int_status_reg_t int_status_reg)
    Restore the interrupt status register passed in parameter -> Register R0 */
 NANO_OS_PORT_RestoreInterruptStatus:
 
     msr     primask, r0
     bx      lr
-
-
 
 
 
@@ -90,22 +87,22 @@ NANO_OS_PORT_SwitchToPriviledgedMode:
 	bx lr
 
 
-
 /* void NANO_OS_PORT_SwitchToUnpriviledgedMode(void)
    Switch the CPU to unpriviledged mode */
 NANO_OS_PORT_SwitchToUnpriviledgedMode:
 
-	movs	r0, #0x03	/* nPRIV bit = 1, active stack pointer = PSP */
+	mrs 	r0, control
+	movs	r1, #0x01	/* nPRIV bit = 1 */
+	orrs	r0, r0, r1
 	msr		control, r0
 
 	bx lr
 
 
 
-
-/* nano_os_error_t NANO_OS_PORT_FirstContextSwitch(void)
+/* nano_os_error_t NANO_OS_PORT_FirstContextSwitchAsm(void)
    Port specific first task context switch */
-NANO_OS_PORT_FirstContextSwitch:
+NANO_OS_PORT_FirstContextSwitchAsm:
 
     /* Set SP=MSP to point to the reset MSP value to use initial C stack as exception stack. */
     ldr     r0, =0xE000ED08
@@ -124,7 +121,6 @@ NANO_OS_PORT_FirstContextSwitch:
 
 
 
-
 /* void NANO_OS_PORT_ContextSwitchFromIsr(void)
    Port specific interrupt level context switch */
 NANO_OS_PORT_ContextSwitchFromIsr:
@@ -138,7 +134,6 @@ NANO_OS_PORT_ContextSwitchFromIsr:
 
     /* Return to caller */
     bx      lr
-
 
 
 
@@ -161,7 +156,6 @@ NANO_OS_PORT_ContextSwitch:
 
     /* Return to OS protected code */
     bx      lr
-
 
 
 /* void NANO_OS_PORT_SvcHandler(void)
@@ -201,10 +195,20 @@ NANO_OS_PORT_SvcHandler_FirstContextSwitch:
 	adds	sp, sp, #0x20
 
 	/* Configure task specific MPU regions */
-    ldr		r0, [r0]
-    stmdb	sp!, {r2}
+    mov		r0, r1
+    stmdb	sp!, {r1-r2}
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
-    ldmia	sp!, {r2}
+    ldmia	sp!, {r1-r2}
+    
+    /* Check if the task uses FPU */
+	ldrb	r0, [r1, #36]
+	cmp		r0, #1
+	itte	eq
+
+	/* If it uses FPU, load additionnal FPU context */
+	vldmiaeq	r2!, {s16-s31}
+	ldreq		r0, =0xFFFFFFED
+	ldrne		r0, =0xFFFFFFFD
 
 	/* Restore the control register from the next task stack */
 	ldmia	r2!, {r3}
@@ -214,18 +218,18 @@ NANO_OS_PORT_SvcHandler_FirstContextSwitch:
     ldmia	r2!, {r4-r11}
     msr		psp, r2
 
-	/* Exit exception and configure CPU to use PSP for task's stack pointers */
-	ldr		r0, =0xFFFFFFFD
+	/* Exit exception and configure CPU to use PSP for task's stack pointers
+	   with FPU enabled depending on the task to switch on */
     bx      r0
 
 NANO_OS_PORT_SvcHandler_SwitchToPriviledgedMode:
 	/* Switch the CPU to priviledged mode */
-	movs	r0, #0x00	/* nPRIV bit = 0 */
+	mrs		r0, control
+	bfc		r0, #0, #1    	/* nPRIV bit = 0 */
 	msr		control, r0
 
 	/* Exit exception */
     bx      lr
-
 
 
 /* void NANO_OS_PORT_PendSvHandler()
@@ -248,8 +252,16 @@ NANO_OS_PORT_PendSvHandler:
     ldr     r1, [r0, #4]
     ldr     r2, [r1]
 
+    /* Check if the current task uses FPU */
+	ldr 	r3, [r0]
+	ldrb	r4, [r3, #36]
+	cmp		r4, #1
+	it		eq
+
+	/* If it uses FPU, save additionnal FPU context */
+	vstmdbeq	r12!, {s16-s31}
+
     /* Save the stack pointer for the current task */
-    ldr     r3, [r0]
     str     r12, [r3]
 
     /* Set the stack pointer to the next task */
@@ -259,10 +271,20 @@ NANO_OS_PORT_PendSvHandler:
     str     r1, [r0]
 
     /* Re-configure task specific MPU regions */
-    ldr		r0, [r0]
-    mov		r11, lr
+    mov		r0, r1
+    mov		r11, r1
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
-	mov		lr, r11
+	mov		r1, r11
+
+    /* Check if the next task uses FPU */
+	ldrb	r0, [r1, #36]
+	cmp		r0, #1
+	itte	eq
+
+	/* If it uses FPU, restore additionnal FPU context */
+	vldmiaeq	r12!, {s16-s31}
+	ldreq		lr, =0xFFFFFFED
+	ldrne		lr, =0xFFFFFFFD
 
 	/* Restore the control register from the next task stack */
 	ldmia	r12!, {r4}
@@ -277,7 +299,6 @@ NANO_OS_PORT_PendSvHandler:
 
     /* Exit exception */
     bx      lr
-
 
 
 
@@ -310,6 +331,7 @@ NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions:
 	/* Enable MPU */
 	str		r2, [r1]
 	dsb
+	isb
 
 	/* Return to caller */
 	bx		lr

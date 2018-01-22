@@ -37,7 +37,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 	.global NANO_OS_PORT_SaveInterruptStatus
 	.global NANO_OS_PORT_RestoreInterruptStatus
 
-	.global NANO_OS_PORT_FirstContextSwitch
+	.global NANO_OS_PORT_FirstContextSwitchAsm
 	.global NANO_OS_PORT_ContextSwitch
 	.global NANO_OS_PORT_ContextSwitchFromIsr
 
@@ -212,7 +212,7 @@ NANO_OS_PORT_SvcHandler_FirstContextSwitch:
 	adds	sp, sp, #0x20
 
 	/* Configure task specific MPU regions */
-    ldr		r0, [r0]
+    mov		r0, r1
     stmdb	sp!, {r2}
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
     ldmia	sp!, {r2}
@@ -271,7 +271,7 @@ NANO_OS_PORT_PendSvHandler:
     str     r1, [r0]
 
     /* Re-configure task specific MPU regions */
-    ldr		r0, [r0]
+    mov		r0, r1
     mov		r11, lr
     bl		NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions
 	mov		lr, r11
@@ -323,6 +323,7 @@ NANO_OS_PORT_MPU_ConfigureTaskSpecificRegions:
 	/* Enable MPU */
 	str		r2, [r1]
 	dsb
+	isb
 
 	/* Return to caller */
 	bx		lr

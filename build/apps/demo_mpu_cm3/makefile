@@ -35,7 +35,8 @@ PROJECT_DEPENDENCIES :=
 # Libraries needed by the project
 PROJECT_LIBS = libs/nano-os \
                $(TARGET_BSP) \
-               $(TARGET_DEPENDENCIES)
+               $(TARGET_DEPENDENCIES) \
+               libs/nano-os-segger-rtt-link
                
 			  
 # Including common makefile definitions

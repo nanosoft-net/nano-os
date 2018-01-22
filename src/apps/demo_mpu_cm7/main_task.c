@@ -18,7 +18,9 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tasks.h"
+#include "memory_regions.h"
 #include "nano_os_port_mpu.h"
+
 
 /** \brief Stack size in number of elements */
 #define TASK_STACK_SIZE     128u
@@ -32,12 +34,6 @@ static nano_os_task_t main_task;
 
 /** \brief Main task */
 static void* MAIN_Task(void* param);
-
-
-
-/* Linker exported symbols */
-extern char _MAIN_TASK_VAR_START_[];
-extern char _MAIN_TASK_VAR_END_[];
 
 
 
@@ -57,20 +53,11 @@ nano_os_error_t MAIN_TASK_Init(void)
     task_init_data.param = NANO_OS_CAST(void*, 500u);
 
     /* Configure a region for the task private data */
-    task_init_data.port_init_data.mem_regions[0u].base_address = NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
-    NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[0u].attributes,
+    NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[0u],
+                                        NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_),
                                         true,
                                         NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                         NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
-                                        false,
-                                        NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                        (NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));
-
-    task_init_data.port_init_data.mem_regions[1u].base_address = NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_);
-    NANO_OS_MPU_ComputeRegionAttributes(&task_init_data.port_init_data.mem_regions[1u].attributes,
-                                        false,
-                                        NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                        NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_TROUGH_NO_WRITE_ALLOC,
                                         false,
                                         NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                         (NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_END_) - NANO_OS_CAST(uint32_t, _MAIN_TASK_VAR_START_)));

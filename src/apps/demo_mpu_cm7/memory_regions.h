@@ -58,4 +58,14 @@ extern char _COMMON_CODE_START_[];
 extern char _COMMON_CODE_END_[];
 
 
+/* Main task private data */
+extern char _MAIN_TASK_VAR_START_[];
+extern char _MAIN_TASK_VAR_END_[];
+
+/* LED task private data */
+extern char _LED_TASK_VAR_START_[];
+extern char _LED_TASK_VAR_END_[];
+
+
+
 #endif /* MEMORY_REGIONS_H */

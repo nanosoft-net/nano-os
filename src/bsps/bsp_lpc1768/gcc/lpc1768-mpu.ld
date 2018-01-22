@@ -51,26 +51,58 @@ SECTIONS
     _DATA_ROM_START_ = .;
   } > rom
   
-
-  /* Idle task variables */
-  .idle_task_var :
+  
+  /* Nano OS internal task variables */
+  .nano_os_internal_task_var : ALIGN(1024)
   {
+    _NANO_OS_MODULES_RO_DATA_START_ = .;
   	_IDLE_TASK_VAR_START_ = .;
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(.bss)
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(COMMON)
-	*/libnano-os.a:nano_os_port_idle_task_stack.o(.data)
+	*/nano_os_idle_task_stack.o(.bss)
+	*/nano_os_idle_task_stack.o(COMMON)
+	*/nano_os_idle_task_stack.o(.data)
+	. = ALIGN(4);
 	_IDLE_TASK_VAR_END_ = .;
+	
+	_ISR_REQUEST_TASK_VAR_START_ = .;
+	*/nano_os_isr_request_task_stack.o(.bss)
+	*/nano_os_isr_request_task_stack.o(COMMON)
+	*/nano_os_isr_request_task_stack.o(.data)
+	. = ALIGN(4);
+	_ISR_REQUEST_TASK_VAR_END_ = .;
+	
+	_TIMER_TASK_VAR_START_ = .;
+	*/nano_os_timer_task_stack.o(.bss)
+	*/nano_os_timer_task_stack.o(COMMON)
+	*/nano_os_timer_task_stack.o(.data)
+	. = ALIGN(4);
+	_TIMER_TASK_VAR_END_ = .;
+	
   } > ram
   
-  /* ISR request task variables */
-  .isr_request_task_var : ALIGN(1024)
+  /* Console module variables */
+  .console_module_var : ALIGN(2048)
   {
-    
-    _ISR_REQUEST_TASK_VAR_START_ = .;
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(.bss)
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(COMMON)
-	*/libnano-os.a:nano_os_port_isr_request_task_stack.o(.data)
-	_ISR_REQUEST_TASK_VAR_END_ = .;
+    _CONSOLE_MODULE_VAR_START_ = .;
+	*/nano_os_console_task.o(.bss)
+	*/nano_os_console_task.o(COMMON)
+	*/nano_os_console_task.o(.data)
+	*/libnano-os.a:nano_os_console.o(.bss)
+	*/libnano-os.a:nano_os_console.o(COMMON)
+	*/libnano-os.a:nano_os_console.o(.data)
+	_CONSOLE_MODULE_VAR_END_ = .;
+  } > ram
+  
+  /* Debug module variables */
+  .debug_module_var : ALIGN(2048)
+  {
+    _DEBUG_MODULE_VAR_START_ = .;
+	*/nano_os_debug_task.o(.bss)
+	*/nano_os_debug_task.o(COMMON)
+	*/nano_os_debug_task.o(.data)
+	*/libnano-os.a:nano_os_debug.o(.bss)
+	*/libnano-os.a:nano_os_debug.o(COMMON)
+	*/libnano-os.a:nano_os_debug.o(.data)
+	_DEBUG_MODULE_VAR_END_ = .;
   } > ram
   
   /* Main task variables */
@@ -108,10 +140,11 @@ SECTIONS
     . = ALIGN(4) + 0x00000600;
     _TOP_OF_STACKS_ = .;
     _OS_VAR_END_ = .;
+    _NANO_OS_MODULES_RO_DATA_END_ = .;
   } > ram
   
   /* Heap */
-  .heap : ALIGN(2048)
+  .heap : ALIGN(4096)
   {
   	_COMMON_DATA_START_ = .;
     __end__ = .;
