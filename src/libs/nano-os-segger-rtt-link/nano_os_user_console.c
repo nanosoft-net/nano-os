@@ -102,7 +102,7 @@ nano_os_error_t NANO_OS_USER_ConsoleReadChar(char* const c)
     #if (NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_ENABLED == 1u)
 
     /* Read data using the multiplexer */
-    const nano_os_error_t ret = NANO_OS_SEGGER_RTT_LINK_MULTIPLEXER_Read(NANO_OS_CONSOLE_PACKET_BUFFER, NANO_OS_CAST(uint8_t* const, c));
+    const nano_os_error_t ret = NANO_OS_SEGGER_RTT_LINK_MULTIPLEXER_Read(NANO_OS_CONSOLE_PACKET_BUFFER, NANO_OS_CAST(uint8_t*, c));
 
     #else
 

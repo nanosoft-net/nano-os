@@ -44,7 +44,6 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Address of the Systick current value register */
 #define SYSTICK_CVR_REG        (* NANO_OS_CAST(volatile uint32_t*, 0xe000e018))
 
-
 /** \brief Switch the CPU to priviledged mode */
 extern void NANO_OS_PORT_SwitchToPriviledgedMode(void);
 
@@ -368,6 +367,7 @@ uint32_t NANO_OS_PORT_GetTimestampInUs(void)
     uint32_t us_timestamp;
     uint32_t counter_value;
     uint32_t tick_count;
+    const uint32_t load_reg = SYSTICK_LOAD_REG;
 
     /* Read the current tick count and timer value */
     do
@@ -381,7 +381,7 @@ uint32_t NANO_OS_PORT_GetTimestampInUs(void)
     while (tick_count != g_nano_os.tick_count);
 
     /* Compute the timestamp in µs */
-    us_timestamp = ((SYSTICK_LOAD_REG - counter_value) * (1000000u / NANO_OS_TICK_RATE_HZ)) / SYSTICK_LOAD_REG;
+    us_timestamp = ((load_reg - counter_value) * (1000000u / NANO_OS_TICK_RATE_HZ)) / load_reg;
     us_timestamp += (NANO_OS_TICKS_TO_MS(tick_count) * 1000u);
 
     return us_timestamp;

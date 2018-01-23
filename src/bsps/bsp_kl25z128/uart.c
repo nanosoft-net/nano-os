@@ -19,7 +19,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uart.h"
 
-#include "nano_os_data.h"
+#include "nano_os_api.h"
 #include "nano_os_tools.h"
 
 #include "MKL25Z4.h"

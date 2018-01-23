@@ -484,7 +484,7 @@ static nano_os_error_t NANO_OS_DEBUG_SerializeString(const char* const string, c
     ret = NANO_OS_USER_DebugWriteToPacket(&string_len, 1u);
     if ((ret == NOS_ERR_SUCCESS) && (string_len != 0u))
     {
-        ret = NANO_OS_USER_DebugWriteToPacket(NANO_OS_CAST(const uint8_t* const, string), string_len);
+        ret = NANO_OS_USER_DebugWriteToPacket(NANO_OS_CAST(const uint8_t*, string), string_len);
     }
     return ret;
 }

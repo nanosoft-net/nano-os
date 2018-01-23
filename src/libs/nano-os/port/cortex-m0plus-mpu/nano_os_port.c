@@ -23,6 +23,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_tools.h"
 #include "nano_os_trace.h"
 #include "nano_os_interrupt.h"
+#include "nano_os_port_mpu.h"
 #include "nano_os_scheduler.h"
 #include "nano_os_port_user.h"
 
@@ -39,32 +40,106 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Switch the CPU to priviledged mode */
 extern void NANO_OS_PORT_SwitchToPriviledgedMode(void);
 
+/** \brief Port specific first task context switch */
+extern nano_os_error_t NANO_OS_PORT_FirstContextSwitchAsm(void);
+
 
 
 /** \brief Port specific initialization */
 nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data)
 {
-    uint32_t systick_input_freq_hz;
-    nano_os_error_t ret = NOS_ERR_SUCCESS;
-    NANO_OS_UNUSED(port_init_data);
+	uint32_t systick_input_freq_hz;
+    nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
-    /* Switch to priviledged mode */
-    NANO_OS_PORT_SwitchToPriviledgedMode();
+    /* Check parameters */
+    if (port_init_data != NULL)
+    {
+        /* Switch to priviledged mode */
+        NANO_OS_PORT_SwitchToPriviledgedMode();
 
-    /* Disable interrupts */
-    NANO_OS_PORT_DISABLE_INTERRUPTS();
+        /* Disable interrupts */
+        NANO_OS_PORT_DISABLE_INTERRUPTS();
 
-    /* Initialize port data */
-    (void)MEMSET(port_init_data, 0, sizeof(nano_os_port_init_data_t));
-    port_init_data->isr_request_task_init_data.is_priviledged = true;
-    #if (NANO_OS_TIMER_ENABLED == 1u)
-    port_init_data->timer_task_init_data.is_priviledged = true;
-    #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+        /* Initialize port data */
+        (void)MEMSET(&port_init_data->idle_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+        ret = NANO_OS_PORT_USER_GetIdleTaskConfig(&port_init_data->idle_task_init_data, &g_nano_os.idle_task_stack);
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            port_init_data->idle_task_init_data.is_priviledged = false;
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->isr_request_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetInterruptServiceRequestTaskConfig(&port_init_data->isr_request_task_init_data, &g_nano_os.isr_request_task_stack);
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            port_init_data->isr_request_task_init_data.is_priviledged = true;
+        }
+        #if (NANO_OS_TIMER_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->timer_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetTimerTaskConfig(&port_init_data->timer_task_init_data, &g_nano_os.timer_task_stack);
+        }
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            port_init_data->timer_task_init_data.is_priviledged = true;
+        }
+        #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+        #if (NANO_OS_CONSOLE_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->console_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetConsoleTaskConfig(&port_init_data->console_task_init_data);
+        }
+        #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+        #if (NANO_OS_DEBUG_ENABLED == 1u)
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            (void)MEMSET(&port_init_data->debug_task_init_data, 0, sizeof(nano_os_port_task_init_data_t));
+            ret = NANO_OS_PORT_USER_GetDebugTaskConfig(&port_init_data->debug_task_init_data);
+        }
+        #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
 
-    /* Configure and start systick */
-    systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
-    SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
-    SYSTICK_CTRL_REG = 0x07u;
+
+        /* Configure global MPU regions */
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            ret = NANO_OS_PORT_USER_GetGlobalMpuConfig(g_nano_os.port_data.common_regions);
+        }
+
+        /* Initialize MPU */
+        if (ret == NOS_ERR_SUCCESS)
+        {
+            ret = NANO_OS_PORT_MPU_Init();
+            if (ret == NOS_ERR_SUCCESS)
+            {
+                uint8_t i;
+
+                /* Finalize global MPU region configuration */
+                for(i = 0; i < NANO_OS_PORT_COMMON_MPU_REGION_COUNT; i++)
+                {
+                    /* Check if the region is enabled */
+                    if ((g_nano_os.port_data.common_regions[i].base_address != 0u) ||
+                        (g_nano_os.port_data.common_regions[i].attributes != 0u))
+                    {
+                        const uint8_t region_number = i;
+
+                        /* Add the VALID bit and the region number to the base address field */
+                        g_nano_os.port_data.common_regions[i].base_address |= ((1u << 4u) | region_number);
+
+                        /* Add the ENABLE bit to the attributes */
+                        g_nano_os.port_data.common_regions[i].attributes |= 0x01u;
+                    }
+                }
+
+                systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
+                SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
+                SYSTICK_CTRL_REG = 0x07u;
+            }
+        }
+    }
 
     return ret;
 }
@@ -100,6 +175,8 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
         (task_init_data->stack_size >= NANO_OS_PORT_MIN_STACK_SIZE) &&
         (task_init_data->task_func != NULL))
     {
+        uint8_t i;
+
         /* Compute top of stack (full descending stack on Cortex-M0+ processors) */
         task->top_of_stack = task->stack_origin + task_init_data->stack_size;
 
@@ -151,6 +228,29 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
             task->top_of_stack[0] = 0x00000001u;
         }
 
+        /* Finalize MPU region configuration for the task */
+        (void)MEMCPY(task->port_data.mem_regions, task_init_data->port_init_data.mem_regions, sizeof(task->port_data.mem_regions));
+        for(i = 0; i < NANO_OS_PORT_TASK_MPU_REGION_COUNT; i++)
+        {
+            const uint8_t region_number = NANO_OS_PORT_COMMON_MPU_REGION_COUNT + i;
+
+            /* Check if the region is enabled */
+            if ((task->port_data.mem_regions[i].base_address != 0u) ||
+                (task->port_data.mem_regions[i].attributes != 0u))
+            {
+                /* Add the ENABLE bit to the attributes */
+                task->port_data.mem_regions[i].attributes |= 0x01u;
+            }
+            else
+            {
+                /* Disable the region */
+                task->port_data.mem_regions[i].attributes = 0x00u;
+            }
+
+            /* Add the VALID bit and the region number to the base address field */
+            task->port_data.mem_regions[i].base_address |= ((1u << 4u) | region_number);
+        }
+
         ret = NOS_ERR_SUCCESS;
     }
 
@@ -187,6 +287,43 @@ uint32_t NANO_OS_PORT_GetTimestampInUs(void)
 }
 
 #endif /* ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)) */
+
+
+/** \brief Port specific first task context switch */
+nano_os_error_t NANO_OS_PORT_FirstContextSwitch(void)
+{
+    uint8_t i;
+    nano_os_error_t ret;
+
+    /* Apply global MPU region configuration */
+    for(i = 0; i < NANO_OS_PORT_COMMON_MPU_REGION_COUNT; i++)
+    {
+        /* Check if the region is enabled */
+        if ((g_nano_os.port_data.common_regions[i].base_address != 0u) ||
+            (g_nano_os.port_data.common_regions[i].attributes != 0u))
+        {
+            const uint8_t region_number = i;
+
+            /* Add the VALID bit and the region number to the base address field */
+            g_nano_os.port_data.common_regions[i].base_address |= ((1u << 4u) | region_number);
+
+            /* Add the ENABLE bit to the attributes */
+            g_nano_os.port_data.common_regions[i].attributes |= 0x01u;
+
+            /* Apply configuration */
+            NANO_OS_MPU_ConfigureRegion(g_nano_os.port_data.common_regions[i].base_address,
+                                        g_nano_os.port_data.common_regions[i].attributes);
+        }
+    }
+
+    /* Enable MPU */
+    NANO_OS_MPU_Enable();
+
+    /* Call next steps of the first context switch written in assembly language */
+    ret = NANO_OS_PORT_FirstContextSwitchAsm();
+
+    return ret;
+}
 
 
 /** \brief Handler for the Systick timer interrupt */
