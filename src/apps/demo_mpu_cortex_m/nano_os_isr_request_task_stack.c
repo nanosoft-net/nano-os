@@ -17,21 +17,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../demo_mpu_cortex_m/memory_regions.h"
 #include "nano_os_api.h"
 #include "nano_os_port_mpu.h"
 
-#include "memory_regions.h"
-
-/* Check if module is enabled */
-#if (NANO_OS_TIMER_ENABLED == 1u)
 
 
-/** \brief Timer task stack */
-static nano_os_stack_t timer_task_stack[NANO_OS_TIMER_TASK_STACK_SIZE];
+/** \brief ISR request task stack */
+static nano_os_stack_t isr_request_task_stack[NANO_OS_ISR_REQUEST_TASK_STACK_SIZE];
 
 
-/** \brief Get timer task port specific configuration */
-nano_os_error_t NANO_OS_PORT_USER_GetTimerTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin)
+/** \brief Get interrupt service request task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetInterruptServiceRequestTaskConfig(nano_os_port_task_init_data_t* const port_init_data, nano_os_stack_t** stack_origin)
 {
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
@@ -43,12 +40,10 @@ nano_os_error_t NANO_OS_PORT_USER_GetTimerTaskConfig(nano_os_port_task_init_data
          */
 
         /* Configure stack origin */
-        (*stack_origin) = timer_task_stack;
+        (*stack_origin) = isr_request_task_stack;
 
         ret = NOS_ERR_SUCCESS;
     }
 
     return ret;
 }
-
-#endif /* (NANO_OS_TIMER_ENABLED == 1u) */

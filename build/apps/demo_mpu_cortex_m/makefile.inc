@@ -1,6 +1,6 @@
 ####################################################################################################
 # \file makefile.inc
-# \brief  Makefile for the include files of demo_mpu_cm7 application
+# \brief  Makefile for the include files of demo_mpu_cortex_m application
 # \author C. Jimenez
 # \copyright Copyright(c) 2017 Cedric Jimenez
 #
@@ -21,7 +21,7 @@
 ####################################################################################################
 
 # Application directory
-APPLICATION_DIR := $(ROOT_DIR)/src/apps/demo_mpu_cm7
+APPLICATION_DIR := $(ROOT_DIR)/src/apps/demo_mpu_cortex_m
 
 # Source directories
 SOURCE_DIRS := $(APPLICATION_DIR)

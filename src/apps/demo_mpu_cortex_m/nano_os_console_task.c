@@ -17,11 +17,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../demo_mpu_cortex_m/memory_regions.h"
 #include "nano_os_api.h"
 #include "nano_os_port_mpu.h"
 
 #include "bsp.h"
-#include "memory_regions.h"
 
 /* Check if module is enabled */
 #if (NANO_OS_CONSOLE_ENABLED == 1u)

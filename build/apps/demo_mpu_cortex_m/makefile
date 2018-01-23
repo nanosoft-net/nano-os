@@ -1,6 +1,6 @@
 ####################################################################################################
 # \file makefile
-# \brief  Makefile for demo_mpu_cm7 application
+# \brief  Makefile for demo_mpu_cortex_m application
 # \author C. Jimenez
 # \copyright Copyright(c) 2017 Cedric Jimenez
 #
@@ -24,7 +24,7 @@
 ROOT_DIR := ../../..
 
 # Project name
-PROJECT_NAME := demo_mpu_cm7
+PROJECT_NAME := demo_mpu_cortex_m
 
 # Build type
 BUILD_TYPE := APP

@@ -94,8 +94,7 @@ Packages list:
  - apps.demo_blink_join
  - apps.demo_blink_rr
  - apps.demo_blink_timer
- - apps.demo_mpu_cm3
- - apps.demo_mpu_cm7
+ - apps.demo_mpu_cortex_m
  - bsps.bsp_emf32zg222
  - bsps.bsp_kl25z128
  - bsps.bsp_lpc1768
@@ -175,4 +174,4 @@ using the following compilers:
 * demo_blink_rr : 4 with the same priority using round robin scheduling to make the leds blink
 * demo_blink_timer : 2 tasks using timer and waitable timer to make the led blink
 * demo_blink_cpp : same as demo_blink_timer but using the CPP API
-* demo_mpu_cm : 2 tasks which makes led blink with MPU enabled
+* demo_mpu_cortex_m : 2 tasks which makes led blink with MPU enabled

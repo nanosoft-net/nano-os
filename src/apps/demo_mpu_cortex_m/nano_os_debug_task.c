@@ -17,18 +17,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../demo_mpu_cortex_m/memory_regions.h"
 #include "nano_os_api.h"
 #include "nano_os_port_mpu.h"
 
 #include "bsp.h"
-#include "memory_regions.h"
 
 /* Check if module is enabled */
-#if (NANO_OS_CONSOLE_ENABLED == 1u)
+#if (NANO_OS_DEBUG_ENABLED == 1u)
 
 
-/** \brief Get console task port specific configuration */
-nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_data_t* const port_init_data)
+/** \brief Get debug task port specific configuration */
+nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data_t* const port_init_data)
 {
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
@@ -49,15 +49,15 @@ nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_da
 
         /* Configure MPU region to have access to module private data = stack + internal variables */
         ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[1u],
-                                                  NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_START_),
+                                                  NANO_OS_CAST(uint32_t, _DEBUG_MODULE_VAR_START_),
                                                   true,
                                                   NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
                                                   NANO_OS_PORT_MPU_ATTR_MEM_OUTER_INNER_WRITE_BACK_READ_WRITE_ALLOC,
                                                   false,
                                                   NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                                  (NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_END_) - NANO_OS_CAST(uint32_t, _CONSOLE_MODULE_VAR_START_)));
+                                                  (NANO_OS_CAST(uint32_t, _DEBUG_MODULE_VAR_END_) - NANO_OS_CAST(uint32_t, _DEBUG_MODULE_VAR_START_)));
 
-        /* Add a region to allow access to UART registers for access to the console link */
+        /* Add a region to allow access to UART registers for access to the debug link */
         NANO_OS_BSP_GetUartIoRegistersMem(&uart_regs, &uart_regs_size);
         NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[2u],
                                             uart_regs,
@@ -68,11 +68,10 @@ nano_os_error_t NANO_OS_PORT_USER_GetConsoleTaskConfig(nano_os_port_task_init_da
                                             NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                             uart_regs_size);
 
-
         ret = NOS_ERR_SUCCESS;
     }
 
     return ret;
 }
 
-#endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+#endif /* (NANO_OS_DEBUG_ENABLED == 1u) */

@@ -17,12 +17,12 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../demo_mpu_cortex_m/memory_regions.h"
+#include "../demo_mpu_cortex_m/tasks.h"
 #include "nano_os_api.h"
 #include "nano_os_port_mpu.h"
 
 #include "bsp.h"
-#include "tasks.h"
-#include "memory_regions.h"
 
 
 /** \brief System control block registers */
