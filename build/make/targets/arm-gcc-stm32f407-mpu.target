@@ -1,0 +1,68 @@
+####################################################################################################
+# \file arm-gcc-stm32f407-mpu.target
+# \brief STM32F407 with MPU with ARM GCC target definition
+# \author C. Jimenez
+# \copyright Copyright(c) 2017 Cedric Jimenez
+#
+# This file is part of Nano-OS.
+#
+# Nano-OS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Nano-OS is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
+####################################################################################################
+
+# Include toolchain
+include $(ROOT_DIR)/build/make/compilers/arm-gcc-cortex-m.compiler
+
+
+# Target ARCH and CPU
+TARGET_ARCH=cortex-m4-mpu
+TARGET_CPU=
+
+# Target BSP
+TARGET_BSP=bsps/bsp_stm32f407
+
+# Target lib dependencies
+TARGET_DEPENDENCIES=
+
+# Target specific include directories
+TARGET_INC_DIRS=
+
+# Target specific lib directories
+TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/../arm-none-eabi/lib/armv7e-m/fpu -L$(TOOLCHAIN_PATH)/../lib/gcc/arm-none-eabi/5.2.1/armv7e-m/fpu
+
+# Target specific libraries
+TARGET_LIBS=-lgcc -lc -lnosys
+
+# Target implementation for the project defines
+TARGET_PROJECT_DEFINES=$(foreach PROJECT_DEFINE, $(PROJECT_DEFINES), -D$(PROJECT_DEFINE))
+
+# Nano OS configuration file directory
+NANO_OS_CONFIG_FILE_DIR=$(ROOT_DIR)/src/$(TARGET_BSP)/nano_os_config
+
+
+# Optimisation level
+OPTIMIZATION_LEVEL = -O0
+
+# Disabled warnings
+DISABLED_WARNINGS = 
+
+# Toolchain flags
+COMMON_FLAGS = -g -Wall -mthumb -mcpu=cortex-m4 -march=armv7e-m -mfloat-abi=hard -mfpu=vfpv4 -mapcs-frame -mlittle-endian $(OPTIMIZATION_LEVEL) $(TARGET_PROJECT_DEFINES)
+CFLAGS = -Wno-main $(COMMON_FLAGS) -fsigned-char $(PROJECT_CFLAGS)
+CXXFLAGS = $(COMMON_FLAGS) $(DISABLED_WARNINGS) -fsigned-char $(PROJECT_CXXFLAGS) -std=c++14 -pedantic -fno-exceptions -fno-unwind-tables -fno-rtti -fno-gnu-keywords -fno-use-cxa-atexit
+ASFLAGS = $(COMMON_FLAGS) $(OPTIMIZATION_LEVEL) $(PROJECT_ASFLAGS)
+LDFLAGS = -e _start -Map $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(patsubst %.elf, %.map, $(BIN_DIR)/$(OUTPUT_NAME)))) -EL -g --gc-sections -dT $(ROOT_DIR)/src/bsps/bsp_stm32f407/gcc/stm32f407-mpu.ld $(PROJECT_LDFLAGS)
+ARFLAGS = -c -r $(PROJECT_ARFLAGS)
+
+# Number of times the libraries names shall be duplicated in the command line
+TARGET_DUP_COUNT := 1 2
