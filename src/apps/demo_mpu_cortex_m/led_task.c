@@ -17,13 +17,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../demo_mpu_cortex_m/memory_regions.h"
-#include "../demo_mpu_cortex_m/tasks.h"
+#include "memory_regions.h"
+#include "tasks.h"
 #include "bsp.h"
+#include "nano_os_data.h"
 #include "nano_os_port_mpu.h"
+#include "mpu_faults.h"
 
 /** \brief Stack size in number of elements */
 #define TASK_STACK_SIZE     128u
+
+
+/** \brief Private data from led task */
+uint32_t g_led_task_private_data;
 
 
 /** \brief LED task stack */
@@ -115,6 +121,18 @@ static void* LED_Task(void* param)
                 led_on = true;
                 led_id++;
             }
+        }
+
+        /* Triggers an MPU fault by modifying an internal variable of Nano OS */
+        if (g_mpu_fault_os_led)
+        {
+            (void)MEMSET(&g_nano_os, 0, sizeof(nano_os_t));
+        }
+
+        /* Triggers an MPU fault by modifying an internal variable of the main task */
+        if (g_mpu_fault_task_main)
+        {
+            g_main_task_private_data = 123456u;
         }
     }
 

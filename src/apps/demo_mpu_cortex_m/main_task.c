@@ -17,13 +17,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../demo_mpu_cortex_m/memory_regions.h"
-#include "../demo_mpu_cortex_m/tasks.h"
+#include "memory_regions.h"
+#include "tasks.h"
+#include "nano_os_data.h"
 #include "nano_os_port_mpu.h"
-
+#include "mpu_faults.h"
+#include "bsp.h"
 
 /** \brief Stack size in number of elements */
 #define TASK_STACK_SIZE     128u
+
+
+/** \brief Private data from main task */
+uint32_t g_main_task_private_data;
 
 
 /** \brief Main task stack */
@@ -34,7 +40,6 @@ static nano_os_task_t main_task;
 
 /** \brief Main task */
 static void* MAIN_Task(void* param);
-
 
 
 
@@ -81,6 +86,24 @@ static void* MAIN_Task(void* param)
     {
         /* Wake up the LED task */
         NANO_OS_SEMAPHORE_Post(&g_synchro_sem);
+
+        /* Triggers an MPU fault by driving an I/O */
+        if (g_mpu_fault_io)
+        {
+            NANO_OS_BSP_LedOn(0u);
+        }
+
+        /* Triggers an MPU fault by modifying an internal variable of Nano OS */
+        if (g_mpu_fault_os_main)
+        {
+            (void)MEMSET(&g_nano_os, 0, sizeof(nano_os_t));
+        }
+
+        /* Triggers an MPU fault by modifying an internal variable of the led task */
+        if (g_mpu_fault_task_led)
+        {
+            g_led_task_private_data = 123456u;
+        }
 
         /* Wait for the next period */
         NANO_OS_TASK_Sleep(NANO_OS_MS_TO_TICKS(period));

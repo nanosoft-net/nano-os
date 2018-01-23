@@ -17,13 +17,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../demo_mpu_cortex_m/memory_regions.h"
-#include "../demo_mpu_cortex_m/tasks.h"
+#include "memory_regions.h"
+#include "tasks.h"
 #include "nano_os_api.h"
 #include "nano_os_port_mpu.h"
-
+#include "mpu_faults.h"
 #include "bsp.h"
-
+#include "nano_os_console_cmds.h"
 
 /** \brief System control block registers */
 typedef struct
@@ -60,6 +60,20 @@ typedef struct
 /** \brief Task synchronization semaphore */
 nano_os_semaphore_t g_synchro_sem;
 
+/** \brief Triggers an MPU fault by driving an I/O from the main task */
+volatile bool g_mpu_fault_io;
+
+/** \brief Triggers an MPU fault by modifying an internal variable of Nano OS from the main task */
+volatile bool g_mpu_fault_os_main;
+
+/** \brief Triggers an MPU fault by modifying an internal variable of Nano OS from the led task */
+volatile bool g_mpu_fault_os_led;
+
+/** \brief Triggers an MPU fault by modifying an internal variable of the main task from the led task */
+volatile bool g_mpu_fault_task_main;
+
+/** \brief Triggers an MPU fault by modifying an internal variable of the led task from the main task */
+volatile bool g_mpu_fault_task_led;
 
 
 /** \brief Application entry point */
@@ -84,6 +98,15 @@ int main(void)
             {
                 /* Create the main task */
                 ret = MAIN_TASK_Init();
+
+                #if (NANO_OS_CONSOLE_ENABLED == 1u)
+                /* Initialize demo application console commands */
+                if (ret == NOS_ERR_SUCCESS)
+                {
+                    ret = NANO_OS_CONSOLE_CMDS_Init();
+                }
+                #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
+
                 if (ret == NOS_ERR_SUCCESS)
                 {
                     /* Start operating system */
