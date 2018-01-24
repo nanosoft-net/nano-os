@@ -44,7 +44,7 @@ _vectors:
     .long   Reset_Handler             /* Reset Handler */
     .long   NMI_Handler               /* NMI Handler */
     .long   HardFault_Handler         /* Hard Fault Handler */
-    .long   MemManage_Handler         /* MPU Fault Handler */
+    .long   MPUFault_Handler          /* MPU Fault Handler */
     .long   BusFault_Handler          /* Bus Fault Handler */
     .long   UsageFault_Handler        /* Usage Fault Handler */
     .long   0x00000000                /* Reserved */
@@ -202,8 +202,8 @@ Default_Handler:
    .weak      HardFault_Handler
    .thumb_set HardFault_Handler,Default_Handler
   
-   .weak      MemManage_Handler
-   .thumb_set MemManage_Handler,Default_Handler
+   .weak      MPUFault_Handler
+   .thumb_set MPUFault_Handler,Default_Handler
   
    .weak      BusFault_Handler
    .thumb_set BusFault_Handler,Default_Handler

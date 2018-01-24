@@ -24,7 +24,6 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "nano_os_data.h"
 #include "nano_os_user.h"
-#include "nano_os_syscall.h"
 #include "nano_os_tools.h"
 
 /** \brief Magic number for the start of an allocated block */
@@ -50,6 +49,11 @@ static const nano_os_console_cmd_desc_t heap_module_commands[] = {
 #endif /* (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) */
 
 
+/** \brief Heap module data */
+static nano_os_heap_module_t heap_module;
+
+
+
 
 
 /** \brief Initialize the heap module */
@@ -60,38 +64,41 @@ nano_os_error_t NANO_OS_HEAP_Init(void* const heap_area_start, const size_t heap
     /* Check parameters */
     if ((heap_area_start != NULL) && (heap_area_size > sizeof(nano_os_heap_block_header_t)))
     {
+        /* 0 init of the module */
+        (void)MEMSET(&heap_module, 0, sizeof(nano_os_heap_module_t));
+
         /* Save heap description */
-        g_nano_os.heap_start = heap_area_start;
-        g_nano_os.heap_size = heap_area_size;
+        heap_module.heap_start = heap_area_start;
+        heap_module.heap_size = heap_area_size;
 
         #if (NANO_OS_HEAP_FREE_ENABLED == 1u)
-        g_nano_os.first_allocated = NULL;
+        heap_module.first_allocated = NULL;
         #endif /* (NANO_OS_HEAP_FREE_ENABLED == 1u) */
 
         /* Create first block */
-        g_nano_os.first_free = NANO_OS_CAST(nano_os_heap_block_header_t*, heap_area_start);
-        (void)MEMSET(g_nano_os.first_free, 0, sizeof(nano_os_heap_block_header_t));
-        g_nano_os.first_free->start_magic = NANO_OS_HEAP_FREE_START_MAGIC;
-        g_nano_os.first_free->size = heap_area_size - sizeof(nano_os_heap_block_header_t);
+        heap_module.first_free = NANO_OS_CAST(nano_os_heap_block_header_t*, heap_area_start);
+        (void)MEMSET(heap_module.first_free, 0, sizeof(nano_os_heap_block_header_t));
+        heap_module.first_free->start_magic = NANO_OS_HEAP_FREE_START_MAGIC;
+        heap_module.first_free->size = heap_area_size - sizeof(nano_os_heap_block_header_t);
 
         #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
         /* Initialize stats */
-        g_nano_os.heap_stats.free_blocks = 1u;
-        g_nano_os.heap_stats.free_memory = heap_area_size - sizeof(nano_os_heap_block_header_t);
-        g_nano_os.heap_stats.allocated_blocks = 0u;
-        g_nano_os.heap_stats.allocated_memory = 0u;
+        heap_module.heap_stats.free_blocks = 1u;
+        heap_module.heap_stats.free_memory = heap_area_size - sizeof(nano_os_heap_block_header_t);
+        heap_module.heap_stats.allocated_blocks = 0u;
+        heap_module.heap_stats.allocated_memory = 0u;
         #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
 
         /* Initialize heap mutex */
-        ret = NANO_OS_MUTEX_Create(&g_nano_os.heap_mutex, QT_PRIORITY);
+        ret = NANO_OS_MUTEX_Create(&heap_module.heap_mutex, QT_PRIORITY);
 
         #if (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u)
         /* Register heap console commands */
         if (ret == NOS_ERR_SUCCESS)
         {
-            g_nano_os.heap_cmd_group.commands = heap_module_commands;
-            g_nano_os.heap_cmd_group.command_count = sizeof(heap_module_commands) / sizeof(nano_os_console_cmd_desc_t);
-            ret = NANO_OS_CONSOLE_RegisterCommands(&g_nano_os.heap_cmd_group);
+            heap_module.heap_cmd_group.commands = heap_module_commands;
+            heap_module.heap_cmd_group.command_count = sizeof(heap_module_commands) / sizeof(nano_os_console_cmd_desc_t);
+            ret = NANO_OS_CONSOLE_RegisterCommands(&heap_module.heap_cmd_group);
         }
         #endif /* (NANO_OS_HEAP_CONSOLE_CMD_ENABLED == 1u) */
     }
@@ -103,9 +110,6 @@ nano_os_error_t NANO_OS_HEAP_Init(void* const heap_area_start, const size_t heap
 void* NANO_OS_HEAP_Alloc(const size_t mem_size)
 {
     void* mem_allocated = NULL;
-
-    /* Syscall entry */
-    NANO_OS_SYSCALL_Enter(true);
 
     /* Check parameters */
     if (mem_size != 0u)
@@ -127,13 +131,13 @@ void* NANO_OS_HEAP_Alloc(const size_t mem_size)
         total_free_size_needed += allocate_size;
 
         /* Lock the heap */
-        ret = NANO_OS_MUTEX_Lock(&g_nano_os.heap_mutex, 0xFFFFFFFFu);
+        ret = NANO_OS_MUTEX_Lock(&heap_module.heap_mutex, 0xFFFFFFFFu);
         if (ret == NOS_ERR_SUCCESS)
         {
             /* Look for a free block with at least the needed size */
             #if (NANO_OS_HEAP_FREE_ENABLED == 1u)
             nano_os_heap_block_header_t* previous_free_block = NULL;
-            nano_os_heap_block_header_t* free_block = g_nano_os.first_free;
+            nano_os_heap_block_header_t* free_block = heap_module.first_free;
             while ((free_block != NULL) &&
                    (free_block->size < allocate_size))
             {
@@ -141,7 +145,7 @@ void* NANO_OS_HEAP_Alloc(const size_t mem_size)
                 free_block = free_block->next_in_list;
             }
             #else
-            nano_os_heap_block_header_t* free_block = g_nano_os.first_free;
+            nano_os_heap_block_header_t* free_block = heap_module.first_free;
             if ((free_block == NULL) ||
                 (free_block->size < total_free_size_needed))
             {
@@ -177,19 +181,19 @@ void* NANO_OS_HEAP_Alloc(const size_t mem_size)
                     #endif /* (NANO_OS_HEAP_MERGE_FREE_BLOCKS_ENABLED == 1u) */
 
                     #else
-                    g_nano_os.first_free = new_free_block;
+                    heap_module.first_free = new_free_block;
                     #endif /* (NANO_OS_HEAP_FREE_ENABLED == 1u) */
 
                     #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
                     /* Update stats */
-                    g_nano_os.heap_stats.free_blocks++;
-                    g_nano_os.heap_stats.free_memory -= sizeof(nano_os_heap_block_header_t);
+                    heap_module.heap_stats.free_blocks++;
+                    heap_module.heap_stats.free_memory -= sizeof(nano_os_heap_block_header_t);
                     #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
                 }
                 #if (NANO_OS_HEAP_FREE_ENABLED != 1u)
                 else
                 {
-                    g_nano_os.first_free = NULL;
+                    heap_module.first_free = NULL;
                 }
                 #endif /* (NANO_OS_HEAP_FREE_ENABLED == 1u) */
 
@@ -206,28 +210,25 @@ void* NANO_OS_HEAP_Alloc(const size_t mem_size)
                 }
                 else
                 {
-                    g_nano_os.first_free = free_block->next_in_list;
+                    heap_module.first_free = free_block->next_in_list;
                 }
-                free_block->next_in_list = g_nano_os.first_allocated;
-                g_nano_os.first_allocated = free_block;
+                free_block->next_in_list = heap_module.first_allocated;
+                heap_module.first_allocated = free_block;
                 #endif /* (NANO_OS_HEAP_FREE_ENABLED == 1u) */
 
                 #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
                 /* Update stats */
-                g_nano_os.heap_stats.allocated_blocks++;
-                g_nano_os.heap_stats.allocated_memory += allocate_size;
-                g_nano_os.heap_stats.free_blocks--;
-                g_nano_os.heap_stats.free_memory -= allocate_size;
+                heap_module.heap_stats.allocated_blocks++;
+                heap_module.heap_stats.allocated_memory += allocate_size;
+                heap_module.heap_stats.free_blocks--;
+                heap_module.heap_stats.free_memory -= allocate_size;
                 #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
             }
 
             /* Unlock the heap */
-            (void)NANO_OS_MUTEX_Unlock(&g_nano_os.heap_mutex);
+            (void)NANO_OS_MUTEX_Unlock(&heap_module.heap_mutex);
         }
     }
-
-    /* Syscall exit */
-    NANO_OS_SYSCALL_Exit();
 
     return mem_allocated;
 }
@@ -238,9 +239,6 @@ void* NANO_OS_HEAP_Alloc(const size_t mem_size)
 /** \brief De-allocate previously allocated memory from the heap */
 void NANO_OS_HEAP_Free(void* mem)
 {
-    /* Syscall entry */
-    NANO_OS_SYSCALL_Enter(true);
-
     /* Check parameters */
     if (mem != NULL)
     {
@@ -252,12 +250,12 @@ void NANO_OS_HEAP_Free(void* mem)
         NANO_OS_ERROR_ASSERT((mem_block->start_magic == NANO_OS_HEAP_ALLOC_START_MAGIC), NOS_ERR_CORRUPTED_HEAP);
 
         /* Lock the heap */
-        ret = NANO_OS_MUTEX_Lock(&g_nano_os.heap_mutex, 0xFFFFFFFFu);
+        ret = NANO_OS_MUTEX_Lock(&heap_module.heap_mutex, 0xFFFFFFFFu);
         if (ret == NOS_ERR_SUCCESS)
         {
             /* Look for the block in allocated list */
             nano_os_heap_block_header_t* previous_block = NULL;
-            nano_os_heap_block_header_t* current_block = g_nano_os.first_allocated;
+            nano_os_heap_block_header_t* current_block = heap_module.first_allocated;
             while ((current_block != NULL) &&
                    (current_block != mem_block))
             {
@@ -274,17 +272,17 @@ void NANO_OS_HEAP_Free(void* mem)
                 }
                 else
                 {
-                    g_nano_os.first_allocated = mem_block->next_in_list;
+                    heap_module.first_allocated = mem_block->next_in_list;
                 }
-                mem_block->next_in_list = g_nano_os.first_free;
-                g_nano_os.first_free = mem_block;
+                mem_block->next_in_list = heap_module.first_free;
+                heap_module.first_free = mem_block;
 
                 #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
                 /* Update stats */
-                g_nano_os.heap_stats.allocated_blocks--;
-                g_nano_os.heap_stats.allocated_memory -= mem_block->size;
-                g_nano_os.heap_stats.free_blocks++;
-                g_nano_os.heap_stats.free_memory += mem_block->size;
+                heap_module.heap_stats.allocated_blocks--;
+                heap_module.heap_stats.allocated_memory -= mem_block->size;
+                heap_module.heap_stats.free_blocks++;
+                heap_module.heap_stats.free_memory += mem_block->size;
                 #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
 
                 #if (NANO_OS_HEAP_MERGE_FREE_BLOCKS_ENABLED == 1u)
@@ -293,7 +291,7 @@ void NANO_OS_HEAP_Free(void* mem)
                 if ((mem_block->previous != NULL) &&
                     (mem_block->previous->start_magic == NANO_OS_HEAP_FREE_START_MAGIC))
                 {
-                    g_nano_os.first_free = mem_block->next_in_list;
+                    heap_module.first_free = mem_block->next_in_list;
 
                     mem_block->previous->size += mem_block->size + sizeof(nano_os_heap_block_header_t);
                     mem_block->previous->next = mem_block->next;
@@ -306,8 +304,8 @@ void NANO_OS_HEAP_Free(void* mem)
 
                     #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
                     /* Update stats */
-                    g_nano_os.heap_stats.free_blocks--;
-                    g_nano_os.heap_stats.free_memory += sizeof(nano_os_heap_block_header_t);
+                    heap_module.heap_stats.free_blocks--;
+                    heap_module.heap_stats.free_memory += sizeof(nano_os_heap_block_header_t);
                     #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
                 }
 
@@ -317,7 +315,7 @@ void NANO_OS_HEAP_Free(void* mem)
                     (mem_block->next->start_magic == NANO_OS_HEAP_FREE_START_MAGIC))
                 {
                     previous_block = NULL;
-                    current_block = g_nano_os.first_free;
+                    current_block = heap_module.first_free;
                     while ((current_block != NULL) &&
                            (current_block != mem_block->next))
                     {
@@ -337,8 +335,8 @@ void NANO_OS_HEAP_Free(void* mem)
 
                     #if (NANO_OS_HEAP_GETSTATS_ENABLED == 1u)
                     /* Update stats */
-                    g_nano_os.heap_stats.free_blocks--;
-                    g_nano_os.heap_stats.free_memory += sizeof(nano_os_heap_block_header_t);
+                    heap_module.heap_stats.free_blocks--;
+                    heap_module.heap_stats.free_memory += sizeof(nano_os_heap_block_header_t);
                     #endif /* (NANO_OS_HEAP_GETSTATS_ENABLED == 1u) */
                 }
                 #endif /* (NANO_OS_HEAP_MERGE_FREE_BLOCKS_ENABLED == 1u) */
@@ -350,12 +348,9 @@ void NANO_OS_HEAP_Free(void* mem)
             }
 
             /* Unlock the heap */
-            (void)NANO_OS_MUTEX_Unlock(&g_nano_os.heap_mutex);
+            (void)NANO_OS_MUTEX_Unlock(&heap_module.heap_mutex);
         }
     }
-
-    /* Syscall exit */
-    NANO_OS_SYSCALL_Exit();
 
     return;
 }
@@ -370,26 +365,20 @@ nano_os_error_t NANO_OS_HEAP_GetStats(nano_os_heap_stats_t* const heap_stats)
 {
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
-    /* Syscall entry */
-    NANO_OS_SYSCALL_Enter(true);
-
     /* Check parameters */
     if (heap_stats != NULL)
     {
         /* Lock the heap */
-        ret = NANO_OS_MUTEX_Lock(&g_nano_os.heap_mutex, 0xFFFFFFFFu);
+        ret = NANO_OS_MUTEX_Lock(&heap_module.heap_mutex, 0xFFFFFFFFu);
         if (ret == NOS_ERR_SUCCESS)
         {
             /* Copy statistics */
-            (void)MEMCPY(heap_stats, &g_nano_os.heap_stats, sizeof(nano_os_heap_stats_t));
+            (void)MEMCPY(heap_stats, &heap_module.heap_stats, sizeof(nano_os_heap_stats_t));
 
             /* Unlock the heap */
-            ret = NANO_OS_MUTEX_Unlock(&g_nano_os.heap_mutex);
+            ret = NANO_OS_MUTEX_Unlock(&heap_module.heap_mutex);
         }
     }
-
-    /* Syscall exit */
-    NANO_OS_SYSCALL_Exit();
 
     return ret;
 }
@@ -416,7 +405,7 @@ static void NANO_OS_HEAP_ConsoleCmdHandler(void* const user_data, const uint32_t
         /* Display statistics */
         (void)NANO_OS_USER_ConsoleWriteString("Heap statistics :\r\n");
         (void)NANO_OS_USER_ConsoleWriteString(" - Total size : ");
-        (void)ITOA(g_nano_os.heap_size, temp_str, 10u);
+        (void)ITOA(heap_module.heap_size, temp_str, 10u);
         (void)NANO_OS_USER_ConsoleWriteString(temp_str);
         (void)NANO_OS_USER_ConsoleWriteString("\r\n - Allocated memory : ");
         (void)ITOA(heap_stats.allocated_memory, temp_str, 10u);

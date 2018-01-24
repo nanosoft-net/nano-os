@@ -34,6 +34,17 @@ extern "C"
 #endif /* __cplusplus */
 
 
+/** \brief Debug module data */
+typedef struct _nano_os_debug_module_t
+{
+    /** \brief Debug task stack */
+    nano_os_stack_t debug_task_stack[NANO_OS_DEBUG_TASK_STACK_SIZE];
+    /** \brief Debug task context */
+    nano_os_task_t debug_task;
+
+} nano_os_debug_module_t;
+
+
 
 /** \brief Initialize the debug module */
 nano_os_error_t NANO_OS_DEBUG_Init(const nano_os_port_init_data_t* const port_init_data);

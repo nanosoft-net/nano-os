@@ -23,7 +23,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_trace.h"
 #include "nano_os_tools.h"
 #include "nano_os_scheduler.h"
-
+#include "nano_os_modules.h"
 
 
 
@@ -56,15 +56,15 @@ nano_os_error_t NANO_OS_Init(void)
     /* 0 init of the instance */
     (void)MEMSET(&g_nano_os, 0, sizeof(nano_os_t));
 
+    #if (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u)
+    /* Init stack usage marker */
+    (void)MEMSET(&g_nano_os.stack_usage_marker, NANO_OS_TASK_STACK_USAGE_MARKER, sizeof(nano_os_stack_t));
+    #endif /* (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) */
+
     #if (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)
     /* Init next CPU usage measurement time */
     g_nano_os.next_cpu_usage_measurement_time = NANO_OS_CPU_USAGE_MEASUREMENT_PERIOD;
     #endif /* (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u) */
-
-    #if (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u)
-    /* Initialize the marker for stack corruption check */
-    (void)MEMSET(&g_nano_os.stack_marker, NANO_OS_STATS_STACK_USAGE_MARKER, sizeof(g_nano_os.stack_marker));
-    #endif /* (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) */
 
     #if (NANO_OS_SEGGER_GDB_RTOS_PLUGIN_ENABLED == 1u)
     /* Initialize debug informations for Segger GDB RTOS plugin */
@@ -97,29 +97,13 @@ nano_os_error_t NANO_OS_Init(void)
         }
         #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
 
-        #if (NANO_OS_CONSOLE_ENABLED == 1u)
-        /* Initialize the console module */
+        #if (NANO_OS_MODULES_ENABLED == 1u)
+        /* Initialize the external modules */
         if (ret == NOS_ERR_SUCCESS)
         {
-            ret = NANO_OS_CONSOLE_Init(&port_init_data);
+            ret = NANO_OS_MODULES_Init(&port_init_data);
         }
-        #endif /* (NANO_OS_CONSOLE_ENABLED == 1u) */
-
-        #if (NANO_OS_STATS_ENABLED == 1u)
-        /* Initialize the statistics module */
-        if (ret == NOS_ERR_SUCCESS)
-        {
-            ret = NANO_OS_STATS_Init();
-        }
-        #endif /* (NANO_OS_STATS_ENABLED == 1u) */
-
-        #if (NANO_OS_DEBUG_ENABLED == 1u)
-        /* Initialize the debug module */
-        if (ret == NOS_ERR_SUCCESS)
-        {
-            ret = NANO_OS_DEBUG_Init(&port_init_data);
-        }
-        #endif /* (NANO_OS_DEBUG_ENABLED == 1u) */
+        #endif /* (NANO_OS_MODULES_ENABLED == 1u) */
 
         /* Create idle task */
         if (ret == NOS_ERR_SUCCESS)

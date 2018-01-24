@@ -183,6 +183,10 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*************************** Heap module *************************/
 
 /** \brief Enable the heap module */
+#if ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u))
+#error "Nano OS modules must be enabled to use heap module"
+#endif /* ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u)) */
+
 #if ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_MUTEX_ENABLED != 1u))
 #error "Mutexes must be enabled to use heap module"
 #endif /* ((NANO_OS_HEAP_ENABLED == 1u) && (NANO_OS_MUTEX_ENABLED != 1u)) */
@@ -195,7 +199,11 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 /*********************** Statistics module *********************/
 
-/** \brief Enable the 'stack' statistics command in Nano OS console module */
+/** \brief Enable the statistics module */
+#if ((NANO_OS_STATS_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u))
+#error "Nano OS modules must be enabled to use statistics module"
+#endif /* ((NANO_OS_STATS_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u)) */
+
 #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u))
 #error "NANO_OS_STATS_GetStackUsage() system call must be enabled to use 'stack' console commands"
 #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u)) */
@@ -205,13 +213,28 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #error "NANO_OS_STATS_GetMemoryStats() system call must be enabled to use 'memstats' console commands"
 #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_MEMSTATS_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETMEMORYSTATS_ENABLED != 1u)) */
 
+
 /*********************** Console module *********************/
+
+/** \brief Enable the console module */
+#if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u))
+#error "Nano OS modules must be enabled to use console module"
+#endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u)) */
 
 /** \brief Size of the console command buffer in number of characters
            (must be big enough to store a whole command line) */
 #if (NANO_OS_CONSOLE_CMD_BUFFER_SIZE <= 4u)
     #error "Console command buffer size must be > 4"
 #endif /* (NANO_OS_CONSOLE_CMD_BUFFER_SIZE <= 0u) */
+
+
+/*********************** Debug module *********************/
+
+
+/** \brief Enable the debug module */
+#if ((NANO_OS_DEBUG_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u))
+#error "Nano OS modules must be enabled to use debug module"
+#endif /* ((NANO_OS_DEBUG_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u)) */
 
 
 

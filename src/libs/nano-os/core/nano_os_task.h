@@ -30,6 +30,12 @@ extern "C"
 #endif /* __cplusplus */
 
 
+#if (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u)
+/** \brief Stack marker to evaluate stack usage at runtime */
+#define NANO_OS_TASK_STACK_USAGE_MARKER    0xAAu
+#endif /* (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u) */
+
+
 /** \brief Nano OS task states */
 typedef enum _nano_os_task_state_t
 {

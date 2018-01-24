@@ -25,6 +25,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /* Check if module is enabled */
 #if (BSP_LPC1768_UART_CONSOLE_ENABLED == 1u)
 
+#include "uart.h"
 #include "nano_os.h"
 #include "nano_os_user.h"
 #include "nano_os_port.h"
@@ -37,6 +38,7 @@ nano_os_error_t NANO_OS_USER_ConsoleHwInit(void)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Initialize UART */
+    UART_Init();
 
     return ret;
 }
@@ -54,6 +56,7 @@ nano_os_error_t NANO_OS_USER_ConsoleReadChar(char* const c)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Wait for a char on the UART */
+    UART_Receive(NANO_OS_CAST(uint8_t*, c), 1u);
 
     return ret;
 }
@@ -64,6 +67,7 @@ nano_os_error_t NANO_OS_USER_ConsoleWriteString(const char* const string)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Send the string on the UART */
+    UART_Send(NANO_OS_CAST(const uint8_t*, string), STRNLEN(string, 255u));
 
     return ret;
 }

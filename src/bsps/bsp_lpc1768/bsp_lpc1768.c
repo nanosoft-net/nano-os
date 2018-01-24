@@ -43,7 +43,7 @@ nano_os_error_t NANO_OS_BSP_Init(void)
     const uint32_t p2_mask = ( (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) );
 
     /* Turn on power on GPIO */
-    LPC_SC->PCONP |= (1<<15);
+    LPC_SC->PCONP |= (1u << 15u);
 
     /* Pin selection as output with no open drain */
     LPC_PINCON->PINSEL3 &= p1_nmask;
@@ -153,5 +153,16 @@ void NANO_OS_BSP_GetLedIoRegistersMem(uint32_t* const start_address, uint32_t* c
     {
         (*start_address) = LPC_GPIO_BASE;
         (*size) = 0x100u;
+    }
+}
+
+/** \brief Get the UART registers memory area description */
+void NANO_OS_BSP_GetUartIoRegistersMem(uint32_t* const start_address, uint32_t* const size)
+{
+    /* Check parameters */
+    if ((start_address != NULL) && (size != NULL))
+    {
+        (*start_address) = LPC_UART0_BASE;
+        (*size) = 0x4000u;
     }
 }

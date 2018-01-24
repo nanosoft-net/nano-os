@@ -83,7 +83,13 @@ typedef enum _nano_os_error_t
     /** \brief Stack pointer has moved outside of stack range during execution or stack has been corrupted */
     NOS_ERR_CORRUPTED_STACK = 21,
     /** \brief Syscall is not allowed until Nano OS is started */
-    NOS_ERR_OS_NOT_STARTED = 22
+    NOS_ERR_OS_NOT_STARTED = 22,
+    /** \brief MPU is not available on this device */
+    NOS_ERR_MPU_NOT_AVAILABLE = 23,
+    /** \brief MPU region start address alignment is invalid */
+    NOS_ERR_MPU_REGION_ALIGNMENT = 24,
+    /** \brief MPU region attribute is invalid */
+    NOS_ERR_MPU_REGION_ATTRIBUTE = 25
 } nano_os_error_t;
 
 

@@ -289,6 +289,8 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*          Configuration of Nano OS modules             */
 /*********************************************************/
 
+/** \brief Enable Nano OS modules */
+#define NANO_OS_MODULES_ENABLED					1u
 
 
 /*************************** Heap module *************************/
