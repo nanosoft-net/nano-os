@@ -116,7 +116,7 @@ void UART_Init(void)
     USART3->CR1 |= (1u << 5u);
     NVIC_EnableIRQ(USART3_IRQn);
 
-    /* Create Rx and Tx semaphores */
+    /* Create Rx and Tx flag set */
     UART_RingBufferInit(&rx_ring_buffer, rx_buffer, sizeof(rx_buffer));
     UART_RingBufferInit(&tx_ring_buffer, tx_buffer, sizeof(tx_buffer));
     (void)NANO_OS_FLAG_SET_Create(&uart_flag_set, 0u, QT_PRIORITY);

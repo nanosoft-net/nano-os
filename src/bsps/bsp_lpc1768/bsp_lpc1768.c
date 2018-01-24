@@ -43,7 +43,7 @@ nano_os_error_t NANO_OS_BSP_Init(void)
     const uint32_t p2_mask = ( (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) );
 
     /* Turn on power on GPIO */
-    LPC_SC->PCONP |= (1<<15);
+    LPC_SC->PCONP |= (1u << 15u);
 
     /* Pin selection as output with no open drain */
     LPC_PINCON->PINSEL3 &= p1_nmask;

@@ -22,8 +22,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os_api.h"
 #include "nano_os_tools.h"
 
-#include "MKL25Z4.h"
-#include "core_cm0plus.h"
+#include "LPC17xx.h"
 
 
 
@@ -89,31 +88,28 @@ static bool UART_RingBufferIsFull(const ring_buffer_t* const ring_buffer);
 void UART_Init(void)
 {
 
-    /* Enable IOs for Rx and Tx lines (PTA1 and PTA2)*/
-    PORTA->PCR[1] = (2u << 8u);
-    PORTA->PCR[2] = (2u << 8u);
+    /* Enable IOs for Rx and Tx lines (P02 and P03, AF7)*/
+    LPC_PINCON->PINSEL3 &= ~((0x03 << 4u) | (0x03 << 6u));
+    LPC_PINCON->PINSEL0 |= ((0x01 << 4u) | (0x01 << 6u));
 
-    /* Turn on power and clock for the UART => UARTCLK = MCGPLLCLK/2 = 48/2 = 24 MHz */
-    SIM->SOPT2 &= ~(3u << 26u);
-    SIM->SOPT2 |= (1u << 26u) | (1u << 16u);
-    SIM->SCGC4 |= (1u << 10u);
+    /* Turn on power and clock for the UART => UARTCLK = APB1 = 37.5 MHz */
+    LPC_SC->PCONP |= (1u << 3u);
 
     /* Disable receive and transmit */
-    UART0->C2 &= ~((1u << 2u) | (1u << 3u));
+    LPC_UART0->FCR = 0x00u;
+    LPC_UART0->TER = 0x00u;
 
-    /* Configure UART baudrate = UARTCLK/((OSR+1)*BR) = 24000000 / ((15+1) * 13)=> 115384bps */
-    UART0->C4 = 0x0Fu;
-    UART0->BDH = 0x00u;
-    UART0->BDL = 0x0Du;
+    /* Configure UART baudrate = PCLK/(16*(256*DLM + DLL)*(1+Div/Mul)) => 115384bps */
+    LPC_UART0->LCR = (1u << 7u);
+    LPC_UART0->DLM = 0x00u;
+    LPC_UART0->DLL = 0x32u;
+    LPC_UART0->FDR = 0x01u + (0x0Cu << 4u); /* Div = 1, Mul = 12 */
 
     /* Configure transfer : 8bits, 1stop bit, no parity, no flow control */
-    UART0->C1 = 0x00u;
-    UART0->C3 = 0x00u;
-    UART0->C5 = 0x00u;
-
+    LPC_UART0->LCR = 0x03u;
 
     /* Enable Rx interrupt */
-    UART0->C2 = (1u << 5u);
+    LPC_UART0->IER = (1u << 0u) ;
     NVIC_EnableIRQ(UART0_IRQn);
 
     /* Create Rx and Tx flag set */
@@ -122,22 +118,45 @@ void UART_Init(void)
     (void)NANO_OS_FLAG_SET_Create(&uart_flag_set, 0u, QT_PRIORITY);
 
     /* Enable receive and transmit */
-    UART0->C2 |= (1u << 2u) | (1u << 3u);
+    LPC_UART0->FCR = (1u << 0u) | (3u << 6u);
+    LPC_UART0->TER = (1u << 7u);
 }
 
 
 /** \brief Send data over the UART */
 void UART_Send(const uint8_t* data, uint32_t data_len)
 {
+
+    while(data_len != 0u)
+    {
+        /* Wait tranceiver ready */
+        while ((LPC_UART0->LSR & (1u << 5u)) == 0) /* THRE bit */
+        {}
+
+        /* Send data */
+        LPC_UART0->THR = (*data);
+
+        /* Next data */
+        data++;
+        data_len--;
+    }
+
+#if 0
     bool data_added;
 
     do
     {
         /* Disable Rx and Tx interrupts */
-        UART0->C2 &= ~( (1u << 5u) | (1u << 7u) );
+        LPC_UART0->IER &= ~( (1u << 0u) | (1u << 1u) );
+
+        /* Send first byte to trigger the transmission */
+        LPC_UART0->THR = (*data);
+        data++;
+        data_len--;
+        data_added = true;
 
         /* Add data to the transmit buffer */
-        do
+        while (data_added && (data_len != 0))
         {
             data_added = UART_RingBufferWriteByte(&tx_ring_buffer, *data);
             if (data_added)
@@ -146,14 +165,13 @@ void UART_Send(const uint8_t* data, uint32_t data_len)
                 data_len--;
             }
         }
-        while (data_added && (data_len != 0));
         if (!data_added)
         {
             NANO_OS_FLAG_SET_Clear(&uart_flag_set, UART_TX_READY_FLAG_MASK);
         }
 
         /* Enable Rx and Tx interrupts */
-        UART0->C2 |= ( (1u << 5u) | (1u << 7u) );
+        LPC_UART0->IER |= ( (1u << 0u) | (1u << 1u) );
 
         /* Wait for Tx ready if more data has to be sent */
         if (data_len != 0)
@@ -168,6 +186,8 @@ void UART_Send(const uint8_t* data, uint32_t data_len)
     }
     while (data_len != 0);
 
+#endif
+
     return;
 }
 
@@ -180,10 +200,10 @@ void UART_Receive(uint8_t* data, uint32_t data_len)
     while (data_len != 0)
     {
         /* Save interrupt mask */
-        uint32_t int_mask = UART0->C2;
+        uint32_t int_mask = LPC_UART0->IER;
 
         /* Disable Rx and Tx interrupts */
-        UART0->C2 &= ~( (1u << 5u) | (1u << 7u) );
+        LPC_UART0->IER &= ~( (1u << 0u) | (1u << 1u) );
 
         /* Get Rx data */
         do
@@ -202,7 +222,7 @@ void UART_Receive(uint8_t* data, uint32_t data_len)
         }
 
         /* Restore interrupt mask */
-        UART0->C2 = int_mask;
+        LPC_UART0->IER = int_mask;
 
         /* Wait for Rx ready if more data has to be received */
         if (data_len != 0)
@@ -222,55 +242,75 @@ void UART0_Handler()
 {
     bool signal;
     uint8_t data;
+    uint32_t iir_reg;
 
     NANO_OS_INTERRUPT_Enter();
 
-    /* Read received data */
-    signal = UART_RingBufferIsEmpty(&rx_ring_buffer);
-    while ((UART0->S1 & (1u << 5u))!=0 ) /* RDRF bit */
+    /* Read interrupt identification register */
+    iir_reg = LPC_UART0->IIR;
+    if (((iir_reg & 0x04u) != 0u) | ((iir_reg & 0x0Cu) != 0u))
     {
-        /* Read the received byte */
-        data = UART0->D;
+        /* Read received data */
+        signal = UART_RingBufferIsEmpty(&rx_ring_buffer);
+        while ((LPC_UART0->LSR & ( 1u << 0u)) != 0) /* RDR bit */
+        {
+            /* Read the received byte */
+            data = LPC_UART0->RBR;
 
-        /* Put the data into the received buffer */
-        (void)UART_RingBufferWriteByte(&rx_ring_buffer, data);
+            /* Put the data into the received buffer */
+            (void)UART_RingBufferWriteByte(&rx_ring_buffer, data);
+        }
+        /* Signal received data */
+        if (signal && !UART_RingBufferIsEmpty(&rx_ring_buffer))
+        {
+            (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_RX_READY_FLAG_MASK);
+        }
     }
-    /* Signal received data */
-    if (signal && !UART_RingBufferIsEmpty(&rx_ring_buffer))
+    else if (((iir_reg & 0x02u) != 0u))
     {
-        (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_RX_READY_FLAG_MASK);
-    }
+        /* Transmit data */
+        if ((LPC_UART0->LSR & (1u << 5u)) != 0) /* THRE bit */
+        {
+            if (!UART_RingBufferIsEmpty(&tx_ring_buffer))
+            {
+                /* Check if buffer was full */
+                signal = UART_RingBufferIsFull(&tx_ring_buffer);
 
-    /* Transmit data */
-    if ((UART0->S1 & (1u << 7u))!= 0) /* TDRE bit */
-    {
-		if (!UART_RingBufferIsEmpty(&tx_ring_buffer))
-		{
-		    /* Read byte */
-		    signal = UART_RingBufferIsFull(&tx_ring_buffer);
-		    (void)UART_RingBufferReadByte(&tx_ring_buffer, &data);
+                do
+                {
+                    /* Read byte */
+                    (void)UART_RingBufferReadByte(&tx_ring_buffer, &data);
 
-            /* Send byte */
-            UART0->D = data;
+                    /* Send byte */
+                    LPC_UART0->THR = data;
+                }
+                while (!UART_RingBufferIsEmpty(&tx_ring_buffer) &&
+                       ((LPC_UART0->LSR & (1u << 5u)) != 0));
 
-			/* Check end of transmit */
-			if (UART_RingBufferIsEmpty(&tx_ring_buffer))
-			{
-				/* Disable TDRE interrupt */
-				UART0->C2 &= ~(1u << 7u);
+                /* Check end of transmit */
+                if (UART_RingBufferIsEmpty(&tx_ring_buffer))
+                {
+                    /* Disable TXE interrupt */
+                    LPC_UART0->IER &= ~(1u << 1u);
+                }
+
+                /* Signal tx ready */
+                if (signal)
+                {
+                    (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_TX_READY_FLAG_MASK);
+                }
             }
-
-			/* Signal tx ready */
-			if (signal)
-			{
-			    (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_TX_READY_FLAG_MASK);
-			}
-		}
-		else
-		{
-		    /* Disable TDRE interrupt */
-		    UART0->C2 &= ~(1u << 7u);
-		}
+            else
+            {
+                /* Disable TXE interrupt */
+                LPC_UART0->IER &= ~(1u << 1u);
+            }
+        }
+    }
+    else
+    {
+        /* Clear status */
+        iir_reg = LPC_UART0->LSR;
     }
 
     NANO_OS_INTERRUPT_Exit();

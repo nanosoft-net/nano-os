@@ -161,7 +161,6 @@ nano_os_error_t NANO_OS_PORT_USER_GetGlobalMpuConfig(nano_os_port_mpu_region_t* 
                                                    NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
                                                    (NANO_OS_CAST(uint32_t, _COMMON_DATA_END_) - NANO_OS_CAST(uint32_t, _COMMON_DATA_START_)));
 
-        ret = NOS_ERR_SUCCESS;
     }
 
     return ret;

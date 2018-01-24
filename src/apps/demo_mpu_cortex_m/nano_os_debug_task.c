@@ -48,7 +48,7 @@ nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data
                                                   (NANO_OS_CAST(uint32_t, _NANO_OS_MODULES_RO_DATA_END_) - NANO_OS_CAST(uint32_t, _NANO_OS_MODULES_RO_DATA_START_)));
 
         /* Configure MPU region to have access to module private data = stack + internal variables */
-        ret = NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[1u],
+        ret |= NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[1u],
                                                   NANO_OS_CAST(uint32_t, _DEBUG_MODULE_VAR_START_),
                                                   true,
                                                   NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
@@ -59,16 +59,15 @@ nano_os_error_t NANO_OS_PORT_USER_GetDebugTaskConfig(nano_os_port_task_init_data
 
         /* Add a region to allow access to UART registers for access to the debug link */
         NANO_OS_BSP_GetUartIoRegistersMem(&uart_regs, &uart_regs_size);
-        NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[2u],
-                                            uart_regs,
-                                            true,
-                                            NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
-                                            NANO_OS_PORT_MPU_ATTR_MEM_DEVICE_NOT_SHAREABLE,
-                                            false,
-                                            NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
-                                            uart_regs_size);
+        ret |= NANO_OS_MPU_ComputeRegionAttributes(&port_init_data->mem_regions[2u],
+                                                    uart_regs,
+                                                    true,
+                                                    NANO_OS_PORT_MPU_ATTR_AP_FULL_ACCESS,
+                                                    NANO_OS_PORT_MPU_ATTR_MEM_DEVICE_NOT_SHAREABLE,
+                                                    false,
+                                                    NANO_OS_PORT_MPU_SUBREGION_ENABLE_ALL,
+                                                    uart_regs_size);
 
-        ret = NOS_ERR_SUCCESS;
     }
 
     return ret;
