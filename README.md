@@ -7,13 +7,12 @@ Its main characteristics are:
 * Maximum of 255 levels of priority
 * Round-robin scheduling for tasks with the same priority level
 * Support of the following synchronization objects:
-
- * Semaphore
- * Mutex
- * Condition variable
- * Flag set
- * Mailbox
- * Waitable timer
+  * Semaphore
+  * Mutex
+  * Condition variable
+  * Flag set
+  * Mailbox
+  * Waitable timer
 * Highly interruptible code
 * Highly portable code (95% is written in C language)
 * C API is C++ compatible, a C++ API is also available
@@ -157,15 +156,16 @@ The demo applications have been tested on the following boards:
 * Freescale Freedom Board for KL25Z128 (Cortex-M0+)
 * Gecko ZG EFM32ZG222 Starter Kit (Cortex-M0+)
 * Embest NXP LPC1768 Evalboard (Cortex-M3 with MPU)
+* Embedded Artists NXP LPC1788 OEM Board (Cortex-M3 with MPU)
 * ST STM32F407 Evalboard (Cortex-M4 with FPU and MPU)
 * ST NUCLEO STM32F767 (Cortex-M7 with FPU and MPU)
 
 using the following compilers:
 
-* GCC 5.2 for ARM Cortex-M compiler (launchpad.net)
-* IAR 6.4 for ARM compiler (IAR Systems)
-* Keil 5.3 for ARM compiler (ARM Keil)
-* MingGW for Windows (minggw.org)
+* GCC 5.2 for ARM Cortex-M compiler (GNU ARM Embedded Toolchain - https://launchpad.net/gcc-arm-embedded)
+* IAR 6.4 for ARM compiler (IAR Systems - https://www.iar.com/iar-embedded-workbench/)
+* Keil MDK 5.3 for ARM compiler (ARM Keil - http://www2.keil.com/mdk5/)
+* MinGW 7.1 for Windows (MinGW - http://www.mingw.org/)
 
 ### Demos
 
