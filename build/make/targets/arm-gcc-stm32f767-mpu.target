@@ -38,7 +38,7 @@ TARGET_DEPENDENCIES=
 TARGET_INC_DIRS=
 
 # Target specific lib directories
-TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/../arm-none-eabi/lib/armv7e-m/fpu/fpv5-d16 -L$(TOOLCHAIN_PATH)/../lib/gcc/arm-none-eabi/5.2.1/armv7e-m/fpu/fpv5-d16
+TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/arm-none-eabi/lib/thumb/v7e-m/fpv5/hard -L$(TOOLCHAIN_PATH)/lib/gcc/arm-none-eabi/7.2.1/thumb/v7e-m/fpv5/hard
 
 # Target specific libraries
 TARGET_LIBS=-lgcc -lc -lnosys
