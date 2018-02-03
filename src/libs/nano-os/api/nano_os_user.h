@@ -72,10 +72,10 @@ typedef void (*fp_nano_os_system_timer_callback_func_t)(void);
 /** \brief Initialize and start the system timer */
 nano_os_error_t NANO_OS_USER_SystemTimerInit(const fp_nano_os_system_timer_callback_func_t system_timer_irq_callback);
 
-#if (NANO_OS_TRACE_ENABLED == 1u)
+#if ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u))
 /** \brief Get the current timestamp in µs */
 uint32_t NANO_OS_USER_SystemTimerGetTimestampInUs(void);
-#endif /* (NANO_OS_TRACE_ENABLED == 1u) */
+#endif /* ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)) */
 
 #endif /* NANO_OS_PORT_PROVIDES_SYSTEM_TIMER */
 
