@@ -18,13 +18,14 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "bsp.h"
+#include "chip_lpc43xx.h"
 
 
 /** \brief Get the SYSTICK input clock frequency in Hz */
 uint32_t NANO_OS_PORT_USER_GetSystickInputClockFreq(void)
 {
-    /* 120 MHz */
-    return 120000000u;
+    /* 204 MHz */
+    return 204000000u;
 }
 
 
@@ -34,13 +35,19 @@ nano_os_error_t NANO_OS_BSP_Init(void)
     uint8_t i;
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
-//    /* Turn on power on GPIO */
-//    LPC_SC->PCONP |= (1u << 15u);
-//
-//    /* Leds 0,1 => P2-26,27 */
-//    LPC_IOCON->P2_26 = 0u;
-//    LPC_IOCON->P2_27 = 0u;
-//    LPC_GPIO2->DIR = (1u << 26u) | (1u << 27u);
+    /* Turn on power on GPIO */
+    LPC_CCU1->CLKCCU[CLK_MX_SCU].CFG = (1u << 0u);
+    LPC_CCU1->CLKCCU[CLK_MX_GPIO].CFG = (1u << 0u);
+
+    /* Leds 0,1,2 =>
+     * P6_9 : GPIO3[5]
+     * P6_11 : GPIO3[7]
+     * P2_7 : GPIO0[7] */
+    LPC_SCU->SFSP[3u][5u] = (1u << 7u);
+    LPC_SCU->SFSP[3u][7u] = (1u << 7u);
+    LPC_SCU->SFSP[0u][7u] = (1u << 7u);
+    LPC_GPIO_PORT->DIR[3u] |= (1u << 5u) | (1u << 7u);
+    LPC_GPIO_PORT->DIR[0u] |= (1u << 7u);
 
     /* Turn all leds off */
     for (i = 0; i < 3u; i++)
@@ -63,13 +70,16 @@ void NANO_OS_BSP_LedOn(const uint8_t led)
 {
     switch(led)
     {
-//        case 0:
-//            LPC_GPIO2->SET = NANO_OS_CAST(uint32_t, (1<<26));
-//            break;
-//        case 1:
-//            LPC_GPIO2->SET = NANO_OS_CAST(uint32_t, (1<<27));
-//            break;
-//
+        case 0:
+            LPC_GPIO_PORT->CLR[3u] = NANO_OS_CAST(uint32_t, (1u << 5u));
+            break;
+        case 1:
+            LPC_GPIO_PORT->CLR[3u] = NANO_OS_CAST(uint32_t, (1u << 7u));
+            break;
+        case 2:
+            LPC_GPIO_PORT->CLR[0u] = NANO_OS_CAST(uint32_t, (1u << 7u));
+            break;
+
         default:
             /* Do nothing */
             break;
@@ -81,13 +91,16 @@ void NANO_OS_BSP_LedOff(const uint8_t led)
 {
     switch(led)
     {
-//        case 0:
-//            LPC_GPIO2->CLR = NANO_OS_CAST(uint32_t, (1<<26));
-//            break;
-//        case 1:
-//            LPC_GPIO2->CLR = NANO_OS_CAST(uint32_t, (1<<27));
-//            break;
-//
+        case 0:
+            LPC_GPIO_PORT->SET[3u] = NANO_OS_CAST(uint32_t, (1u << 5u));
+            break;
+        case 1:
+            LPC_GPIO_PORT->SET[3u] = NANO_OS_CAST(uint32_t, (1u << 7u));
+            break;
+        case 2:
+            LPC_GPIO_PORT->SET[0u] = NANO_OS_CAST(uint32_t, (1u << 7u));
+            break;
+
         default:
             /* Do nothing */
             break;
@@ -100,8 +113,8 @@ void NANO_OS_BSP_GetLedIoRegistersMem(uint32_t* const start_address, uint32_t* c
     /* Check parameters */
     if ((start_address != NULL) && (size != NULL))
     {
-//        (*start_address) = LPC_GPIO0_BASE;
-        (*size) = 0x100u;
+        (*start_address) = LPC_GPIO_PORT_BASE;
+        (*size) = 0xC000u;
     }
 }
 
@@ -111,7 +124,7 @@ void NANO_OS_BSP_GetUartIoRegistersMem(uint32_t* const start_address, uint32_t* 
     /* Check parameters */
     if ((start_address != NULL) && (size != NULL))
     {
-//        (*start_address) = LPC_UART0_BASE;
-        (*size) = 0x4000u;
+        (*start_address) = LPC_USART0_BASE;
+        (*size) = 0x40000u;
     }
 }

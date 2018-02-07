@@ -54,6 +54,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 	.weak   LCD_Handler
 	.weak   USB0_OTG_Handler
 	.weak	USB1_Handler
+	.weak   SCTIMER_Handler
 	.weak   RIT_Handler
 	.weak   TIMER0_Handler
 	.weak   TIMER1_Handler
@@ -127,6 +128,7 @@ _vectors:
 	.long   LCD_Handler
 	.long   USB0_OTG_Handler
 	.long	USB1_Handler
+	.long	SCTIMER_Handler
 	.long   RIT_Handler
 	.long   TIMER0_Handler
 	.long   TIMER1_Handler
@@ -245,6 +247,10 @@ USB0_OTG_Handler:
 
 .thumb_func
 USB1_Handler:
+    b        .
+
+.thumb_func
+SCTIMER_Handler:
     b        .
 
 .thumb_func

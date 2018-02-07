@@ -19,7 +19,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable Nano OS console on UART */
-#define BSP_LPC1768_UART_CONSOLE_ENABLED   0u
+#define BSP_LPC1768_UART_CONSOLE_ENABLED   1u
 
 
 /* Check if module is enabled */

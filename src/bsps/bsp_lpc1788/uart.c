@@ -126,22 +126,6 @@ void UART_Init(void)
 /** \brief Send data over the UART */
 void UART_Send(const uint8_t* data, uint32_t data_len)
 {
-
-    while(data_len != 0u)
-    {
-        /* Wait tranceiver ready */
-        while ((LPC_UART0->LSR & (1u << 5u)) == 0) /* THRE bit */
-        {}
-
-        /* Send data */
-        LPC_UART0->THR = (*data);
-
-        /* Next data */
-        data++;
-        data_len--;
-    }
-
-#if 0
     bool data_added;
 
     do
@@ -149,13 +133,17 @@ void UART_Send(const uint8_t* data, uint32_t data_len)
         /* Disable Rx and Tx interrupts */
         LPC_UART0->IER &= ~( (1u << 0u) | (1u << 1u) );
 
-        /* Send first byte to trigger the transmission */
-        LPC_UART0->THR = (*data);
-        data++;
-        data_len--;
-        data_added = true;
+        /* If ring buffer is empty, send first byte to start transmission */
+        if (UART_RingBufferIsEmpty(&tx_ring_buffer) &&
+            ((LPC_UART0->LSR & (1u << 5u)) != 0) /* THRE bit */)
+        {
+            LPC_UART0->THR = (*data);
+            data++;
+            data_len--;
+        }
 
         /* Add data to the transmit buffer */
+        data_added = true;
         while (data_added && (data_len != 0))
         {
             data_added = UART_RingBufferWriteByte(&tx_ring_buffer, *data);
@@ -185,8 +173,6 @@ void UART_Send(const uint8_t* data, uint32_t data_len)
         }
     }
     while (data_len != 0);
-
-#endif
 
     return;
 }
@@ -242,75 +228,55 @@ void UART0_Handler()
 {
     bool signal;
     uint8_t data;
-    uint32_t iir_reg;
 
     NANO_OS_INTERRUPT_Enter();
 
-    /* Read interrupt identification register */
-    iir_reg = LPC_UART0->IIR;
-    if (((iir_reg & 0x04u) != 0u) | ((iir_reg & 0x0Cu) != 0u))
+    /* Read received data */
+    signal = UART_RingBufferIsEmpty(&rx_ring_buffer);
+    while ((LPC_UART0->LSR & ( 1u << 0u)) != 0) /* RDR bit */
     {
-        /* Read received data */
-        signal = UART_RingBufferIsEmpty(&rx_ring_buffer);
-        while ((LPC_UART0->LSR & ( 1u << 0u)) != 0) /* RDR bit */
-        {
-            /* Read the received byte */
-            data = LPC_UART0->RBR;
+        /* Read the received byte */
+        data = LPC_UART0->RBR;
 
-            /* Put the data into the received buffer */
-            (void)UART_RingBufferWriteByte(&rx_ring_buffer, data);
-        }
-        /* Signal received data */
-        if (signal && !UART_RingBufferIsEmpty(&rx_ring_buffer))
-        {
-            (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_RX_READY_FLAG_MASK);
-        }
+        /* Put the data into the received buffer */
+        (void)UART_RingBufferWriteByte(&rx_ring_buffer, data);
     }
-    else if (((iir_reg & 0x02u) != 0u))
+    /* Signal received data */
+    if (signal && !UART_RingBufferIsEmpty(&rx_ring_buffer))
     {
-        /* Transmit data */
-        if ((LPC_UART0->LSR & (1u << 5u)) != 0) /* THRE bit */
+        (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_RX_READY_FLAG_MASK);
+    }
+
+    /* Transmit data */
+    if ((LPC_UART0->LSR & (1u << 5u)) != 0) /* THRE bit */
+    {
+        if (!UART_RingBufferIsEmpty(&tx_ring_buffer))
         {
-            if (!UART_RingBufferIsEmpty(&tx_ring_buffer))
-            {
-                /* Check if buffer was full */
-                signal = UART_RingBufferIsFull(&tx_ring_buffer);
+            /* Read byte */
+            signal = UART_RingBufferIsFull(&tx_ring_buffer);
+            (void)UART_RingBufferReadByte(&tx_ring_buffer, &data);
 
-                do
-                {
-                    /* Read byte */
-                    (void)UART_RingBufferReadByte(&tx_ring_buffer, &data);
+            /* Send byte */
+            LPC_UART0->THR = data;
 
-                    /* Send byte */
-                    LPC_UART0->THR = data;
-                }
-                while (!UART_RingBufferIsEmpty(&tx_ring_buffer) &&
-                       ((LPC_UART0->LSR & (1u << 5u)) != 0));
-
-                /* Check end of transmit */
-                if (UART_RingBufferIsEmpty(&tx_ring_buffer))
-                {
-                    /* Disable TXE interrupt */
-                    LPC_UART0->IER &= ~(1u << 1u);
-                }
-
-                /* Signal tx ready */
-                if (signal)
-                {
-                    (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_TX_READY_FLAG_MASK);
-                }
-            }
-            else
+            /* Check end of transmit */
+            if (UART_RingBufferIsEmpty(&tx_ring_buffer))
             {
                 /* Disable TXE interrupt */
                 LPC_UART0->IER &= ~(1u << 1u);
             }
+
+            /* Signal tx ready */
+            if (signal)
+            {
+                (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_TX_READY_FLAG_MASK);
+            }
         }
-    }
-    else
-    {
-        /* Clear status */
-        iir_reg = LPC_UART0->LSR;
+        else
+        {
+            /* Disable TXE interrupt */
+            LPC_UART0->IER &= ~(1u << 1u);
+        }
     }
 
     NANO_OS_INTERRUPT_Exit();

@@ -22,40 +22,56 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Initialize CPU speed using PLL */
 void pll_init()
 {
-//
-//    /* Disable PLL0 */
-//    LPC_SC->PLL0CON = 0x00u;
-//    LPC_SC->PLL0FEED = 0xAAu;
-//    LPC_SC->PLL0FEED = 0x55u;
-//
-//    /* Wait for PLL shutdown */
-//    while ((LPC_SC->PLL0STAT & (1u << 8u)) != 0u);
-//
-//    /* Turn on main oscillator (12Mhz) */
-//    LPC_SC->SCS = (1u << 5u);
-//
-//    /* Wait for main oscillator start */
-//    while( (LPC_SC->SCS & (1u << 6u)) == 0u);
-//
-//    /* PLL0 clock source = main oscillator */
-//    LPC_SC->CLKSRCSEL = 0x01u;
-//
-//    /* PLL0 configuration fPLL = main_osc * M, fCC0 = fPLL * 2 * P */
-//    LPC_SC->PLL0CFG = 0x00000009u; /* M=10, P=1 => fCC0 = 240Mhz */
-//    LPC_SC->PLL0FEED = 0xAAu;
-//    LPC_SC->PLL0FEED = 0x55u;
-//
-//    /* Enable PLL0 */
-//    LPC_SC->PLL0CON = 0x01u;
-//    LPC_SC->PLL0FEED = 0xAAu;
-//    LPC_SC->PLL0FEED = 0x55u;
-//
-//    /* Wait for PLL0 lock */
-//    while ((LPC_SC->PLL0STAT & (1u << 10u)) == 0u);
-//
-//    /* CPU clock is PLL0/2 => 120MHz */
-//    LPC_SC->CCLKSEL = (2u << 0u) | (1u << 8u);
-//
-//    /* Peripheral clock = CPU clock / 2 = 60MHz*/
-//    LPC_SC->PCLKSEL = 0x02;
+    volatile uint32_t delay;
+
+    /* Configure flash latency to run up to 204MHz */
+    LPC_CREG->FLASHCFGA = (9u << 12u) | (1u << 31u);
+    LPC_CREG->FLASHCFGB = (9u << 12u) | (1u << 31u);
+
+    /* Select the IRC as BASE_M4_CLK source */
+    LPC_CGU->BASE_CLK[CLK_BASE_MX] = (1u << 24u);
+
+    /* Wait 250µs */
+    delay = 10000u;
+    while(delay--) {}
+
+    /* Set the AUTOBLOCK bit (bit 11). This bit re-synchronizes the clock output during
+       frequency changes that prevents glitches when switching clock frequencies. */
+    LPC_CGU->BASE_CLK[CLK_BASE_MX] |= (1u << 11u);
+
+    /* Reconfigure PLL1 :
+       – Select the M and N divider values to produce the final desired PLL1 output
+         frequency foutPLL.
+       – Select the IRC as clock source for PLL1.
+
+       FCCO = M * FCLKIN / N
+       FCLKOUT = FCCO / (2 * P) =  (M * FCLKIN) / (2 * P * N)
+
+       M = 17, N = 1, P = 1:
+       FCCO = 204MHz
+       FCLKOUT = 102MHz
+    */
+    LPC_CGU->PLL1_CTRL = (0u << 8u) | (0u << 11u) | (0u << 12u) | (16u << 16u) | (1u << 24u);
+
+    /* Wait for the PLL1 to lock */
+    while ((LPC_CGU->PLL1_STAT & (1u << 0u)) == 0u)
+    {}
+
+    /* Select PLL1 as BASE_M4_CLK source. The BASE_M4_CLK now operates in the
+       mid-frequency range */
+    LPC_CGU->BASE_CLK[CLK_BASE_MX] = (1u << 11u) | (9u << 24u);
+
+    /* Wait 50µs */
+    delay = 250u;
+    while(delay--) {}
+
+    /* Set the PLL1 P-divider to direct output mode (DIRECT = 1) */
+    LPC_CGU->PLL1_CTRL |= (1u << 7u);
+
+    /* Configure Peripheral clocks = IDVA clock
+       IDIVA clock = PLL1 / 2 = 102MHz */
+    LPC_CGU->IDIV_CTRL[CLK_IDIV_A] = (1u << 2u) | (1u << 11u) | (9u << 24u);
+    LPC_CGU->BASE_CLK[CLK_BASE_APB1] = (1u << 11u) | (12u << 24u);
+    LPC_CGU->BASE_CLK[CLK_BASE_APB3] = (1u << 11u) | (12u << 24u);
+    LPC_CGU->BASE_CLK[CLK_BASE_PERIPH] = (1u << 11u) | (12u << 24u);
 }
