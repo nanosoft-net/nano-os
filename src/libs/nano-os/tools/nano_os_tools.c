@@ -222,6 +222,37 @@ char* NANO_OS_strncat(char *dest, const char *src, size_t size)
 #endif /* (NANO_OS_USE_STD_STRNCAT == 0u) */
 
 
+#if (NANO_OS_USE_STD_STRNCPY == 0u)
+
+/** \brief Highly portable but non-efficient strncpy function */
+char* NANO_OS_strncpy(char *dest, const char *src, size_t size)
+{
+    char* ret = dest;
+
+    if ((dest != NULL) && (src != NULL))
+    {
+        while ((size != 0) && ((*src) != 0))
+        {
+            (*dest) = (*src);
+            dest++;
+            src++;
+            size--;
+        }
+        while (size != 0)
+        {
+            (*dest) = 0;
+            dest++;
+            size--;
+        }
+    }
+
+    return ret;
+
+}
+
+#endif /* (NANO_OS_USE_STD_STRNCPY == 0u) */
+
+
 #if (NANO_OS_USE_STD_VSNPRINTF == 0u)
 
 /** \brief Highly portable but non-efficient vsnprintf function */

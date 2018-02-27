@@ -53,6 +53,9 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Indicate if strncat function from <string.h> must be used */
 #define NANO_OS_USE_STD_STRNCAT         0u
 
+/** \brief Indicate if strncat function from <string.h> must be used */
+#define NANO_OS_USE_STD_STRNCPY         0u
+
 /** \brief Indicate if vsnprintf function from <stdio.h> must be used */
 #define NANO_OS_USE_STD_VSNPRINTF       1u
 
@@ -99,7 +102,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
  *         Shall be equal to :
  *         maximum number of interrupt handler which share the same wait object + 1
  * */
-#define NANO_OS_MAX_ISR_REQUEST_COUNT           2u
+#define NANO_OS_MAX_ISR_REQUEST_COUNT           10u
 
 /** \brief Size of the interrupt service request task stack in number of elements */
 #define NANO_OS_ISR_REQUEST_TASK_STACK_SIZE     (NANO_OS_PORT_MIN_STACK_SIZE + 64u)

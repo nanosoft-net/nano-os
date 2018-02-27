@@ -281,7 +281,7 @@ nano_os_error_t NANO_OS_TIMER_HasElapsed(nano_os_timer_t* const timer, bool* con
 
 
 /** \brief Timer tick handler */
-void NANO_OS_TIMER_TickHandler(void)
+nano_os_error_t NANO_OS_TIMER_TickHandler(void)
 {
     /* Check if at least one timer is started */
     if (g_nano_os.started_timers != NULL)
@@ -296,6 +296,8 @@ void NANO_OS_TIMER_TickHandler(void)
             NANO_OS_ERROR_ASSERT((woke_up_task_count != 0u), NOS_ERR_TIMER_TASK_OVERRUN);
         }
     }
+
+    return NOS_ERR_SUCCESS;
 }
 
 

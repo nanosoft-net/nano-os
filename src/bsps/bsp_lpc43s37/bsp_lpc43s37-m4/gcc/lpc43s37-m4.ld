@@ -7,7 +7,9 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 MEMORY
 {
   rom       (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00080000
-  ram       (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00008000
+  ram_m4    (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00012000
+  ram_m0    (rwx) : ORIGIN = 0x20000000, LENGTH = 0x0000C000
+  ram_ipc   (rwx) : ORIGIN = 0x2000C000, LENGTH = 0x00004000
 }
 
 SECTIONS
@@ -51,7 +53,7 @@ SECTIONS
   {
     . = ALIGN(4) + 0x00000600;
     _TOP_OF_STACKS_ = .;
-  } > ram
+  } > ram_m4
   
   /* Heap */
   .heap :
@@ -63,7 +65,7 @@ SECTIONS
     *(.heap*)
     . = ALIGN(4) + 0x0800;
     __HeapLimit = .;
-  } > ram
+  } > ram_m4
   
   /* Uninitialized data */
   .bss :
@@ -73,7 +75,7 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _BSS_END_ = .;
-  } > ram
+  } > ram_m4
 
   /* Initialized data */
   .data ALIGN(4) : AT(ADDR(.ARM.exidx) + SIZEOF(.ARM.exidx))
@@ -82,7 +84,7 @@ SECTIONS
     *(.data)
     . = ALIGN(4);
     _DATA_RAM_END_ = .;
-  } > ram
+  } > ram_m4
   
   
 

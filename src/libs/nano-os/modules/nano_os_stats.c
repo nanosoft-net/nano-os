@@ -285,9 +285,9 @@ nano_os_error_t NANO_OS_STATS_GetStackUsage(const nano_os_task_t* const task, ui
 #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_CONSOLE_CMD_ENABLED == 1u))
 
 /** \brief Strings corresponding to task states */
-static const char* task_states[] = { "FREE", "READY", "PENDING", "RUNNING", "DEAD" };
+static const char* const task_states[] = { "FREE", "READY", "PENDING", "RUNNING", "DEAD" };
 /** \brief Strings corresponding to wait object types */
-static const char* wait_objects[] = { "NOT_INIT", "TASK", "SEMAPHORE", "MUTEX", "COND_VAR", "TIMER", "MAILBOX", "FLAG_SET" };
+static const char* const wait_objects[] = { "NOT_INIT", "TASK", "SEMAPHORE", "MUTEX", "COND_VAR", "TIMER", "MAILBOX", "FLAG_SET" };
 
 /** \brief Handle the 'tasks' console command */
 static void NANO_OS_STATS_ConsoleTasksCmdHandler(void* const user_data, const uint32_t command_id, const char* const params)
