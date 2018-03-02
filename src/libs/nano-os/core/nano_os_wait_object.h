@@ -30,13 +30,13 @@ extern "C"
 
 
 /** \brief Lock a wait object against interrupt handler simultaneous access */
-#define WAIT_OBJECT_ISR_LOCK(wait_object)   g_nano_os.isr_locked_wait_object = &(wait_object)
+#define WAIT_OBJECT_ISR_LOCK(wait_object)   (wait_object).is_locked = true
 
 /** \brief Unlock a wait object against interrupt handler simultaneous access */
-#define WAIT_OBJECT_ISR_UNLOCK(wait_object)   g_nano_os.isr_locked_wait_object = NULL
+#define WAIT_OBJECT_ISR_UNLOCK(wait_object)   (wait_object).is_locked = false
 
 /** \brief Check if a wait object is locked against interrupt handler simultaneous access */
-#define WAIT_OBJECT_ISR_ISLOCKED(wait_object)   (g_nano_os.isr_locked_wait_object == &(wait_object))
+#define WAIT_OBJECT_ISR_ISLOCKED(wait_object)   ((wait_object).is_locked == true)
 
 
 /** \brief Wait object type */
@@ -85,6 +85,8 @@ typedef struct _nano_os_wait_object_t
     nano_os_wait_object_type_t type;
     /** \brief Queuing type */
     nano_os_queuing_type_t queuing;
+    /** \brief Lock flag */
+    bool is_locked;
     /** \brief Waiting tasks */
     struct _nano_os_task_t* waiting_tasks;
 

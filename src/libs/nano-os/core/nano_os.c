@@ -201,16 +201,26 @@ void NANO_OS_TickInterrupt(void)
 
     /* Handle timers */
     #if (NANO_OS_TIMER_ENABLED == 1u)
-    NANO_OS_TIMER_TickHandler();
-    #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
-
-    /* Check if operation can be done */
     if (NANO_OS_PORT_ATOMIC_READ32(g_nano_os.lock_count) == 0u)
     {
-        /* No syscall in progress */
-        NANO_OS_PORT_ATOMIC_INC32(g_nano_os.lock_count);
+        NANO_OS_TIMER_TickHandler();
+    }
+    else
+    {
+        /* Fill interrupt service request to wake up tasks */
+        nano_os_isr_service_request_t request;
+        request.service_func = NANO_OS_CAST(fp_nano_os_isr_func_t, NANO_OS_TIMER_TickHandler);
+
+        /* Queue request */
+        ret = NANO_OS_INTERRUPT_QueueRequest(&request);
+        NANO_OS_ERROR_ASSERT_RET(ret);
+    }
+    #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
+
+    /* Handle suspent tasks */
+    if (NANO_OS_PORT_ATOMIC_READ32(g_nano_os.lock_count) == 0u)
+    {
         NANO_OS_SCHEDULER_HandleSuspentTasks();
-        NANO_OS_PORT_ATOMIC_DEC32(g_nano_os.lock_count);
     }
     else
     {

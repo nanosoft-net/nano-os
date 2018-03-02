@@ -342,10 +342,14 @@ nano_os_error_t NANO_OS_SCHEDULER_SetTaskPending(nano_os_task_t* const task, con
 /** \brief Go through all the suspent tasks to check their wake-up timeout */
 nano_os_error_t NANO_OS_SCHEDULER_HandleSuspentTasks(void)
 {
+    nano_os_task_t* current;
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
+    /* Lock scheduling */
+    NANO_OS_PORT_ATOMIC_INC32(g_nano_os.lock_count);
+
     /* Look for tasks to wake up */
-    nano_os_task_t* current = g_nano_os.suspent_tasks;
+    current = g_nano_os.suspent_tasks;
     while (current != NULL)
     {
         /* Check wake up time */
@@ -396,6 +400,9 @@ nano_os_error_t NANO_OS_SCHEDULER_HandleSuspentTasks(void)
 
     }
     #endif /* (NANO_OS_ROUND_ROBIN_ENABLED == 1u) */
+
+    /* Unlock scheduling */
+    NANO_OS_PORT_ATOMIC_DEC32(g_nano_os.lock_count);
 
     return ret;
 }

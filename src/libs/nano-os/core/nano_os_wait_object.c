@@ -133,16 +133,13 @@ nano_os_error_t NANO_OS_WAIT_OBJECT_Wait(nano_os_wait_object_t* const wait_objec
                 ret = queuing_functions[wait_object->queuing](&wait_object->waiting_tasks, task);
                 if (ret == NOS_ERR_SUCCESS)
                 {
-                    nano_os_wait_object_t* isr_locked_wait_object;
+                    nano_os_int_status_reg_t int_status_reg;
 
                     /* Disable interrupts */
-                    NANO_OS_PORT_DISABLE_INTERRUPTS();
-
-                    /* Save the wait object locked state */
-                    isr_locked_wait_object = g_nano_os.isr_locked_wait_object;
+                    NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
 
                     /* Allow operations on this wait object */
-                    g_nano_os.isr_locked_wait_object = NULL;
+                    WAIT_OBJECT_ISR_UNLOCK(*wait_object);
 
                     /* Decrement the lock count */
                     g_nano_os.lock_count--;
@@ -154,10 +151,10 @@ nano_os_error_t NANO_OS_WAIT_OBJECT_Wait(nano_os_wait_object_t* const wait_objec
                     g_nano_os.lock_count++;
 
                     /* Restore the wait object locked state */
-                    g_nano_os.isr_locked_wait_object = isr_locked_wait_object;
+                    WAIT_OBJECT_ISR_LOCK(*wait_object);
 
                     /* Enable interrupts */
-                    NANO_OS_PORT_ENABLE_INTERRUPTS();
+                    NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
 
                     /* Get wait return value */
                     ret = task->wait_status;

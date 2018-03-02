@@ -283,17 +283,26 @@ nano_os_error_t NANO_OS_TIMER_HasElapsed(nano_os_timer_t* const timer, bool* con
 /** \brief Timer tick handler */
 nano_os_error_t NANO_OS_TIMER_TickHandler(void)
 {
+
     /* Check if at least one timer is started */
     if (g_nano_os.started_timers != NULL)
     {
         /* Check if at least one timer has elapsed */
         if (g_nano_os.started_timers->timeout == g_nano_os.tick_count)
         {
-            /* Wake up the timer task */
+            nano_os_error_t ret;
             uint32_t woke_up_task_count = 0;
-            const nano_os_error_t ret = NANO_OS_WAIT_OBJECT_Signal(&g_nano_os.timer_task_wait_object, NOS_ERR_SUCCESS, false, NULL, &woke_up_task_count);
+
+            /* Lock scheduling */
+            NANO_OS_PORT_ATOMIC_INC32(g_nano_os.lock_count);
+
+            /* Wake up the timer task */
+            ret = NANO_OS_WAIT_OBJECT_Signal(&g_nano_os.timer_task_wait_object, NOS_ERR_SUCCESS, false, NULL, &woke_up_task_count);
             NANO_OS_ERROR_ASSERT_RET(ret);
             NANO_OS_ERROR_ASSERT((woke_up_task_count != 0u), NOS_ERR_TIMER_TASK_OVERRUN);
+
+            /* Unlock scheduling */
+            NANO_OS_PORT_ATOMIC_DEC32(g_nano_os.lock_count);
         }
     }
 
