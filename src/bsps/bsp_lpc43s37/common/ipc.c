@@ -198,7 +198,6 @@ bool IPC_SendMessage(const uint16_t command, const void* const data, const size_
                 /* Wait for a free message in the message queue */
                 uint32_t flags = 0u;
                 const nano_os_error_t err = NANO_OS_FLAG_SET_Wait(&ipc_flag_set, IPC_TX_READY_FLAG_MASK, false, false, &flags, NANO_OS_MS_TO_TICKS(IPC_MSG_SEND_TIMEOUT));
-                NANO_OS_ERROR_ASSERT((err == NOS_ERR_SUCCESS) || (err == NOS_ERR_TIMEOUT), NOS_ERR_FAILURE);
                 ret = (err == NOS_ERR_SUCCESS);
             }
         }

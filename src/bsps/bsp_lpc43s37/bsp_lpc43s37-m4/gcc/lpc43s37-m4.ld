@@ -6,7 +6,8 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 
 MEMORY
 {
-  rom       (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00080000
+  rom_m4    (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00080000
+  rom_m0    (rx)  : ORIGIN = 0x00080000, LENGTH = 0x00080000
   ram_m4    (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00012000
   ram_m0    (rwx) : ORIGIN = 0x20000000, LENGTH = 0x0000C000
   ram_ipc   (rwx) : ORIGIN = 0x2000C000, LENGTH = 0x00004000
@@ -19,7 +20,7 @@ SECTIONS
   {
     *(.startup)
     *(.text)
-  } > rom
+  } > rom_m4
 
 
   /* Constants */
@@ -29,7 +30,7 @@ SECTIONS
     *(.rodata.*)
     . = ALIGN(4);
     _DATA_ROM_START_ = .;
-  } > rom
+  } > rom_m4
 
   /* Constructors */
   .ctors ALIGN(4) :
@@ -38,14 +39,14 @@ SECTIONS
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array))
     _CTORS_END = .;
-  } > rom
+  } > rom_m4
 
 
   PROVIDE_HIDDEN (__exidx_start = .);
   .ARM.exidx ALIGN(4) : 
   { 
     *(.ARM.exidx* .gnu.linkonce.armexidx.*) 
-  } > rom
+  } > rom_m4
   PROVIDE_HIDDEN (__exidx_end = .);
 
   /* Stack */

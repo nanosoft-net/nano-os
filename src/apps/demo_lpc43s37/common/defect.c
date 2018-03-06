@@ -80,7 +80,7 @@ bool DEFECT_Raise(const defect_src_t defect_src)
 {
     bool ret = false;
 
-    if ((defect_src > 0u) && (defect_src < DEF_MAX))
+    if ((defect_src >= 0u) && (defect_src < DEF_MAX))
     {
         defect_t* const defect = &defect_list[defect_src];
 
@@ -89,6 +89,8 @@ bool DEFECT_Raise(const defect_src_t defect_src)
         defect->count++;
         NANO_OS_GetTickCount(&defect->timestamp);
         NANO_OS_MUTEX_Unlock(&defect_mutex);
+
+        ret = true;
     }
 
     return ret;
@@ -99,13 +101,15 @@ bool DEFECT_Clear(const defect_src_t defect_src)
 {
     bool ret = false;
 
-    if ((defect_src > 0u) && (defect_src < DEF_MAX))
+    if ((defect_src >= 0u) && (defect_src < DEF_MAX))
     {
         defect_t* const defect = &defect_list[defect_src];
 
         NANO_OS_MUTEX_Lock(&defect_mutex, 0xFFFFFFFFu);
         defect->is_active = false;
         NANO_OS_MUTEX_Unlock(&defect_mutex);
+
+        ret = true;
     }
 
     return ret;
@@ -114,17 +118,52 @@ bool DEFECT_Clear(const defect_src_t defect_src)
 /** \brief Handle the 'defect' console command */
 static void DEFECT_DefectCmdHandler(void* const user_data, const uint32_t command_id, const char* const params)
 {
+    static const char* const defect_src[] = { "HEARTBEAT", "IPC_RX", "IPC_TX" };
+
     NANO_OS_UNUSED(user_data);
     NANO_OS_UNUSED(command_id);
-    NANO_OS_UNUSED(params);
 
     if (params == NULL)
     {
         NANO_OS_USER_ConsoleWriteString("Usage: defect show | clear\r\n");
     }
+    else if (STRNCMP(params, "show", STRNLEN(params, 255u)) == 0)
+    {
+        char temp_str[10u];
+
+        NANO_OS_USER_ConsoleWriteString("Defect | Active | Timestamp | Count\r\n");
+        for (uint8_t i = 0u; i < DEF_MAX; i++)
+        {
+            NANO_OS_USER_ConsoleWriteString(defect_src[i]);
+            NANO_OS_USER_ConsoleWriteString(" | ");
+
+            if (defect_list[i].is_active)
+            {
+                NANO_OS_USER_ConsoleWriteString("TRUE");
+            }
+            else
+            {
+                NANO_OS_USER_ConsoleWriteString("FALSE");
+            }
+            NANO_OS_USER_ConsoleWriteString(" | ");
+
+            (void)ITOA(defect_list[i].timestamp, temp_str, 10u);
+            (void)NANO_OS_USER_ConsoleWriteString(temp_str);
+            NANO_OS_USER_ConsoleWriteString(" | ");
+
+            (void)ITOA(defect_list[i].count, temp_str, 10u);
+            (void)NANO_OS_USER_ConsoleWriteString(temp_str);
+            NANO_OS_USER_ConsoleWriteString("\r\n");
+        }
+    }
+    else if (STRNCMP(params, "clear", STRNLEN(params, 255u)) == 0)
+    {
+        (void)MEMSET(defect_list, 0, sizeof(defect_list));
+        NANO_OS_USER_ConsoleWriteString("Defects cleared!\r\n");
+    }
     else
     {
-
+        NANO_OS_USER_ConsoleWriteString("Invalid param\r\n");
     }
 }
 

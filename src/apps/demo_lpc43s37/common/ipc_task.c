@@ -19,7 +19,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ipc_task.h"
 #include "ipc.h"
-
+#include "defect.h"
 
 
 /** \brief Stack size in number of elements */
@@ -95,12 +95,17 @@ static void* IPC_TASK_Task(void* param)
     {
         /* Wait for a message */
         size_t msg_size = sizeof(ipc_msg);
-        if (IPC_ReceiveMessage(&command, &ipc_msg, &msg_size, 10000u))
+        if (IPC_ReceiveMessage(&command, &ipc_msg, &msg_size, 4000000000u))
         {
             /* Handle message */
             if ((command < IPC_MSG_MAX) && (ipc_msg_handlers[command] != NULL))
             {
                 ipc_msg_handlers[command](command, &ipc_msg);
+                DEFECT_Clear(DEF_IPC_RX);
+            }
+            else
+            {
+                DEFECT_Raise(DEF_IPC_RX);
             }
         }
     }

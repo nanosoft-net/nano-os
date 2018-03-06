@@ -20,6 +20,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "heartbeat_task.h"
 #include "ipc.h"
 #include "ipc_task.h"
+#include "defect.h"
 #include "nano_os_tools.h"
 
 /** \brief Heartbeat period in milliseconds */
@@ -105,6 +106,7 @@ nano_os_error_t HEARTBEAT_TASK_Init(void)
 /** \brief Heartbeat task */
 static void* HEARTBEAT_TASK_Task(void* param)
 {
+    bool ret;
     ipc_msg_heartbeat_t heartbeat_msg;
     nano_os_waitable_timer_t wait_timer;
     NANO_OS_UNUSED(param);
@@ -127,13 +129,28 @@ static void* HEARTBEAT_TASK_Task(void* param)
         NANO_OS_WAITABLE_TIMER_Wait(&wait_timer, 0xFFFFFFFFu);
 
         /* Send heartbeat message */
-        heartbeat_msg.up_time = NANO_OS_GetTickCount(&heartbeat_msg.up_time);
-        IPC_SendMessage(IPC_MSG_HEARTBEAT, &heartbeat_msg, sizeof(ipc_msg_heartbeat_t));
+        NANO_OS_GetTickCount(&heartbeat_msg.up_time);
+        ret = IPC_SendMessage(IPC_MSG_HEARTBEAT, &heartbeat_msg, sizeof(ipc_msg_heartbeat_t));
+        if (!ret)
+        {
+            /* IPC Tx error */
+            DEFECT_Raise(DEF_IPC_TX);
+        }
+        else
+        {
+            DEFECT_Clear(DEF_IPC_TX);
+        }
 
         /* Check other CPU heartbeat */
-        if ((heartbeat_msg.up_time - last_heartbeat_msg_timestamp) > (2u * HEARTBEAT_PERIOD))
+        if ((heartbeat_msg.up_time - last_heartbeat_msg_timestamp) > (2u * NANO_OS_MS_TO_TICKS(HEARTBEAT_PERIOD)))
         {
             /* Distant heartbeat error */
+            DEFECT_Raise(DEF_HEARTBEAT);
+        }
+        else
+        {
+            /* Heartbeat received */
+            DEFECT_Clear(DEF_HEARTBEAT);
         }
     }
 

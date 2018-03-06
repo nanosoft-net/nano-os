@@ -22,6 +22,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "defect.h"
 #include "ipc_task.h"
 #include "heartbeat_task.h"
+#include "chip_lpc43xx.h"
 
 /** \brief Stack size in number of elements */
 #define TASK_STACK_SIZE     128u
@@ -58,6 +59,12 @@ static void* MAIN_Task(void* param)
 {
     /* Get parameter */
     const uint32_t period = NANO_OS_CAST(uint32_t, param);
+
+    /* Release reset on Cortex-M0 */
+    LPC_RGU->RESET_CTRL[1u] = (1u << 24u);
+    LPC_CREG->M0APPMEMMAP = 0x00080000u;
+    LPC_RGU->RESET_CTRL[1u] = 0u;
+
 
     /* Initialize defects */
     DEFECT_Init();
