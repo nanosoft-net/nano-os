@@ -86,7 +86,9 @@ nano_os_error_t HEARTBEAT_TASK_Init(void)
     task_init_data.stack_size = TASK_STACK_SIZE;
     task_init_data.task_func = HEARTBEAT_TASK_Task;
     task_init_data.param = NULL;
+    #if CORE_M4
     task_init_data.port_init_data.is_priviledged = true;
+    #endif /* CORE_M4 */
     ret = NANO_OS_TASK_Create(&heartbeat_task, &task_init_data);
 
     /* Register commands to the console module */

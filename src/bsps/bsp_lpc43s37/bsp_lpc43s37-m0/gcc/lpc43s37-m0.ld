@@ -1,4 +1,4 @@
-/* Linker script for LPC43S37-M4 */
+/* Linker script for LPC43S37-M0 */
 
 
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
@@ -20,7 +20,7 @@ SECTIONS
   {
     *(.startup)
     *(.text)
-  } > rom_m4
+  } > rom_m0
 
 
   /* Constants */
@@ -30,7 +30,7 @@ SECTIONS
     *(.rodata.*)
     . = ALIGN(4);
     _DATA_ROM_START_ = .;
-  } > rom_m4
+  } > rom_m0
 
   /* Constructors */
   .ctors ALIGN(4) :
@@ -39,14 +39,14 @@ SECTIONS
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array))
     _CTORS_END = .;
-  } > rom_m4
+  } > rom_m0
 
 
   PROVIDE_HIDDEN (__exidx_start = .);
   .ARM.exidx ALIGN(4) : 
   { 
     *(.ARM.exidx* .gnu.linkonce.armexidx.*) 
-  } > rom_m4
+  } > rom_m0
   PROVIDE_HIDDEN (__exidx_end = .);
 
   /* Stack */
@@ -54,7 +54,7 @@ SECTIONS
   {
     . = ALIGN(4) + 0x00000600;
     _TOP_OF_STACKS_ = .;
-  } > ram_m4
+  } > ram_m0
   
   /* Heap */
   .heap :
@@ -66,7 +66,7 @@ SECTIONS
     *(.heap*)
     . = ALIGN(4) + 0x0800;
     __HeapLimit = .;
-  } > ram_m4
+  } > ram_m0
   
   /* Uninitialized data */
   .bss :
@@ -76,7 +76,7 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     _BSS_END_ = .;
-  } > ram_m4
+  } > ram_m0
 
   /* Initialized data */
   .data ALIGN(4) : AT(ADDR(.ARM.exidx) + SIZEOF(.ARM.exidx))
@@ -85,7 +85,7 @@ SECTIONS
     *(.data)
     . = ALIGN(4);
     _DATA_RAM_END_ = .;
-  } > ram_m4
+  } > ram_m0
   
   
 

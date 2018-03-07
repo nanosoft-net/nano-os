@@ -62,7 +62,7 @@ static void* MAIN_Task(void* param)
 
     /* Release reset on Cortex-M0 */
     LPC_RGU->RESET_CTRL[1u] = (1u << 24u);
-    LPC_CREG->M0APPMEMMAP = 0x00080000u;
+    LPC_CREG->M0APPMEMMAP = 0x1B000000;
     LPC_RGU->RESET_CTRL[1u] = 0u;
 
 
