@@ -58,7 +58,7 @@ DISABLED_WARNINGS =
 
 # Toolchain flags
 COMMON_FLAGS = -g -Wall -mthumb -mcpu=cortex-m0 -march=armv6-m -mapcs-frame -mlittle-endian $(OPTIMIZATION_LEVEL) $(TARGET_PROJECT_DEFINES)
-CFLAGS = -DCORE_M0 -DLPC43XX_CORE_M0APP -Wno-main $(COMMON_FLAGS) -fsigned-char $(PROJECT_CFLAGS)
+CFLAGS = -DCORE_M0 -DNANO_OS_PORT_CM_NO_SYSTICK -DLPC43XX_CORE_M0APP -Wno-main $(COMMON_FLAGS) -fsigned-char $(PROJECT_CFLAGS)
 CXXFLAGS = $(COMMON_FLAGS) $(DISABLED_WARNINGS) -fsigned-char $(PROJECT_CXXFLAGS) -std=c++14 -pedantic -fno-exceptions -fno-unwind-tables -fno-rtti -fno-gnu-keywords -fno-use-cxa-atexit
 ASFLAGS = $(COMMON_FLAGS) $(OPTIMIZATION_LEVEL) $(PROJECT_ASFLAGS)
 LDFLAGS = -e _start -Map $(patsubst /cygdrive/$(DRIVE_LETTER)%,$(DRIVE_LETTER):%, $(abspath $(patsubst %.elf, %.map, $(BIN_DIR)/$(OUTPUT_NAME)))) -EL -g --gc-sections -dT $(ROOT_DIR)/src/bsps/bsp_lpc43s37/bsp_lpc43s37-m0/gcc/lpc43s37-m0.ld $(PROJECT_LDFLAGS)

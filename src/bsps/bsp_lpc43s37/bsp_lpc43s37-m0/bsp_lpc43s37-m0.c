@@ -20,6 +20,27 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "bsp.h"
 #include "chip_lpc43xx.h"
 
+#include "rit.h"
+
+
+/** \brief Initialize and start the system timer */
+nano_os_error_t NANO_OS_USER_SystemTimerInit(const fp_nano_os_system_timer_callback_func_t system_timer_irq_callback)
+{
+    RIT_Init(system_timer_irq_callback);
+    RIT_Start();
+    return NOS_ERR_SUCCESS;
+}
+
+#if ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u))
+/** \brief Get the current timestamp in µs */
+uint32_t NANO_OS_USER_SystemTimerGetTimestampInUs(void)
+{
+    return RIT_GetTimestampInUs();
+}
+#endif /* ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u)) */
+
+
+
 
 /** \brief Get the SYSTICK input clock frequency in Hz */
 uint32_t NANO_OS_PORT_USER_GetSystickInputClockFreq(void)
