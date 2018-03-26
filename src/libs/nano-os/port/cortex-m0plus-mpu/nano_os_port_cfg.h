@@ -42,8 +42,13 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Indicate if the port provides the stacks for Nano OS internal tasks */
 #define NANO_OS_PORT_PROVIDES_STACKS                    1u
 
+#ifndef NANO_OS_PORT_CM_NO_SYSTICK
 /** \brief Indicate if the port provides the system timer for Nano OS */
 #define NANO_OS_PORT_PROVIDES_SYSTEM_TIMER              1u
+#else
+/** \brief Indicate if the port provides the system timer for Nano OS */
+#define NANO_OS_PORT_PROVIDES_SYSTEM_TIMER              0u
+#endif /* NANO_OS_PORT_CM_NO_SYSTICK */
 
 /** \brief Minimum stack size in number of elements for this port */
 #define NANO_OS_PORT_MIN_STACK_SIZE                     64u

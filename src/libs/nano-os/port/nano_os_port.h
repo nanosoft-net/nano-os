@@ -103,6 +103,9 @@ uint32_t NANO_OS_PORT_GetTimestampInUs(void);
 #else
 
 /** \brief Get the current timestamp in µs */
+uint32_t NANO_OS_USER_SystemTimerGetTimestampInUs(void);
+
+/** \brief Get the current timestamp in µs */
 #define NANO_OS_PORT_GetTimestampInUs() NANO_OS_USER_SystemTimerGetTimestampInUs()
 
 #endif /* NANO_OS_PORT_PROVIDES_SYSTEM_TIMER */
