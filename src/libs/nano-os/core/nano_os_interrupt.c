@@ -74,7 +74,8 @@ nano_os_error_t NANO_OS_INTERRUPT_QueueRequest(nano_os_isr_service_request_t* co
     if (isr_request != NULL)
     {
         /* Disable interrupts */
-        NANO_OS_PORT_DISABLE_INTERRUPTS();
+        nano_os_int_status_reg_t int_status_reg;
+        NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
 
         /* Check if there is space left in the request list */
         if (g_nano_os.isr_request_count == NANO_OS_MAX_ISR_REQUEST_COUNT)
@@ -100,7 +101,7 @@ nano_os_error_t NANO_OS_INTERRUPT_QueueRequest(nano_os_isr_service_request_t* co
         }
 
         /* Enable interrupts */
-        NANO_OS_PORT_ENABLE_INTERRUPTS();
+        NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
     }
 
     return ret;
@@ -150,7 +151,9 @@ static void* NANO_OS_INTERRUPT_ServiceTask(void* const param)
         NANO_OS_PORT_ATOMIC_INC32(g_nano_os.lock_count);
 
         /* Wait for a request */
+        NANO_OS_PORT_DISABLE_INTERRUPTS();
         ret = NANO_OS_WAIT_OBJECT_Wait(&g_nano_os.isr_request_task_wait_object, 0xFFFFFFFFu);
+        NANO_OS_PORT_ENABLE_INTERRUPTS();
 
         /* Decrement lock count as if it were a syscall */
         NANO_OS_PORT_ATOMIC_DEC32(g_nano_os.lock_count);

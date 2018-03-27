@@ -46,8 +46,8 @@ nano_os_error_t NANO_OS_TASK_LIST_AddToEnd(nano_os_task_t** task_list, nano_os_t
 
             /* Add the task to the list */
             current->next = task;
-            task->next = NULL;
         }
+        task->next = NULL;
 
         ret = NOS_ERR_SUCCESS;
     }
@@ -128,6 +128,7 @@ nano_os_error_t NANO_OS_TASK_LIST_Remove(nano_os_task_t** task_list, nano_os_tas
             {
                 (*task_list) = current->next;
             }
+            current->next = NULL;
 
             ret = NOS_ERR_SUCCESS;
         }
@@ -151,6 +152,7 @@ nano_os_task_t* NANO_OS_TASK_LIST_PopTask(nano_os_task_t** task_list)
         if( ret != NULL )
         {
             (*task_list) = ret->next;
+            ret->next = NULL;
         }
     }
 

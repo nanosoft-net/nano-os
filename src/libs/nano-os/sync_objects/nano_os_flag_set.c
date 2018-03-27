@@ -255,6 +255,8 @@ nano_os_error_t NANO_OS_FLAG_SET_Clear(nano_os_flag_set_t* const flag_set, const
 
         /* Unlock flag set against interrupt handler access */
         WAIT_OBJECT_ISR_UNLOCK(flag_set->wait_object);
+
+        ret = NOS_ERR_SUCCESS;
     }
 
     /* Syscall exit */

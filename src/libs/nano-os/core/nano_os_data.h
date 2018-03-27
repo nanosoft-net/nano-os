@@ -98,8 +98,6 @@ typedef struct _nano_os_t
     /** \brief Wait object to signal the isr request task */
     nano_os_wait_object_t isr_request_task_wait_object;
 
-    /** \brief Wait object which is locked again isr access */
-    nano_os_wait_object_t* isr_locked_wait_object;
 
     #if (NANO_OS_WAIT_OBJECT_LIST_ENABLED == 1u)
     /** \brief List of all registered wait objects */

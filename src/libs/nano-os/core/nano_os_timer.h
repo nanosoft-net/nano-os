@@ -89,7 +89,7 @@ nano_os_error_t NANO_OS_TIMER_HasElapsed(nano_os_timer_t* const timer, bool* con
 
 
 /** \brief Timer tick handler */
-void NANO_OS_TIMER_TickHandler(void);
+nano_os_error_t NANO_OS_TIMER_TickHandler(void);
 
 
 #ifdef __cplusplus

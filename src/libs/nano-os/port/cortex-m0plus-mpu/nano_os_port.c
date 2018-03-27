@@ -20,6 +20,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "nano_os.h"
 #include "nano_os_port.h"
 #include "nano_os_data.h"
+#include "nano_os_user.h"
 #include "nano_os_tools.h"
 #include "nano_os_trace.h"
 #include "nano_os_interrupt.h"
@@ -48,7 +49,6 @@ extern nano_os_error_t NANO_OS_PORT_FirstContextSwitchAsm(void);
 /** \brief Port specific initialization */
 nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data)
 {
-	uint32_t systick_input_freq_hz;
     nano_os_error_t ret = NOS_ERR_INVALID_ARG;
 
     /* Check parameters */
@@ -134,9 +134,20 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
                     }
                 }
 
-                systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
-                SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
-                SYSTICK_CTRL_REG = 0x07u;
+                /* Check if the port provides the system timer */
+                #if (NANO_OS_PORT_PROVIDES_SYSTEM_TIMER == 1u)
+                {
+                    /* Configure and start systick */
+                    const uint32_t systick_input_freq_hz = NANO_OS_PORT_USER_GetSystickInputClockFreq();
+                    SYSTICK_LOAD_REG = (systick_input_freq_hz / NANO_OS_TICK_RATE_HZ) - 1u;
+                    SYSTICK_CTRL_REG = 0x07u;
+                }
+                #else
+
+                /* Configure and start system timer */
+                ret = NANO_OS_USER_SystemTimerInit(NANO_OS_TickInterrupt);
+
+                #endif /* (NANO_OS_PORT_PROVIDES_SYSTEM_TIMER == 1u) */
             }
         }
     }
@@ -258,6 +269,9 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
 }
 
 
+/* Check if the port provides the system timer */
+#if (NANO_OS_PORT_PROVIDES_SYSTEM_TIMER == 1u)
+
 #if ((NANO_OS_TRACE_ENABLED == 1u) || (NANO_OS_CPU_USAGE_MEASUREMENT_ENABLED == 1u))
 
 /** \brief Get the current timestamp in µs */
@@ -345,3 +359,4 @@ void NANO_OS_PORT_SystickHandler(void)
     NANO_OS_INTERRUPT_Exit();
 }
 
+#endif /* (NANO_OS_PORT_PROVIDES_SYSTEM_TIMER == 1u) */

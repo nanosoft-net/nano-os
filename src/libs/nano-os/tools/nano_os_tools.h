@@ -25,7 +25,8 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdarg.h>
 
 #if ( (NANO_OS_USE_STD_MEMSET == 1u) || (NANO_OS_USE_STD_MEMCPY == 1u) || (NANO_OS_USE_STD_MEMCMP == 1u) || \
-      (NANO_OS_USE_STD_STRNCMP == 1u) || (NANO_OS_USE_STD_STRNLEN == 1u) || (NANO_OS_USE_STD_STRNCAT == 1u) )
+      (NANO_OS_USE_STD_STRNCMP == 1u) || (NANO_OS_USE_STD_STRNLEN == 1u) || (NANO_OS_USE_STD_STRNCAT == 1u) || \
+      (NANO_OS_USE_STD_STRNCPY == 1u))
 #include <string.h>
 #endif /* NANO_OS_USE_STD_MEMSET */
 
@@ -117,6 +118,19 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #endif /* (NANO_OS_USE_STD_STRNCAT == 1u) */
 
 
+#if (NANO_OS_USE_STD_STRNCPY == 1u)
+
+/** \brief Strncpy macro definition */
+#define STRNCPY(dest, src, size) strncpy((dest), (src), (size))
+
+#else
+
+/** \brief Strncpy macro definition */
+#define STRNCPY(dest, src, size) NANO_OS_strncpy((dest), (src), (size))
+
+#endif /* (NANO_OS_USE_STD_STRNCPY == 1u) */
+
+
 #if (NANO_OS_USE_STD_VSNPRINTF == 1u)
 
 /** \brief Vsnprintf macro definition */
@@ -205,6 +219,11 @@ size_t NANO_OS_strnlen(const char* s, size_t maxlen);
 /** \brief Highly portable but non-efficient strncat function */
 char* NANO_OS_strncat(char *dest, const char *src, size_t size);
 #endif /* (NANO_OS_USE_STD_STRNCAT == 0u) */
+
+#if (NANO_OS_USE_STD_STRNCPY == 0u)
+/** \brief Highly portable but non-efficient strncpy function */
+char* NANO_OS_strncpy(char *dest, const char *src, size_t size);
+#endif /* (NANO_OS_USE_STD_STRNCPY == 0u) */
 
 #if (NANO_OS_USE_STD_VSNPRINTF == 0u)
 /** \brief Highly portable but non-efficient vsnprintf function */
