@@ -20,6 +20,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "bsp.h"
 #include "sama5d3x.h"
 #include "aic.h"
+#include "pio.c"
 
 /** \brief Initialize the board */
 nano_os_error_t NANO_OS_BSP_Init(void)
@@ -30,13 +31,14 @@ nano_os_error_t NANO_OS_BSP_Init(void)
     /* Initialize interrupt controller */
     AIC_Init();
 
-    /* Led 0 => PB18
-     * Led 1 => PB19
-     * Led 2 => PD1
+    /* Led 0 => PE23
+     * Led 1 => PE24
      */
+    PIO_Configure(PIO_E, 23, PIOM_OUTPUT, PIOPM_NONE);
+    PIO_Configure(PIO_E, 24, PIOM_OUTPUT, PIOPM_NONE);
 
     /* Turn all leds off */
-    for (i = 0; i < 3u; i++)
+    for (i = 0; i < 2u; i++)
     {
         NANO_OS_BSP_LedOff(i);
     }
@@ -47,7 +49,7 @@ nano_os_error_t NANO_OS_BSP_Init(void)
 /** \brief Get the number of LEDs available */
 uint8_t NANO_OS_BSP_GetLedCount(void)
 {
-    return 3u;
+    return 2u;
 }
 
 
@@ -57,13 +59,10 @@ void NANO_OS_BSP_LedOn(const uint8_t led)
     switch(led)
     {
         case 0:
-
+            PIO_SetLow(PIO_E, 23);
             break;
         case 1:
-
-            break;
-        case 2:
-
+            PIO_SetHigh(PIO_E, 24);
             break;
 
         default:
@@ -78,10 +77,10 @@ void NANO_OS_BSP_LedOff(const uint8_t led)
     switch(led)
     {
         case 0:
-
+            PIO_SetHigh(PIO_E, 23);
             break;
         case 1:
-
+            PIO_SetLow(PIO_E, 24);
             break;
         case 2:
 

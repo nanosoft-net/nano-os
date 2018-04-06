@@ -204,6 +204,10 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #error "Nano OS modules must be enabled to use statistics module"
 #endif /* ((NANO_OS_STATS_ENABLED == 1u) && (NANO_OS_MODULES_ENABLED != 1u)) */
 
+#if ((NANO_OS_STATS_ENABLED == 1u) && (NANO_OS_RUNTIME_SP_CHECK_ENABLED != 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u))
+#error "Runtime stack check must be enabled to allow the use of NANO_OS_STATS_GetStackUsage() system call"
+#endif /* ((NANO_OS_STATS_ENABLED == 1u) && (NANO_OS_RUNTIME_SP_CHECK_ENABLED != 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED == 1u)) */
+
 #if ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u))
 #error "NANO_OS_STATS_GetStackUsage() system call must be enabled to use 'stack' console commands"
 #endif /* ((NANO_OS_CONSOLE_ENABLED == 1u) && (NANO_OS_STATS_STACK_CMD_ENABLED == 1u) && (NANO_OS_STATS_GETSTACKUSAGE_ENABLED != 1u)) */

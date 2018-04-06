@@ -46,6 +46,14 @@ typedef uint32_t nano_os_stack_t;
 typedef uint32_t nano_os_int_status_reg_t;
 
 
+/** \brief Port specific global data */
+typedef struct _nano_os_port_data_t
+{
+    /** \brief Indicate that a context switch is needed at the end of the ISR */
+    bool isr_context_switch_needed;
+} nano_os_port_data_t;
+
+
 /** \brief Port specific task data */
 typedef struct _nano_os_port_task_data_t
 {

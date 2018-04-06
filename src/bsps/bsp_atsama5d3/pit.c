@@ -41,15 +41,14 @@ void PIT_Init(const fp_nano_os_system_timer_callback_func_t system_timer_irq_cal
 
    /* Configure period to 10ms(100Hz) : fPIT = MCK / 16 = 8250kHz
       => PIV = 82500 */
-   PIT->PIT_MR &= ~(0x000FFFFF);
-   PIT->PIT_MR = 82500;
+   PIT->PIT_MR &= ~(0x000FFFFFu);
+   PIT->PIT_MR = 82500u;
 
    /* Install interrupt handler */
    AIC_HandlerInstall(PIT_IRQn, PIT_Handler, INTP_LOWEST);
-   //PIT_Handler();
 
    /* Enable interrupt */
-   PIT->PIT_MR |= (0x01 << 25);
+   PIT->PIT_MR |= (0x01u << 25u);
    AIC_EnableInterrupt(PIT_IRQn);
 }
 
@@ -57,7 +56,7 @@ void PIT_Init(const fp_nano_os_system_timer_callback_func_t system_timer_irq_cal
 void PIT_Start()
 {
     /* Enable PIT */
-    PIT->PIT_MR |= (0x01 << 24);
+    PIT->PIT_MR |= (0x01u << 24u);
 }
 
 
