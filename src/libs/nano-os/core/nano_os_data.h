@@ -41,6 +41,11 @@ typedef struct _nano_os_t
     /** \brief Next running task */
     nano_os_task_t* next_running_task;
 
+    #if (NANO_OS_PORT_CONTAINS_GLOBAL_DATA == 1)
+    /** \brief Port specific data */
+    nano_os_port_data_t port_data;
+    #endif /* (NANO_OS_PORT_CONTAINS_GLOBAL_DATA == 1) */
+
     /** \brief Indicate that the OS is started */
     bool started;
 
@@ -112,12 +117,6 @@ typedef struct _nano_os_t
     /** \brief Number of tasks */
     uint16_t task_count;
 
-
-
-    #if (NANO_OS_PORT_CONTAINS_GLOBAL_DATA == 1)
-    /** \brief Port specific data */
-    nano_os_port_data_t port_data;
-    #endif /* (NANO_OS_PORT_CONTAINS_GLOBAL_DATA == 1) */
 
     #if (NANO_OS_RUNTIME_SP_CHECK_ENABLED == 1u)
     /** \brief Stack usage marker */

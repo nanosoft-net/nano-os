@@ -34,7 +34,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_PORT_DESCENDING_STACK                   1u
 
 /** \brief Indicate if the port contains specific global data */
-#define NANO_OS_PORT_CONTAINS_GLOBAL_DATA               0u
+#define NANO_OS_PORT_CONTAINS_GLOBAL_DATA               1u
 
 /** \brief Indicate if the port contains specific task data */
 #define NANO_OS_PORT_CONTAINS_TASK_DATA                 1u

@@ -31,9 +31,6 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief Switch the CPU to priviledged mode */
 extern void NANO_OS_PORT_SwitchToPriviledgedMode(void);
 
-/** \brief Handler for the system timer interrupt */
-static void NANO_OS_PORT_SystemTimerHandler(void);
-
 
 /** \brief Port specific initialization */
 nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data)
@@ -55,7 +52,7 @@ nano_os_error_t NANO_OS_PORT_Init(nano_os_port_init_data_t* const port_init_data
     #endif /* (NANO_OS_TIMER_ENABLED == 1u) */
 
     /* Configure and start system timer */
-    ret = NANO_OS_USER_SystemTimerInit(NANO_OS_PORT_SystemTimerHandler);
+    ret = NANO_OS_USER_SystemTimerInit(NANO_OS_TickInterrupt);
 
     return ret;
 }
@@ -91,8 +88,11 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
         (task_init_data->stack_size >= NANO_OS_PORT_MIN_STACK_SIZE) &&
         (task_init_data->task_func != NULL))
     {
-        /* Compute top of stack (full descending stack on Cortex-M3 processors) */
+        /* Compute top of stack (full descending stack on Cortex-A5 processors) */
         task->top_of_stack = task->stack_origin + task_init_data->stack_size;
+
+        /* Ensure 8 byte stack alignment */
+        task->top_of_stack = NANO_OS_CAST(nano_os_stack_t*, NANO_OS_CAST(uint32_t, task->top_of_stack) & ~(0x07u));
 
         /* First part = exception stack frame */
         task->top_of_stack--;
@@ -144,18 +144,9 @@ nano_os_error_t NANO_OS_PORT_InitTask(nano_os_task_t* const task, const nano_os_
     return ret;
 }
 
-
-/** \brief Handler for the system timer interrupt */
-static void NANO_OS_PORT_SystemTimerHandler(void)
+/** \brief Port specific interrupt level context switch */
+void NANO_OS_PORT_ContextSwitchFromIsr(void)
 {
-    /* Real time trace event */
-    NANO_OS_TRACE_INTERRUPT_ENTRY(0u);
-
-    /* OS tick interrupt handler */
-    NANO_OS_TickInterrupt();
-
-    /* Real time trace event */
-    NANO_OS_TRACE_INTERRUPT_EXIT(0u);
-
+    /* Indicate that a context switch is needed at the end of the ISR */
+    g_nano_os.port_data.isr_context_switch_needed = true;
 }
-

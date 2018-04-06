@@ -38,13 +38,16 @@ TARGET_DEPENDENCIES=
 TARGET_INC_DIRS=
 
 # Target specific lib directories
-TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/../arm-eabi/lib/v7-a/fpv3/hard -L$(TOOLCHAIN_PATH)/../lib/gcc/arm-eabi/5.3.1/v7-a/fpv3/hard -L$(TOOLCHAIN_PATH)/../arm-eabi/libc/usr/lib/v7-a/fpv3/hard
+TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/arm-eabi/lib/v7-a/fpv3/hard -L$(TOOLCHAIN_PATH)/lib/gcc/arm-eabi/5.3.1/v7-a/fpv3/hard -L$(TOOLCHAIN_PATH)/arm-eabi/libc/usr/lib/v7-a/fpv3/hard
 
 # Target specific libraries
 TARGET_LIBS=-lgcc -lc -lnosys
 
 # Target implementation for the project defines
 TARGET_PROJECT_DEFINES=$(foreach PROJECT_DEFINE, $(PROJECT_DEFINES), -D$(PROJECT_DEFINE))
+
+# Nano OS configuration file directory
+NANO_OS_CONFIG_FILE_DIR=$(ROOT_DIR)/src/$(TARGET_BSP)/nano_os_config
 
 
 # Optimisation level
