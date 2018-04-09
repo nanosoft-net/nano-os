@@ -36,10 +36,17 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 	/** \brief SYS execution mode */
 	.equ ARM_MODE_SYS, 0x1F
 
+	/** \brief IRQ enable bit */
+	.equ I_BIT, 0x80
+	/** \brief FIQ enable bit */
+	.equ F_BIT, 0x40
+
+
 	/* Include CPU specific macros */
     .include "nano_os_port_cpu_asm.inc"
 
 
+	.global NANO_OS_PORT_GetTaskStackPointer
 
 	.global NANO_OS_PORT_SaveInterruptStatus
 	.global NANO_OS_PORT_RestoreInterruptStatus
@@ -59,6 +66,25 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
     .extern g_nano_os
 	.extern NANO_OS_INTERRUPT_Enter
 	.extern NANO_OS_INTERRUPT_Exit
+
+
+
+
+.type NANO_OS_PORT_GetTaskStackPointer, %function
+/* uint32_t NANO_OS_PORT_GetTaskStackPointer(void)
+   Get the current value of the task stack pointer -> Register R0 */
+NANO_OS_PORT_GetTaskStackPointer:
+
+	mrs     r1, cpsr
+    msr     cpsr, #ARM_MODE_SYS | I_BIT | F_BIT
+    isb
+
+	mov		r0, sp
+
+	msr     cpsr, r1
+	isb
+
+	blx		lr
 
 
 
@@ -220,69 +246,6 @@ NANO_OS_PORT_SvcHandler_SwitchToPriviledgedMode:
 	msr		spsr, r0
 
 NANO_OS_PORT_SvcHandler_Exit:
-
-	/* Restore context and exit exception */
-    ldmia	sp!, {r0-r3, r12, pc}^
-
-
-.type NANO_OS_PORT_IrqHandler2, %function
-/* void NANO_OS_PORT_IrqHandler2()
-   Handler for the IRQ exception. Call user IRQ handler and performs context switchs */
-NANO_OS_PORT_IrqHandler2:
-
-	/* Adjust return address */
-	sub		lr, lr, #4
-
-	/* Save minimal context */
-	stmdb	sp!, {r0-r1}
-	mov		r0, sp
-	mov		r1, lr
-
-	/* Restore stack pointer for further IRQs */
-	add		sp, sp, #8
-
-	/* Switch to SVC mode */
-	cps		#ARM_MODE_SVC
-	isb
-
-	/* Restore saved registers */
-	mov		lr, r1
-	ldr		r1, [r0, #4]
-	ldr		r0, [r0]
-
-	/* Save minimal context */
-	stmdb	sp!, {r0-r3, r12, lr}
-
-	/* Check for 8-byte alignment and save a word */
-    /* to indicate the stack adjustment used (0 or 4)
-    /* plus a dummy word preserve 8-byte alignment */
-    and		r0, sp, #4
-    sub		sp, sp, r0
-    stmdb	sp!, {r0-r1}
-
-	/* Interrupt entry */
-	blx		NANO_OS_INTERRUPT_Enter
-
-	/* Get the IRQ number and handler
-	   Output:
-           R0 => IRQ number
-           R1 => IRQ handler address */
-	NANO_OS_PORT_GetIRQHandler
-
-	/* Call user defined handler */
-	mov	r12, sp
-	blx		r1
-
-	/* Acknowledge interrupt
-	   Input
-           R0 => IRQ number */
-    NANO_OS_PORT_AcknowledgeIRQ
-
-    /* Interrupt exit */
-	blx		NANO_OS_INTERRUPT_Exit
-
-	ldmia	sp!, {r0-r1}
-    add		sp, sp, r0
 
 	/* Restore context and exit exception */
     ldmia	sp!, {r0-r3, r12, pc}^

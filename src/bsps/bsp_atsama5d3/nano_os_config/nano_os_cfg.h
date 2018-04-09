@@ -108,7 +108,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Task stack pointer check at runtime */
-#define NANO_OS_RUNTIME_SP_CHECK_ENABLED        0u
+#define NANO_OS_RUNTIME_SP_CHECK_ENABLED        1u
 
 /** \brief Enable per task execution counter */
 #define NANO_OS_TASK_EXECUTION_COUNTER_ENABLED  1u
@@ -321,13 +321,13 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_STATS_GETMEMORYSTATS_ENABLED            1u
 
 /** \brief Enable NANO_OS_STATS_GetStackUsage() system call */
-#define NANO_OS_STATS_GETSTACKUSAGE_ENABLED             0u
+#define NANO_OS_STATS_GETSTACKUSAGE_ENABLED             1u
 
 /** \brief Enable the statistics commands in Nano OS console module */
 #define NANO_OS_STATS_CONSOLE_CMD_ENABLED       1u
 
 /** \brief Enable the 'stack' statistics command in Nano OS console module */
-#define NANO_OS_STATS_STACK_CMD_ENABLED         0u
+#define NANO_OS_STATS_STACK_CMD_ENABLED         1u
 
 /** \brief Enable the 'memstats' statistics command in Nano OS console module */
 #define NANO_OS_STATS_MEMSTATS_CMD_ENABLED      1u
