@@ -26,8 +26,9 @@ LIBRARY_DIR := $(BSP_DIR)/bsp_atsama5d3
 
 # Source directories
 SOURCE_DIRS := $(LIBRARY_DIR) \
-               $(LIBRARY_DIR)/component \
-               $(LIBRARY_DIR)/instance \
+               $(LIBRARY_DIR)/device \
+               $(LIBRARY_DIR)/device/component \
+               $(LIBRARY_DIR)/device/instance \
                $(LIBRARY_DIR)/$(COMPILER_NAME)
               
 # Project specific include directories
