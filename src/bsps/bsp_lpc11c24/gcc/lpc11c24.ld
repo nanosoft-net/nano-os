@@ -16,7 +16,10 @@ SECTIONS
   /* Code */
   .text :
   {
+      /* Explicit placement needed because long jmp is not supported on Cortex-M0+ arch
+       so interrupt handlers must be close to interrupt vector table */
     *(.startup)
+    *(.nano_os_port_asm)
     *(.text)
   } > rom
 
@@ -62,7 +65,7 @@ SECTIONS
     end = __end__;
     __HeapBase = __end__;
     *(.heap*)
-    . = ALIGN(4) + 0x0800;
+    . = ALIGN(4) + 0x0500;
     __HeapLimit = .;
   } > ram
   

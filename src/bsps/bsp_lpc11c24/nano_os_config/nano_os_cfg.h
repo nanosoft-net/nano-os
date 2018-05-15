@@ -137,14 +137,14 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable debug information for Segger GDB RTOS plugin */
-#define NANO_OS_SEGGER_GDB_RTOS_PLUGIN_ENABLED  1u
+#define NANO_OS_SEGGER_GDB_RTOS_PLUGIN_ENABLED  0u
 
 
 
 /*************************** Trace options *************************/
 
 /** \brief Enable the trace module */
-#define NANO_OS_TRACE_ENABLED                   1u
+#define NANO_OS_TRACE_ENABLED                   0u
 
 
 /*************************** Synchronization objects features *************************/
@@ -358,7 +358,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the debug module */
-#define NANO_OS_DEBUG_ENABLED                   1u
+#define NANO_OS_DEBUG_ENABLED                   0u
 
 /** \brief Priority level of the debug task */
 #define NANO_OS_DEBUG_TASK_PRIORITY             1u

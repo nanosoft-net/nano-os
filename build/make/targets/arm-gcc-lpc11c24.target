@@ -25,7 +25,7 @@ include $(ROOT_DIR)/build/make/compilers/arm-gcc-cortex-m.compiler
 
 
 # Target ARCH and CPU
-TARGET_ARCH=cortex-m3
+TARGET_ARCH=cortex-m0
 TARGET_CPU=
 
 # Target BSP
