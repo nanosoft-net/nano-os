@@ -99,11 +99,11 @@ void UART_Init(void)
     LPC_UART0->FCR = 0x00u;
     LPC_UART0->TER = 0x00u;
 
-    /* Configure UART baudrate = PCLK/(16*(256*DLM + DLL)*(1+Div/Mul)) => 116219bps */
+    /* Configure UART baudrate = PCLK/(16*(256*DLM + DLL)*(1+Div/Mul)) => 115131bps */
     LPC_UART0->LCR = (1u << 7u);
     LPC_UART0->DLM = 0x00u;
-    LPC_UART0->DLL = 0x16u;
-    LPC_UART0->FDR = 0x07u + (0x05u << 4u); /* Div = 7, Mul = 5 */
+    LPC_UART0->DLL = 0x13u;
+    LPC_UART0->FDR = 0x05u + (0x07u << 4u); /* Div = 5, Mul = 7 */
 
     /* Configure transfer : 8bits, 1stop bit, no parity, no flow control */
     LPC_UART0->LCR = 0x03u;
