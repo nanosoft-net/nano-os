@@ -52,11 +52,11 @@ SECTIONS
   /* Stack */
   .stack :
   {
-    . = ALIGN(4) + 0x00000010;
+    . = ALIGN(8) + 0x00000600;
     _TOP_OF_IRQ_STACK_ = .;
-    . = ALIGN(4) + 0x00000600;
+    . = ALIGN(8) + 0x00000600;
     _TOP_OF_SVC_STACK_ = .;
-    . = ALIGN(4) + 0x00000600;
+    . = ALIGN(8) + 0x00000600;
     _TOP_OF_USR_STACK_ = .;
   } > sram
   
