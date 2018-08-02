@@ -1,4 +1,3 @@
-
 /*
 Copyright(c) 2017 Cedric Jimenez
 
@@ -25,6 +24,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #include "pmc.h"
 #include "pio.h"
 #include "nano_os_api.h"
+#include "nano_os_tools.h"
 
 
 /** \brief UART Rx buffer size in bytes */
@@ -33,24 +33,56 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /** \brief UART Tx buffer size in bytes */
 #define UART_TX_BUFFER_SIZE    32u
 
-
+/** \brief Ring buffer */
+typedef struct _ring_buffer_t
+{
+    /** \brief Buffer */
+    uint8_t* buffer;
+    /** \brief End of buffer */
+    uint8_t* end_of_buffer;
+    /** \brief Read pointer */
+    uint8_t* read_ptr;
+    /** \brief Write pointer */
+    uint8_t* write_ptr;
+} ring_buffer_t;
 
 /** \brief Receive buffer */
 static uint8_t rx_buffer[UART_RX_BUFFER_SIZE];
-static uint8_t* rx_buffer_read_ptr;
-static uint8_t* rx_buffer_write_ptr;
-static volatile uint32_t rx_buffer_len;
-static nano_os_semaphore_t rx_sem;
+static ring_buffer_t rx_ring_buffer;
 
 /** \brief Transmit buffer */
 static uint8_t tx_buffer[UART_TX_BUFFER_SIZE];
-static volatile uint32_t tx_buffer_count;
-static volatile uint32_t tx_buffer_len;
-static nano_os_semaphore_t tx_sem;
+static ring_buffer_t tx_ring_buffer;
+
+
+/** \brief Rx ready flag mask */
+#define UART_RX_READY_FLAG_MASK     1u
+
+/** \brief Tx ready flag mask */
+#define UART_TX_READY_FLAG_MASK     2u
+
+/** \brief Flag set to synchronize Rx and Tx with IRQ */
+static nano_os_flag_set_t uart_flag_set;
+
 
 
 /** \brief UART interrupt handler */
 static void DBGU_UART_Handler(void);
+
+/** \brief Initialize a ring buffer */
+static void DBGU_UART_RingBufferInit(ring_buffer_t* const ring_buffer, uint8_t* const buffer, const size_t buffer_size);
+
+/** \brief Read a byte from a ring buffer */
+static bool DBGU_UART_RingBufferReadByte(ring_buffer_t* const ring_buffer, uint8_t* const byte);
+
+/** \brief Write a byte to a ring buffer */
+static bool DBGU_UART_RingBufferWriteByte(ring_buffer_t* const ring_buffer, const uint8_t byte);
+
+/** \brief Indicate if a ring buffer is empty */
+static bool DBGU_UART_RingBufferIsEmpty(const ring_buffer_t* const ring_buffer);
+
+/** \brief Indicate if a ring buffer is full */
+static bool DBGU_UART_RingBufferIsFull(const ring_buffer_t* const ring_buffer);
 
 
 
@@ -78,11 +110,11 @@ void DBG_UART_Init(void)
     AIC_HandlerInstall(DBGU_IRQn, DBGU_UART_Handler, INTP_LOWEST);
     AIC_EnableInterrupt(DBGU_IRQn);
 
-    /* Create Rx and Tx semaphores */
-    rx_buffer_read_ptr = &rx_buffer[0u];
-    rx_buffer_write_ptr = &rx_buffer[0u];
-    (void)NANO_OS_SEMAPHORE_Create(&rx_sem, 0u, 1u, QT_PRIORITY);
-    (void)NANO_OS_SEMAPHORE_Create(&tx_sem, 1u, 1u, QT_PRIORITY);
+    /* Create Rx and Tx flag set */
+    DBGU_UART_RingBufferInit(&rx_ring_buffer, rx_buffer, sizeof(rx_buffer));
+    DBGU_UART_RingBufferInit(&tx_ring_buffer, tx_buffer, sizeof(tx_buffer));
+    (void)NANO_OS_FLAG_SET_Create(&uart_flag_set, 0u, QT_PRIORITY);
+
 
     /* Enable Rx and Tx */
     DBGU->DBGU_CR = (1 << 4) | (1 << 6);
@@ -92,133 +124,211 @@ void DBG_UART_Init(void)
 /** \brief Send data over the UART */
 void DBG_UART_Send(const uint8_t* data, uint32_t data_len)
 {
+    bool data_added;
 
-    while (data_len != 0)
+    do
     {
-        uint32_t tx_len = data_len;
-
-        /* Wait end of transmit */
-        (void)NANO_OS_SEMAPHORE_Wait(&tx_sem, 0xFFFFFFFFu);
-
         /* Disable Rx and Tx interrupts */
         DBGU->DBGU_IDR = 0xFFFFFFFF;
 
-        /* Add transmit data to the stream */
-        if (tx_len > UART_TX_BUFFER_SIZE)
+        /* Add data to the transmit buffer */
+        do
         {
-            tx_len = UART_TX_BUFFER_SIZE;
+            data_added = DBGU_UART_RingBufferWriteByte(&tx_ring_buffer, *data);
+            if (data_added)
+            {
+                data++;
+                data_len--;
+            }
         }
-        tx_buffer_len = tx_len;
-        tx_buffer_count = 0u;
-        MEMCPY(tx_buffer, data, tx_buffer_len);
+        while (data_added && (data_len != 0));
+        if (!data_added)
+        {
+            NANO_OS_FLAG_SET_Clear(&uart_flag_set, UART_TX_READY_FLAG_MASK);
+        }
 
         /* Enable Rx and Tx interrupts */
         DBGU->DBGU_IER = (1 << 0) | (1 << 1);
 
-        /* Next data */
-        data += tx_len;
-        data_len -= tx_len;
+        /* Wait for Tx ready if more data has to be sent */
+        if (data_len != 0)
+        {
+            uint32_t wake_up_flags = 0u;
+            do
+            {
+                (void)NANO_OS_FLAG_SET_Wait(&uart_flag_set, UART_TX_READY_FLAG_MASK, true, false, &wake_up_flags, 0xFFFFFFFFu);
+            }
+            while (wake_up_flags == 0u);
+        }
     }
+    while (data_len != 0);
 
     return;
 }
 
+
 /** \brief Receive data on the UART */
 void DBG_UART_Receive(uint8_t* data, uint32_t data_len)
 {
+    bool data_read;
+
     while (data_len != 0)
     {
-        if (rx_buffer_len == 0u)
-        {
-            /* Wait for received data */
-            (void)NANO_OS_SEMAPHORE_Wait(&rx_sem, 0xFFFFFFFFu);
-        }
-
         /* Save interrupt mask */
         uint32_t int_mask = DBGU->DBGU_IMR;
 
         /* Disable Rx and Tx interrupts */
         DBGU->DBGU_IDR = 0xFFFFFFFF;
 
-        /* Get rx data */
-        if (rx_buffer_len != 0u)
+        /* Get Rx data */
+        do
         {
-            (*data) = (*rx_buffer_read_ptr);
-
-            data++;
-            rx_buffer_read_ptr++;
-            if (rx_buffer_read_ptr == &rx_buffer[sizeof(rx_buffer)])
+            data_read = DBGU_UART_RingBufferReadByte(&rx_ring_buffer, data);
+            if (data_read)
             {
-                rx_buffer_read_ptr = &rx_buffer[0u];
+                data++;
+                data_len--;
             }
-
-            data_len--;
-            rx_buffer_len--;
+        }
+        while (data_read && (data_len != 0));
+        if (!data_read)
+        {
+            NANO_OS_FLAG_SET_Clear(&uart_flag_set, UART_RX_READY_FLAG_MASK);
         }
 
         /* Restore interrupt mask */
         DBGU->DBGU_IER = int_mask;
+
+        /* Wait for Rx ready if more data has to be received */
+        if (data_len != 0)
+        {
+            uint32_t wake_up_flags = 0u;
+            do
+            {
+                (void)NANO_OS_FLAG_SET_Wait(&uart_flag_set, UART_RX_READY_FLAG_MASK, true, false, &wake_up_flags, 0xFFFFFFFFu);
+            }
+            while (wake_up_flags == 0u);
+        }
     }
 }
-
 
 /** \brief UART interrupt handler */
 static void DBGU_UART_Handler(void)
 {
+    bool signal;
     uint8_t data;
 
     /* Read received data */
+    signal = DBGU_UART_RingBufferIsEmpty(&rx_ring_buffer);
     while( (DBGU->DBGU_SR & ( 1 << 0))!=0 ) /* RXRDY bit */
     {
         /* Read the received byte */
         data = DBGU->DBGU_RHR;
 
         /* Put the data into the received buffer */
-        if (rx_buffer_len != sizeof(rx_buffer))
-        {
-            (*rx_buffer_write_ptr) = data;
-
-            rx_buffer_len++;
-            rx_buffer_write_ptr++;
-            if (rx_buffer_write_ptr == &rx_buffer[sizeof(rx_buffer)])
-            {
-                rx_buffer_write_ptr = &rx_buffer[0u];
-            }
-        }
-
-        /* Signal received data */
-        NANO_OS_SEMAPHORE_PostFromIsr(&rx_sem);
+        (void)DBGU_UART_RingBufferWriteByte(&rx_ring_buffer, data);
+    }
+    /* Signal received data */
+    if (signal && !DBGU_UART_RingBufferIsEmpty(&rx_ring_buffer))
+    {
+        (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_RX_READY_FLAG_MASK);
     }
 
     /* Transmit data */
     if( (DBGU->DBGU_SR & (1 << 1))!=0 ) /* TXRDY bit */
     {
-        uint32_t buffer_len = tx_buffer_len;
-        if( buffer_len!=0 )
-        {
-            /* Get next byte to transmit from the stream */
-            data = tx_buffer[tx_buffer_count];
+		if (!DBGU_UART_RingBufferIsEmpty(&tx_ring_buffer))
+		{
+		    /* Read byte */
+		    signal = DBGU_UART_RingBufferIsFull(&tx_ring_buffer);
+		    (void)DBGU_UART_RingBufferReadByte(&tx_ring_buffer, &data);
 
             /* Send byte */
             DBGU->DBGU_THR = data;
 
-            /* Check end of transmit */
-            tx_buffer_count++;
-            if( tx_buffer_count==buffer_len )
-            {
-                /* Disable TXRDY interrupt */
+			/* Check end of transmit */
+			if (DBGU_UART_RingBufferIsEmpty(&tx_ring_buffer))
+			{
+				/* Disable TXRDY interrupt */
                 DBGU->DBGU_IDR = (1 << 1);
+			}
 
-                /* Signal end of transmit */
-                (void)NANO_OS_SEMAPHORE_PostFromIsr(&tx_sem);
-                tx_buffer_len = 0;
-            }
-        }
-        else
-        {
-            /* Disable TXRDY interrupt */
+			/* Signal tx ready */
+			if (signal)
+			{
+			    (void)NANO_OS_FLAG_SET_SetFromIsr(&uart_flag_set, UART_TX_READY_FLAG_MASK);
+			}
+		}
+		else
+		{
+		    /* Disable TXRDY interrupt */
             DBGU->DBGU_IDR = (1 << 1);
-        }
+		}
     }
 }
 
+
+
+
+/** \brief Initialize a ring buffer */
+static void DBGU_UART_RingBufferInit(ring_buffer_t* const ring_buffer, uint8_t* const buffer, const size_t buffer_size)
+{
+    ring_buffer->buffer = buffer;
+    ring_buffer->end_of_buffer = (buffer + buffer_size);
+    ring_buffer->read_ptr = buffer;
+    ring_buffer->write_ptr = buffer;
+}
+
+/** \brief Read a byte from a ring buffer */
+static bool DBGU_UART_RingBufferReadByte(ring_buffer_t* const ring_buffer, uint8_t* const byte)
+{
+    bool ret = false;
+
+    if (ring_buffer->read_ptr != ring_buffer->write_ptr)
+    {
+        (*byte) = (*ring_buffer->read_ptr);
+        ring_buffer->read_ptr++;
+        if (ring_buffer->read_ptr == ring_buffer->end_of_buffer)
+        {
+            ring_buffer->read_ptr = ring_buffer->buffer;
+        }
+        ret = true;
+    }
+
+    return ret;
+}
+
+/** \brief Write a byte to a ring buffer */
+static bool DBGU_UART_RingBufferWriteByte(ring_buffer_t* const ring_buffer, const uint8_t byte)
+{
+    bool ret = false;
+
+    uint8_t* write_ptr = ring_buffer->write_ptr;
+    write_ptr++;
+    if (write_ptr == ring_buffer->end_of_buffer)
+    {
+        write_ptr = ring_buffer->buffer;
+    }
+    if (write_ptr != ring_buffer->read_ptr)
+    {
+        (*ring_buffer->write_ptr) = byte;
+        ring_buffer->write_ptr = write_ptr;
+        ret = true;
+    }
+
+    return ret;
+}
+
+/** \brief Indicate if a ring buffer is empty */
+static bool DBGU_UART_RingBufferIsEmpty(const ring_buffer_t* const ring_buffer)
+{
+    return (ring_buffer->read_ptr == ring_buffer->write_ptr);
+}
+
+/** \brief Indicate if a ring buffer is full */
+static bool DBGU_UART_RingBufferIsFull(const ring_buffer_t* const ring_buffer)
+{
+    uint8_t* const write_ptr = ring_buffer->write_ptr + 1u;
+    return ((write_ptr == ring_buffer->read_ptr) ||
+            ((write_ptr == ring_buffer->end_of_buffer) && (ring_buffer->read_ptr == ring_buffer->buffer)));
+}

@@ -38,7 +38,7 @@ nano_os_error_t NANO_OS_USER_ConsoleHwInit(void)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Initialize UART */
-    //DBG_UART_Init();
+    DBG_UART_Init();
 
     return ret;
 }
@@ -56,9 +56,7 @@ nano_os_error_t NANO_OS_USER_ConsoleReadChar(char* const c)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Wait for a char on the UART */
-    //DBG_UART_Receive(NANO_OS_CAST(uint8_t*, c), 1u);
-    (*c) = 'a';
-    NANO_OS_TASK_Sleep(10u);
+    DBG_UART_Receive(NANO_OS_CAST(uint8_t*, c), 1u);
 
     return ret;
 }
@@ -69,7 +67,7 @@ nano_os_error_t NANO_OS_USER_ConsoleWriteString(const char* const string)
     nano_os_error_t ret = NOS_ERR_SUCCESS;
 
     /* Send the string on the UART */
-    //DBG_UART_Send(NANO_OS_CAST(const uint8_t*, string), STRNLEN(string, 255u));
+    DBG_UART_Send(NANO_OS_CAST(const uint8_t*, string), STRNLEN(string, 255u));
 
     return ret;
 }

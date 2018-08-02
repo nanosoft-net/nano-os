@@ -119,8 +119,10 @@ void NANO_OS_INTERRUPT_Enter(void)
 /** \brief Manage the exit of an interrupt handler */
 void NANO_OS_INTERRUPT_Exit(void)
 {
+    nano_os_int_status_reg_t int_status_reg;
+
     /* Disable interrupts */
-    NANO_OS_PORT_DISABLE_INTERRUPTS();
+    NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
 
     /* Decrement the nesting count */
     g_nano_os.int_nesting_count--;
@@ -132,8 +134,8 @@ void NANO_OS_INTERRUPT_Exit(void)
         NANO_OS_SCHEDULER_Schedule(true);
     }
 
-    /* Enable interrupts */
-    NANO_OS_PORT_ENABLE_INTERRUPTS();
+    /* Restore interrupts */
+    NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
 }
 
 
