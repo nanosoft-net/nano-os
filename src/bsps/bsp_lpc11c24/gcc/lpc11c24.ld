@@ -8,7 +8,7 @@ MEMORY
 {
 
   rom       (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00008000
-  ram       (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00002000
+  ram       (rwx) : ORIGIN = 0x100000BC, LENGTH = 0x00001F44
 }
 
 SECTIONS
@@ -16,7 +16,7 @@ SECTIONS
   /* Code */
   .text :
   {
-      /* Explicit placement needed because long jmp is not supported on Cortex-M0+ arch
+      /* Explicit placement needed because long jmp is not supported on Cortex-M0 arch
        so interrupt handlers must be close to interrupt vector table */
     *(.startup)
     *(.nano_os_port_asm)
