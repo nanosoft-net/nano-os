@@ -38,7 +38,7 @@ TARGET_DEPENDENCIES=
 TARGET_INC_DIRS=
 
 # Target specific lib directories
-TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard -L$(TOOLCHAIN_PATH)/lib/gcc/arm-none-eabi/7.2.1/thumb/v7e-m/fpv4-sp/hard
+TARGET_LIB_DIRS=-L$(TOOLCHAIN_PATH)/arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard -L$(TOOLCHAIN_PATH)/lib/gcc/arm-none-eabi/7.3.1/thumb/v7e-m/fpv4-sp/hard
 
 # Target specific libraries
 TARGET_LIBS=-lgcc -lc -lnosys
@@ -47,7 +47,9 @@ TARGET_LIBS=-lgcc -lc -lnosys
 TARGET_PROJECT_DEFINES=$(foreach PROJECT_DEFINE, $(PROJECT_DEFINES), -D$(PROJECT_DEFINE))
 
 # Nano OS configuration file directory
-NANO_OS_CONFIG_FILE_DIR=$(ROOT_DIR)/src/$(TARGET_BSP)/nano_os_config
+ifeq ($(origin NANO_OS_CONFIG_FILE_DIR), undefined)
+    NANO_OS_CONFIG_FILE_DIR=$(ROOT_DIR)/src/$(TARGET_BSP)/nano_os_config
+endif
 
 
 # Optimisation level
