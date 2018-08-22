@@ -54,6 +54,8 @@ static nano_os_semaphore_t synchro_sem;
 static void* MAIN_Task(void* param)
 {
     /* Get parameter */
+    uint32_t temp_period = 100;
+    uint32_t count = 20;
     const uint32_t period = NANO_OS_CAST(uint32_t, param);
 
     /* Create synchro semaphore */
@@ -66,7 +68,15 @@ static void* MAIN_Task(void* param)
         NANO_OS_SEMAPHORE_Post(&synchro_sem);
 
         /* Wait for the next period */
+        if (count == 0)
+        {
         NANO_OS_TASK_Sleep(NANO_OS_MS_TO_TICKS(period));
+        }
+        else
+        {
+            NANO_OS_TASK_Sleep(NANO_OS_MS_TO_TICKS(temp_period));
+            count--;
+        }
     }
 
     return NULL;

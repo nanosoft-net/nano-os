@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "ATSAME70",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/apps",
+                "${workspaceFolder}/src/apps/demo_blink",
+                "${workspaceFolder}/src/bsps",
+                "${workspaceFolder}/src/bsps/bsp_atsame70",
+                "${workspaceFolder}/src/bsps/bsp_atsame70/component",
+                "${workspaceFolder}/src/bsps/bsp_atsame70/instance",
+                "${workspaceFolder}/src/bsps/bsp_atsame70/nano_os_config",
+                "${workspaceFolder}/src/bsps/bsp_atsame70/gcc",
+                "${workspaceFolder}/src/libs",
+                "${workspaceFolder}/src/libs/nano-os",
+                "${workspaceFolder}/src/libs/nano-os/api",
+                "${workspaceFolder}/src/libs/nano-os/config",
+                "${workspaceFolder}/src/libs/nano-os/core",
+                "${workspaceFolder}/src/libs/nano-os/modules",
+                "${workspaceFolder}/src/libs/nano-os/port",
+                "${workspaceFolder}/src/libs/nano-os/port/cortex-m7",
+                "${workspaceFolder}/src/libs/nano-os/port/cortex-m7/gcc",
+                "${workspaceFolder}/src/libs/nano-os/sync_objects",
+                "${workspaceFolder}/src/libs/nano-os/tools",
+
+                "C:\\gcc_arm_cortex_m_7.3\\arm-none-eabi\\include"
+            ],
+            "defines": [
+            ],
+            "compilerPath": "C:\\gcc_arm_cortex_m_7.3\\bin\\arm-none-eabi-gcc.exe",
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}

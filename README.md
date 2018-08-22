@@ -160,6 +160,7 @@ The demo applications have been tested on the following boards:
 * ST STM32F407 Evalboard (Cortex-M4 with FPU and MPU)
 * ST NUCLEO STM32F767 (Cortex-M7 with FPU and MPU)
 * NXP LPCXpresso43S37 - OM13073 board (Dual CPU : Cortex-M4 with FPU and MPU, Cortex-M0)
+* Atmel SMART SAM E70 Xplained (Cortex-M7 with FPU and MPU)
 
 using the following compilers:
 

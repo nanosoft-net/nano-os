@@ -1,0 +1,14 @@
+{
+    "cortex-debug.JLinkGDBServerPath": "C:\\Program Files (x86)\\SEGGER\\JLink_V632c\\JLinkGDBServerCL.exe",
+    "cortex-debug.armToolchainPath": "C:\\gcc_arm_cortex_m_7.3\\bin",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true
+    },
+    "files.associations": {
+        "same70q21.h": "c"
+    }
+}

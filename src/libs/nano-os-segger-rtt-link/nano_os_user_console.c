@@ -24,9 +24,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SEGGER_RTT.h"
 
-#include "nano_os_tools.h"
-#include "nano_os_user.h"
-#include "nano_os_port.h"
+#include "nano_os_api.h"
 
 
 #if (NANO_OS_SEGGER_RTT_LINK_MULTIPLEX_ENABLED == 1u)
