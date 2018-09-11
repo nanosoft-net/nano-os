@@ -82,12 +82,12 @@ nano_os_error_t NANO_OS_MAILBOX_Wait(nano_os_mailbox_t* const mailbox, void* con
                                      const uint32_t tick_count);
 
 /** \brief Post a mail in a mailbox */
-nano_os_error_t NANO_OS_MAILBOX_Post(nano_os_mailbox_t* const mailbox, void* const mail_buffer);
+nano_os_error_t NANO_OS_MAILBOX_Post(nano_os_mailbox_t* const mailbox, const void* const mail_buffer);
 
 #if (NANO_OS_MAILBOX_POSTFROMISR_ENABLED == 1u)
 
 /** \brief Post a mail in a mailbox from an interrupt handler */
-nano_os_error_t NANO_OS_MAILBOX_PostFromIsr(nano_os_mailbox_t* const mailbox, void* const mail_buffer);
+nano_os_error_t NANO_OS_MAILBOX_PostFromIsr(nano_os_mailbox_t* const mailbox, const void* const mail_buffer);
 
 #endif /* (NANO_OS_MAILBOX_POSTFROMISR_ENABLED == 1u) */
 
