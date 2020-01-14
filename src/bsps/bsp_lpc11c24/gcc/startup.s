@@ -93,25 +93,25 @@ _vectors:
     .long   WAKEUP_Handler            /* 27: PIO0_11 Wakeup Interrupt */
     .long   WAKEUP_Handler            /* 28: PIO1_0 Wakeup Interrupt */
 
-    .long   CAN_Handler         /* 29: CAN Interrupt */
+    .long   CAN_Handler         	/* 29: CAN Interrupt */
     .long   SSP1_Handler            /* 30: SSP1 Interrupt */
     .long   I2C_Handler             /* 31: I2C Interrupt */
-    .long   TIMER16_0_Handler              /* 32: TIMER16_0 Interrupt */
-    .long   TIMER16_1_Handler              /* 33: TIMER16_1 Interrupt */
-    .long   TIMER32_0_Handler          /* 34: TIMER32_0 ODD Interrupt */
-    .long   TIMER32_1_Handler            /* 35: TIMER32_1 Interrupt */
-    .long   SSP0_Handler         /* 36: SSP0 RX Interrupt */
-    .long   UART_Handler         /* 37: UART Interrupt */
-    .long   0x00000000                /* Reserved */
-    .long   0x00000000                /* Reserved */
-    .long   ADC_Handler               /* 40: ADC Interrupt */
-    .long   WDT_Handler               /* 41: Watchgdog Interrupt */
-    .long   BOD_Handler              /* 42:  BrownOutDetect Interrupt */
-    .long   0x00000000                /* Reserved */
-    .long   PIOINT3_Handler               /* 43: PIO INT3 Interrupt */
-    .long   PIOINT2_Handler               /* 44: PIO INT2 Interrupt */
-    .long   PIOINT1_Handler               /* 45: PIO INT1 Interrupt */
-    .long   PIOINT0_Handler               /* 46: PIO INT0 Interrupt */
+    .long   TIMER16_0_Handler      	/* 32: TIMER16_0 Interrupt */
+    .long   TIMER16_1_Handler     	/* 33: TIMER16_1 Interrupt */
+    .long   TIMER32_0_Handler      	/* 34: TIMER32_0 ODD Interrupt */
+    .long   TIMER32_1_Handler  		/* 35: TIMER32_1 Interrupt */
+    .long   SSP0_Handler         	/* 36: SSP0 RX Interrupt */
+    .long   UART_Handler         	/* 37: UART Interrupt */
+    .long   0x00000000          	/* Reserved */
+    .long   0x00000000           	/* Reserved */
+    .long   ADC_Handler       		/* 40: ADC Interrupt */
+    .long   WDT_Handler           	/* 41: Watchgdog Interrupt */
+    .long   BOD_Handler         	/* 42:  BrownOutDetect Interrupt */
+    .long   0x00000000          	/* Reserved */
+    .long   PIOINT3_Handler       	/* 43: PIO INT3 Interrupt */
+    .long   PIOINT2_Handler      	/* 44: PIO INT2 Interrupt */
+    .long   PIOINT1_Handler        	/* 45: PIO INT1 Interrupt */
+    .long   PIOINT0_Handler        	/* 46: PIO INT0 Interrupt */
 
 
 .thumb_func
