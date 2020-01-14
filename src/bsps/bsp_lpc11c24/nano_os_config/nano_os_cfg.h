@@ -63,7 +63,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_USE_STD_ATOI            0u
 
 /** \brief Indicate if itoa function from <stdlib.h> must be used */
-#define NANO_OS_USE_STD_ITOA            0u
+#define NANO_OS_USE_STD_ITOA            1u
 
 
 /*********************************************************/
@@ -144,7 +144,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*************************** Trace options *************************/
 
 /** \brief Enable the trace module */
-#define NANO_OS_TRACE_ENABLED                   0u
+#define NANO_OS_TRACE_ENABLED                   1u
 
 
 /*************************** Synchronization objects features *************************/
@@ -343,14 +343,14 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_CONSOLE_TASK_PRIORITY           1u
 
 /** \brief Size of the console task stack in number of elements */
-#define NANO_OS_CONSOLE_TASK_STACK_SIZE         (NANO_OS_PORT_MIN_STACK_SIZE + 128u)
+#define NANO_OS_CONSOLE_TASK_STACK_SIZE         (NANO_OS_PORT_MIN_STACK_SIZE + 64u)
 
 /** \brief Size of the console command buffer in number of characters
            (must be big enough to store a whole command line) */
-#define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         64u
+#define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         32u
 
 /** \brief Number of commands stored into history (0 = history disabled) */
-#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 5u
+#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 0u
 
 
 
@@ -358,13 +358,13 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the debug module */
-#define NANO_OS_DEBUG_ENABLED                   0u
+#define NANO_OS_DEBUG_ENABLED                   1u
 
 /** \brief Priority level of the debug task */
 #define NANO_OS_DEBUG_TASK_PRIORITY             1u
 
 /** \brief Size of the debug task stack in number of elements */
-#define NANO_OS_DEBUG_TASK_STACK_SIZE           (NANO_OS_PORT_MIN_STACK_SIZE + 128u)
+#define NANO_OS_DEBUG_TASK_STACK_SIZE           (NANO_OS_PORT_MIN_STACK_SIZE + 64u)
 
 
 /** \brief Enable the task requests in the debug module */

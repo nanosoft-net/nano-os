@@ -53,8 +53,8 @@ void pll_init()
     /* Wait for PLL0 lock */
     while ((LPC_SC->PLL0STAT & (1u << 10u)) == 0u);
     
-    /* CPU clock is PLL0/2 => 120MHz */
-    LPC_SC->CCLKSEL = (2u << 0u) | (1u << 8u);
+    /* CPU clock is PLL0/1 => 120MHz */
+    LPC_SC->CCLKSEL = (1u << 0u) | (1u << 8u);
 
     /* Peripheral clock = CPU clock / 2 = 60MHz*/
     LPC_SC->PCLKSEL = 0x02;

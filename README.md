@@ -163,7 +163,7 @@ The demo applications have been tested on the following boards:
 
 using the following compilers:
 
-* GCC 7.2 for ARM Cortex-M compiler (GNU ARM Embedded Toolchain - https://launchpad.net/gcc-arm-embedded)
+* GCC 7.3 for ARM Cortex-M compiler (GNU ARM Embedded Toolchain - https://launchpad.net/gcc-arm-embedded)
 * IAR 6.4 for ARM compiler (IAR Systems - https://www.iar.com/iar-embedded-workbench/)
 * Keil MDK 5.3 for ARM compiler (ARM Keil - http://www2.keil.com/mdk5/)
 * MinGW 7.1 for Windows (MinGW - http://www.mingw.org/)

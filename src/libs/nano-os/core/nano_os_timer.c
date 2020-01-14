@@ -375,7 +375,7 @@ static void* NANO_OS_TIMER_Task(void* const param)
                 }
 
                 /* Next timer */
-                current = current->next;
+                current = g_nano_os.started_timers;
             }
 
             /* Check that timer handling did not take more than 1 tick */
