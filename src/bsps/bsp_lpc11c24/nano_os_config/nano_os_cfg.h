@@ -347,10 +347,10 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 /** \brief Size of the console command buffer in number of characters
            (must be big enough to store a whole command line) */
-#define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         32u
+#define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         64u
 
 /** \brief Number of commands stored into history (0 = history disabled) */
-#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 0u
+#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 5u
 
 
 
@@ -358,7 +358,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable the debug module */
-#define NANO_OS_DEBUG_ENABLED                   1u
+#define NANO_OS_DEBUG_ENABLED                   0u
 
 /** \brief Priority level of the debug task */
 #define NANO_OS_DEBUG_TASK_PRIORITY             1u

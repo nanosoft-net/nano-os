@@ -19,7 +19,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /** \brief Enable Nano OS debug on UART */
-#define BSP_LPC11C24_UART_DEBUG_ENABLED   1u
+#define BSP_LPC11C24_UART_DEBUG_ENABLED   0u
 
 
 /* Check if module is enabled */

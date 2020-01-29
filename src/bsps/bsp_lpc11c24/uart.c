@@ -110,8 +110,8 @@ void UART_Init(void)
     LPC_UART->LCR = 0x03u;
 
     /* Enable Rx interrupt */
-//    LPC_UART->IER = (1u << 0u) ;
-//    NVIC_EnableIRQ(UART0_IRQn);
+    LPC_UART->IER = (1u << 0u) ;
+    NVIC_EnableIRQ(UART_IRQn);
 
     /* Create Rx and Tx flag set */
     UART_RingBufferInit(&rx_ring_buffer, rx_buffer, sizeof(rx_buffer));
