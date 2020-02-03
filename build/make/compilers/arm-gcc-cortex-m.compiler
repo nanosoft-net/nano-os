@@ -25,7 +25,11 @@
 COMPILER_NAME=gcc
 
 # Toolchain path
-TOOLCHAIN_PATH = /opt/gcc_arm_cortex_m7.3
+ifeq ($(OS),Windows_NT)
+    TOOLCHAIN_PATH = C:/gcc_arm_cortex_m_7.3
+else
+    TOOLCHAIN_PATH = /opt/gcc_arm_cortex_m7.3
+endif
 TOOLCHAIN_PREFIX = arm-none-eabi-
 AS = $(TOOLCHAIN_PATH)/bin/$(TOOLCHAIN_PREFIX)gcc
 CC = $(TOOLCHAIN_PATH)/bin/$(TOOLCHAIN_PREFIX)gcc
