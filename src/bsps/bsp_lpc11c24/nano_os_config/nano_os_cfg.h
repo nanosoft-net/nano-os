@@ -144,7 +144,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 /*************************** Trace options *************************/
 
 /** \brief Enable the trace module */
-#define NANO_OS_TRACE_ENABLED                   1u
+#define NANO_OS_TRACE_ENABLED                   0u
 
 
 /*************************** Synchronization objects features *************************/

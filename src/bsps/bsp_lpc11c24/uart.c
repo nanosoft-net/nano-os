@@ -89,12 +89,13 @@ void UART_Init(void)
 {
     /* Enable IOs for Rx IO1_6 and Tx IO1_7 lines */
     LPC_IOCON->PIO1_6 |= (0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u);
-    LPC_IOCON->PIO1_6 &= ~((0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u));
+    //LPC_IOCON->PIO1_6 &= ~((0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u));
     LPC_IOCON->PIO1_7 |= (0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u);
-    LPC_IOCON->PIO1_7 &= ~((0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u));
+    //LPC_IOCON->PIO1_7 &= ~((0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u));
 
     /* Turn on power and clock for the UART 12Mhz */
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 12);
+    LPC_SYSCON->UARTCLKDIV = 1;
 
     /* Disable receive and transmit */
     LPC_UART->FCR = 0x00u;
