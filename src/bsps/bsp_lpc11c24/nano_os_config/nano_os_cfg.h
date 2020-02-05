@@ -350,7 +350,7 @@ along with Nano-OS.  If not, see <http://www.gnu.org/licenses/>.
 #define NANO_OS_CONSOLE_CMD_BUFFER_SIZE         64u
 
 /** \brief Number of commands stored into history (0 = history disabled) */
-#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 5u
+#define NANO_OS_CONSOLE_HISTORY_CMD_ENTRY_COUNT 0u
 
 
 

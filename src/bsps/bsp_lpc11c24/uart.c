@@ -93,9 +93,9 @@ void UART_Init(void)
     LPC_IOCON->PIO1_7 |= (0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u);
     //LPC_IOCON->PIO1_7 &= ~((0b01 << 0u) | (0 << 3u) | (0 << 5u) | (0 << 10u));
 
-    /* Turn on power and clock for the UART 12Mhz */
+    /* Turn on power and clock for the UART PCLK @ 12Mhz */
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 12);
-    LPC_SYSCON->UARTCLKDIV = 1;
+    LPC_SYSCON->UARTCLKDIV = 4;  /* 48 Mhz / 4 => 12 Mhz */
 
     /* Disable receive and transmit */
     LPC_UART->FCR = 0x00u;
