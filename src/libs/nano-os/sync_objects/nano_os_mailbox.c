@@ -337,6 +337,7 @@ static bool NANO_OS_MAILBOX_WaitObjectWakeupCond(nano_os_wait_object_t* const wa
     {
         /* Save the buffer of the woke up task to store the current mail */
         g_nano_os.current_task->mailbox_buffer = task->mailbox_buffer;
+        ret = true;
     }
 
     return ret;

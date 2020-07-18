@@ -36,7 +36,7 @@ extern "C"
 #define WAIT_OBJECT_ISR_UNLOCK(wait_object)   (wait_object).is_locked = false
 
 /** \brief Check if a wait object is locked against interrupt handler simultaneous access */
-#define WAIT_OBJECT_ISR_ISLOCKED(wait_object)   ((wait_object).is_locked == true)
+#define WAIT_OBJECT_ISR_ISLOCKED(wait_object)   (g_nano_os.lock_count != 0)
 
 
 /** \brief Wait object type */
