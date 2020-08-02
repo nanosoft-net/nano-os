@@ -418,15 +418,15 @@ static void NANO_OS_TIMER_Queue(nano_os_timer_t* const timer, const uint32_t fir
     }
 
     /* Add timer to the timer list */
+    NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
     if (g_nano_os.started_timers == NULL)
     {
-        NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
         timer->next = g_nano_os.started_timers;
         g_nano_os.started_timers = timer;
-        NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
     }
     else
     {
+        
         bool is_after;
         nano_os_timer_t* previous = NULL;
         nano_os_timer_t* current = g_nano_os.started_timers;
@@ -441,7 +441,6 @@ static void NANO_OS_TIMER_Queue(nano_os_timer_t* const timer, const uint32_t fir
         }
         while ((current != NULL) && (!is_after));
 
-        NANO_OS_PORT_ENTER_CRITICAL(int_status_reg);
         if (previous != NULL)
         {
             previous->next = timer;
@@ -452,8 +451,8 @@ static void NANO_OS_TIMER_Queue(nano_os_timer_t* const timer, const uint32_t fir
             timer->next = g_nano_os.started_timers;
             g_nano_os.started_timers = timer;
         }
-        NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
     }
+    NANO_OS_PORT_LEAVE_CRITICAL(int_status_reg);
 }
 
 
